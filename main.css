@@ -1,0 +1,29 @@
+* {
+    color: #36393B;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    background-color: #f8f8ff;
+}
+
+.battlefield {
+    border: 1px solid #36393B;
+    margin-top: 100px;
+    margin-left: calc((100% - 576px) / 2);
+
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#acede7+0,a3d8ec+70,a3d8ec+100 */
+    background: #acede7; /* Old browsers */
+    background: -moz-linear-gradient(-45deg,  #acede7 0%, #a3d8ec 70%, #a3d8ec 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg,  #acede7 0%,#a3d8ec 70%,#a3d8ec 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(135deg,  #acede7 0%,#a3d8ec 70%,#a3d8ec 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#acede7', endColorstr='#a3d8ec',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+.battlefield::after {
+    content: "";
+    display: table;
+    clear: both;
+}
