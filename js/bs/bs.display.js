@@ -38,7 +38,14 @@
             var currentHorizontalPosition = (index * bs.constants.LINE.SIZE.HEIGHT);
             bs.canvas.fillRect({ x: 0, y: currentHorizontalPosition, w: squareWidth, h: squareHeight });
 
-            if (index <= 0) continue;
+            if (index <= 0) {
+                var img = new Image();
+                img.onload = function() {
+                    context.drawImage(img, 5, 5, squareWidth-10, squareHeight-10);
+                };
+                img.src = 'img/battleship.png';
+                continue;
+            }
 
             var verticalText = verticalIndexes[index - 1];
             bs.canvas.drawText(
