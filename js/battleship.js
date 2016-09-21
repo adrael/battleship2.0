@@ -14,6 +14,7 @@
 
         bs.display.drawGrid();
         bs.display.drawIndexes();
+        bs.display.drawRandomShips();
 
     });
 

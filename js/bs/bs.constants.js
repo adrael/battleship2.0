@@ -11,6 +11,7 @@
     /**********************************************************************************/
 
     bs.constants.COLORS = {};
+    bs.constants.COLORS.RED = '#FF5E5B';
     bs.constants.COLORS.WHITE = '#f8f8ff';
     bs.constants.COLORS.BLACK = '#36393B';
 
