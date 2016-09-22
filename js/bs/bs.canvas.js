@@ -11,6 +11,7 @@
     /**********************************************************************************/
 
     bs.canvas.fillRect = fillRect;
+    bs.canvas.drawRect = drawRect;
     bs.canvas.drawLine = drawLine;
     bs.canvas.drawText = drawText;
 
@@ -38,11 +39,7 @@
 
         } catch (exception) {
 
-            if (exception instanceof bs.exceptions.BSFactoryException) {
-                return bs.helpers.printBSException(exception);
-            }
-
-            console.error(exception);
+            bs.helpers.handleException(exception);
 
         }
 
@@ -67,11 +64,7 @@
 
         } catch (exception) {
 
-            if (exception instanceof bs.exceptions.BSFactoryException) {
-                return bs.helpers.printBSException(exception);
-            }
-
-            console.error(exception);
+            bs.helpers.handleException(exception);
 
         }
 
@@ -94,11 +87,30 @@
 
         } catch (exception) {
 
-            if (exception instanceof bs.exceptions.BSFactoryException) {
-                return bs.helpers.printBSException(exception);
-            }
+            bs.helpers.handleException(exception);
 
-            console.error(exception);
+        }
+
+    }
+
+    function drawRect(dimensions, width, color) {
+
+        var requiredProperties = ['x', 'y', 'w', 'h'];
+
+        try {
+
+            bs.helpers.validObject(dimensions, requiredProperties);
+
+            var context = bs.constants.CANVAS.CONTEXT;
+            context.beginPath();
+            context.lineWidth = width || 1;
+            context.strokeStyle = color || bs.constants.COLORS.BLACK;
+            context.rect(dimensions.x, dimensions.y, dimensions.w, dimensions.h);
+            context.stroke();
+
+        } catch (exception) {
+
+            bs.helpers.handleException(exception);
 
         }
 

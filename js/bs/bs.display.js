@@ -41,6 +41,7 @@
 
             console.log(orientation, configuration);
             bs.canvas.fillRect(configuration, bs.constants.COLORS.RED);
+            bs.canvas.drawRect(configuration);
         });
 
     }

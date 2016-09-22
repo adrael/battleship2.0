@@ -14,6 +14,7 @@
     bs.helpers.extend = extend;
     bs.helpers.forEach = forEach;
     bs.helpers.validObject = validObject;
+    bs.helpers.handleException = handleException;
     bs.helpers.printBSException = printBSException;
 
     /**********************************************************************************/
@@ -21,6 +22,16 @@
     /*                               PUBLIC FUNCTIONS                                 */
     /*                                                                                */
     /**********************************************************************************/
+
+    function handleException(exception) {
+
+        if (exception instanceof bs.exceptions.BSFactoryException) {
+            return bs.helpers.printBSException(exception);
+        }
+
+        console.error(exception);
+
+    }
 
     /**
      * @name extractInfoFromStack
