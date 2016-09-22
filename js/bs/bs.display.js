@@ -23,26 +23,14 @@
     function drawRandomShips() {
 
         var ships = [
-            { name: 'torpedo', length: 2 },
-            { name: 'submarine', length: 3 },
-            { name: 'destroyer', length: 3 },
-            { name: 'cruiser', length: 4 },
-            { name: 'aircraftCarrier', length: 5 }
+            { name: 'TORPEDO', length: 2 },
+            { name: 'SUBMARINE', length: 3 },
+            { name: 'DESTROYER', length: 3 },
+            { name: 'CRUISER', length: 4 },
+            { name: 'AIRCRAFT CARRIER', length: 5 }
         ];
 
-        bs.helpers.forEach(ships, function (boat) {
-            var orientation = ((Math.random() * 100) > 50 ? 'HORIZONTAL' : 'VERTICAL'),
-                configuration = {
-                    x: bs.constants.LINE.SIZE.WIDTH + (Math.abs(Math.floor(Math.random() * 10) - boat.length) * bs.constants.LINE.SIZE.WIDTH),
-                    y: bs.constants.LINE.SIZE.HEIGHT + (Math.abs(Math.floor(Math.random() * 10) - boat.length) * bs.constants.LINE.SIZE.HEIGHT),
-                    w: (orientation === 'HORIZONTAL' ? boat.length : 1) * bs.constants.LINE.SIZE.WIDTH,
-                    h: (orientation === 'VERTICAL' ? boat.length : 1) * bs.constants.LINE.SIZE.HEIGHT
-                };
-
-            console.log(orientation, configuration);
-            bs.canvas.fillRect(configuration, bs.constants.COLORS.RED);
-            bs.canvas.drawRect(configuration);
-        });
+        bs.helpers.forEach(ships, _placeShip);
 
     }
 
@@ -115,6 +103,29 @@
             );
 
         }
+
+    }
+
+    /**********************************************************************************/
+    /*                                                                                */
+    /*                              PRIVATE FUNCTIONS                                 */
+    /*                                                                                */
+    /**********************************************************************************/
+
+    function _placeShip(ship) {
+
+        var orientation = ((Math.random() * 100) > 50 ? 'HORIZONTAL' : 'VERTICAL'),
+            shipPosition = {
+                x: bs.constants.LINE.SIZE.WIDTH + (Math.abs(Math.floor(Math.random() * 10) - ship.length) * bs.constants.LINE.SIZE.WIDTH),
+                y: bs.constants.LINE.SIZE.HEIGHT + (Math.abs(Math.floor(Math.random() * 10) - ship.length) * bs.constants.LINE.SIZE.HEIGHT),
+                w: (orientation === 'HORIZONTAL' ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
+                h: (orientation === 'VERTICAL' ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
+            };
+
+        // calcul des contraintes avant dessin ici sinon recursivité
+
+        bs.canvas.fillRect(shipPosition, bs.constants.COLORS.RED);
+        bs.canvas.drawRect(shipPosition);
 
     }
 
