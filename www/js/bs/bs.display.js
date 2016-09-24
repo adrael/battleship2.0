@@ -12,6 +12,7 @@
 
     bs.display.drawGrid = drawGrid;
     bs.display.drawIndexes = drawIndexes;
+    bs.display.setInterface = setInterface;
     bs.display.drawRandomShips = drawRandomShips;
 
     /**********************************************************************************/
@@ -20,14 +21,26 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    function setInterface() {
+
+        bs.constants.CANVAS.CANVAS.onclick = function (e) {
+            var clickedX = e.pageX - this.offsetLeft,
+                clickedY = e.pageY - this.offsetTop,
+                coordinates = _toRelativeCoordinates(clickedX, clickedY);
+
+            console.log(bs.map.getShipAt(coordinates.x, coordinates.y));
+        };
+
+    }
+
     function drawRandomShips() {
 
         var ships = [
-            { name: 'TORPEDO', length: 2 },
-            { name: 'SUBMARINE', length: 3 },
-            { name: 'DESTROYER', length: 3 },
-            { name: 'CRUISER', length: 4 },
-            { name: 'AIRCRAFT CARRIER', length: 5 }
+            { name: 'TORPEDO',          length: 2, x: 4, y: 2,  orientation: 'HORIZONTAL' },
+            { name: 'SUBMARINE',        length: 3, x: 3, y: 4,  orientation: 'VERTICAL' },
+            { name: 'DESTROYER',        length: 3, x: 6, y: 6,  orientation: 'HORIZONTAL' },
+            { name: 'CRUISER',          length: 4, x: 9, y: 1,  orientation: 'VERTICAL' },
+            { name: 'AIRCRAFT CARRIER', length: 5, x: 2, y: 9,  orientation: 'HORIZONTAL' }
         ];
 
         bs.helpers.forEach(ships, _placeShip);
@@ -36,8 +49,8 @@
 
     function drawIndexes() {
 
-        var verticalIndexes = 'A,B,C,D,E,F,G,H,I,J'.split(','),
-            horizontalIndexes = '1,2,3,4,5,6,7,8,9,10'.split(','),
+        var verticalIndexes = bs.constants.MAP.INDEXES.VERTICAL,
+            horizontalIndexes = bs.constants.MAP.INDEXES.HORIZONTAL,
             context = bs.constants.CANVAS.CONTEXT,
             squareHeight = bs.constants.LINE.SIZE.HEIGHT,
             squareWidth = bs.constants.LINE.SIZE.WIDTH;
@@ -112,20 +125,62 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    function _toRelativeCoordinates(absX, absY) {
+
+        return {
+            x: Math.floor(absX / bs.constants.LINE.SIZE.WIDTH),
+            y: Math.floor(absY / bs.constants.LINE.SIZE.HEIGHT)
+        };
+
+    }
+
     function _placeShip(ship) {
 
-        var orientation = ((Math.random() * 100) > 50 ? 'HORIZONTAL' : 'VERTICAL'),
-            shipPosition = {
-                x: bs.constants.LINE.SIZE.WIDTH + (Math.abs(Math.floor(Math.random() * 10) - ship.length) * bs.constants.LINE.SIZE.WIDTH),
-                y: bs.constants.LINE.SIZE.HEIGHT + (Math.abs(Math.floor(Math.random() * 10) - ship.length) * bs.constants.LINE.SIZE.HEIGHT),
-                w: (orientation === 'HORIZONTAL' ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
-                h: (orientation === 'VERTICAL' ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
-            };
+        //var orientation = ((Math.random() * 100) > 50 ? 'HORIZONTAL' : 'VERTICAL'),
+        //
+        //    shipRelativePosition = {
+        //        x: 1 + Math.abs(Math.floor(Math.random() * 10) - ship.length),
+        //        y: 1 + Math.abs(Math.floor(Math.random() * 10) - ship.length),
+        //        w: (orientation === 'HORIZONTAL' ? ship.length : 1),
+        //        h: (orientation === 'VERTICAL' ? ship.length : 1)
+        //    },
+        //
+        //    shipAbsolutePosition = {
+        //        x: shipRelativePosition.x * bs.constants.LINE.SIZE.WIDTH,
+        //        y: shipRelativePosition.y * bs.constants.LINE.SIZE.HEIGHT,
+        //        w: shipRelativePosition.w * bs.constants.LINE.SIZE.WIDTH,
+        //        h: shipRelativePosition.h * bs.constants.LINE.SIZE.HEIGHT
+        //    },
+        //
+        //    extendedShip = bs.helpers.merge({}, ship, shipRelativePosition, { orientation: orientation });
+        //
+        //if (!bs.map.isShipLocationValid(extendedShip)) {
+        //
+        //    console.error('Cannot place ship:', extendedShip);
+        //    return _placeShip(ship);
+        //}
+        //
+        //bs.map.addShip(extendedShip);
+        //
+        //bs.canvas.fillRect(shipAbsolutePosition, bs.constants.COLORS.RED);
+        //bs.canvas.drawRect(shipAbsolutePosition);
 
-        // calcul des contraintes avant dessin ici sinon recursivité
+        var shipAbsolutePosition = {
+            x: ship.x * bs.constants.LINE.SIZE.WIDTH,
+            y: ship.y * bs.constants.LINE.SIZE.HEIGHT,
+            w: (ship.orientation === 'HORIZONTAL' ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
+            h: (ship.orientation === 'VERTICAL'   ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
+        };
 
-        bs.canvas.fillRect(shipPosition, bs.constants.COLORS.RED);
-        bs.canvas.drawRect(shipPosition);
+        if (!bs.map.isShipLocationValid(ship)) {
+            console.error('Cannot place ship:', ship);
+            throw new bs.exceptions.BSInvalidCoordinatesException(ship.x, ship.y);
+        }
+
+        bs.map.addShip(ship);
+
+        bs.canvas.fillRect(shipAbsolutePosition, bs.constants.COLORS.RED);
+        bs.canvas.drawRect(shipAbsolutePosition);
 
     }
 

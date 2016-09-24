@@ -28,4 +28,10 @@
     bs.constants.LINE.SIZE.WIDTH =  (bs.constants.CANVAS.SIZE.WIDTH / bs.constants.LINE.COUNT);
     bs.constants.LINE.SIZE.HEIGHT =  (bs.constants.CANVAS.SIZE.HEIGHT / bs.constants.LINE.COUNT);
 
+    bs.constants.MAP = {};
+    bs.constants.MAP.GAP = 1;
+    bs.constants.MAP.INDEXES = {};
+    bs.constants.MAP.INDEXES.VERTICAL = 'A,B,C,D,E,F,G,H,I,J'.split(',');
+    bs.constants.MAP.INDEXES.HORIZONTAL = '1,2,3,4,5,6,7,8,9,10'.split(',');
+
 })();
