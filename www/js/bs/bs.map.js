@@ -104,6 +104,10 @@
 
         var gap = bs.constants.MAP.GAP;
 
+        if (!_withinMap(ship)) {
+            return false;
+        }
+
         for (var index = 0; index < ship.length; ++index) {
 
             var isHead = (index === 0),
@@ -156,6 +160,10 @@
 
         var gap = bs.constants.MAP.GAP;
 
+        if (!_withinMap(ship)) {
+            return false;
+        }
+
         for (var index = 0; index < ship.length; ++index) {
 
             var isHead = (index === 0),
@@ -200,6 +208,16 @@
 
         return true;
 
+    }
+
+    function _withinMap(ship) {
+        var gap = bs.constants.MAP.GAP,
+            max = bs.constants.LINE.COUNT - gap;
+        if (ship.orientation === 'HORIZONTAL') {
+            return (ship.x >= 0 && ship.x + ship.length - 1 < max && ship.y >= 0 && ship.y < max);
+        } else {
+            return (ship.x >= 0 && ship.x < max && ship.y >= 0 && ship.y + ship.length - 1 < max);
+        }
     }
 
     function _writeMap(x, y, value) {

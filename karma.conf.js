@@ -14,7 +14,9 @@ module.exports = function(config) {
 
     files: [
       'www/js/bs/bs.core.js',
-      'www/js/bs/bs.!(canvas|display|constants).js',
+      'www/js/bs/bs.constants.js',
+      'www/js/bs/bs.utils.js',
+      'www/js/bs/bs.!(canvas|display).js',
       'test/**/*Spec.js'
     ],
 
