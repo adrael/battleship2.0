@@ -13,6 +13,7 @@
     bs.exceptions.BSFactoryException = BSFactoryException;
     bs.exceptions.BSInvalidValueException = BSInvalidValueException;
     bs.exceptions.BSMissingPropertyException = BSMissingPropertyException;
+    bs.exceptions.BSInvalidCoordinatesException = BSInvalidCoordinatesException;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -88,5 +89,29 @@
 
     BSInvalidValueException.prototype = Object.create(BSFactoryException.prototype);
     BSInvalidValueException.prototype.constructor = BSInvalidValueException;
+
+    /**
+     * @name BSInvalidCoordinatesException
+     * @kind Exception
+     *
+     * @description
+     * Use this exception when invalid coordinates are spotted to be read or written on the map.
+     *
+     * @param {Number} x The x coordinate.
+     * @param {Number} y The y coordinate.
+     */
+    function BSInvalidCoordinatesException(x, y) {
+        this.name = 'BSInvalidCoordinatesException';
+        this.stack = (new Error()).stack;
+        this.toString = function () { return this.name + ': ' + this.message; };
+        this.message = 'Encountered invalid coordinates';
+
+        if (bs.utils.isNumber(x) && bs.utils.isNumber(y)) {
+            this.message = 'Encountered invalid coordinates: (' + x + ', ' + y + ')';
+        }
+    }
+
+    BSInvalidCoordinatesException.prototype = Object.create(BSFactoryException.prototype);
+    BSInvalidCoordinatesException.prototype.constructor = BSInvalidCoordinatesException;
 
 })();

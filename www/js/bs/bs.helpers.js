@@ -107,7 +107,7 @@
 
         }
 
-        console.error(exception || 'Unknown, unpredicted exception occured.');
+        console.error(exception || 'Unknown, unpredicted exception occurred.');
 
     }
 
