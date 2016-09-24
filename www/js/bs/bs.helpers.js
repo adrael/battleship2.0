@@ -10,6 +10,7 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    bs.helpers.noop = noop;
     bs.helpers.merge = merge;
     bs.helpers.extend = extend;
     bs.helpers.forEach = forEach;
@@ -23,6 +24,25 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    /**
+     * @name noop
+     * @kind function
+     *
+     * @description
+     * A function that performs no operations. This function can be useful when writing code in the
+     * functional style.
+     */
+    function noop() {}
+
+    /**
+     * @name handleException
+     * @kind function
+     *
+     * @description
+     * Properly handles the given exception to display useful information.
+     *
+     * @param {Object} exception The raised exception to be handled.
+     */
     function handleException(exception) {
 
         if (exception instanceof bs.exceptions.BSFactoryException) {
