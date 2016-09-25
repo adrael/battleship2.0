@@ -33,11 +33,22 @@
         "opn": "^3.0.3",
         "shelljs": "^0.3.0",
         "uglify-js": "2.4.14",
-        "wiredep": "^2.2.2"
+        "wiredep": "^2.2.2",
+        "jasmine-core": "^2.5.2",
+        "karma": "^1.3.0",
+        "karma-jasmine": "^1.0.2",
+        "karma-phantomjs-launcher": "^1.0.2",
+        "phantomjs": "^2.1.7"
     },
     "author": "Raphaël MARQUES <work.rmarques@gmail.com> (https://github.com/Adrael)",
     "contributors": [
         "Damien GABRIELLE <damiengabrielle@gmail.com> (https://github.com/eptwalabha)"
     ],
-    "license": "MIT"
+    "license": "MIT",
+    "engines": {
+        "node": ">=6.6.0"
+    },
+    "scripts": {
+        "test": "karma start karma.conf.js"
+    }
 }

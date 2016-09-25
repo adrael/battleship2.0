@@ -4,3 +4,4 @@ node_modules
 www/css/
 www/dist/
 www/fonts/
+*.swp

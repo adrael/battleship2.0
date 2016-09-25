@@ -18,6 +18,7 @@
     bs.map.addShip = addShip;
     bs.map.getShipAt = getShipAt;
     bs.map.isShipLocationValid = isShipLocationValid;
+    bs.map.resetMap = resetMap;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -84,12 +85,14 @@
     }
 
     function isShipLocationValid(ship) {
-        switch (ship.orientation) {
-            case 'HORIZONTAL':
-                return _computeHorizontalConstraints(ship);
-            case 'VERTICAL':
-                return _computeVerticalConstraints(ship);
-        }
+        return _locationIsWithinMap(ship) &&
+               !_overlappingOtherShips(ship);
+    }
+
+    function resetMap() {
+        _map = [];
+        _ships = [];
+        _setupMap();
     }
 
     /**********************************************************************************/
@@ -98,107 +101,44 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function _computeHorizontalConstraints(ship) {
+    function _overlappingOtherShips(ship) {
 
-        //console.log('>> _computeHorizontalConstraints for', ship.name, 'at (' + ship.x + ', ' + ship.y + ')');
+        //console.log('>> _notOverlappingOtherShips for', ship.name, 'at (' + ship.x + ', ' + ship.y + ')');
 
-        var gap = bs.constants.MAP.GAP;
+        var cursor = {},
+            isHorizontal = (ship.orientation === 'HORIZONTAL');
 
-        for (var index = 0; index < ship.length; ++index) {
+        cursor.x = ship.x;
+        cursor.y = ship.y;
 
-            var isHead = (index === 0),
-                isTail = (index === ship.length - 1);
+        try {
 
-            try {
+            for (var index = 0; index < ship.length; ++index) {
+                _validFreeCoordinates(cursor.x, cursor.y);
 
-                if (isHead) {
-
-                    //console.log(' >> HEAD');
-                    _validFreeCoordinates(ship.x,       ship.y - gap);
-                    _validFreeCoordinates(ship.x - gap, ship.y - gap);
-                    _validFreeCoordinates(ship.x - gap, ship.y);
-                    _validFreeCoordinates(ship.x - gap, ship.y + gap);
-                    _validFreeCoordinates(ship.x,       ship.y + gap);
-
-                } else if (isTail) {
-
-                    //console.log(' >> TAIL');
-                    _validFreeCoordinates(ship.x,               ship.y - gap + index);
-                    _validFreeCoordinates(ship.x + gap + index, ship.y - gap + index);
-                    _validFreeCoordinates(ship.x + gap + index, ship.y);
-                    _validFreeCoordinates(ship.x + gap + index, ship.y + gap + index);
-                    _validFreeCoordinates(ship.x,               ship.y + gap + index);
-
-                } else {
-
-                    //console.log(' >> MIDDLE');
-                    _validFreeCoordinates(ship.x + index, ship.y - gap);
-                    _validFreeCoordinates(ship.x + index, ship.y + gap);
-
-                }
-
-            } catch (exception) {
-
-                //bs.helpers.handleException(exception);
-                return false;
-
+                cursor.x += isHorizontal ? 1 : 0;
+                cursor.y += !isHorizontal ? 1 : 0;
             }
+
+        } catch (exception) {
+
+            //bs.helpers.handleException(exception);
+            return true;
 
         }
 
-        return true;
-
+        return false;
     }
 
-    function _computeVerticalConstraints(ship) {
+    function _locationIsWithinMap(ship) {
 
-        //console.log('>> _computeVerticalConstraints for', ship.name, 'at (' + ship.x + ', ' + ship.y + ')');
+        var gap = bs.constants.MAP.GAP,
+            max = bs.constants.LINE.COUNT - gap,
+            vLength = (ship.orientation === 'VERTICAL') ? ship.length : 1,
+            hLength = (ship.orientation === 'HORIZONTAL') ? ship.length : 1;
 
-        var gap = bs.constants.MAP.GAP;
-
-        for (var index = 0; index < ship.length; ++index) {
-
-            var isHead = (index === 0),
-                isTail = (index === ship.length - 1);
-
-            try {
-
-                if (isHead) {
-
-                    //console.log(' >> HEAD');
-                    _validFreeCoordinates(ship.x + gap, ship.y);
-                    _validFreeCoordinates(ship.x + gap, ship.y - gap);
-                    _validFreeCoordinates(ship.x,       ship.y - gap);
-                    _validFreeCoordinates(ship.x - gap, ship.y - gap);
-                    _validFreeCoordinates(ship.x - gap, ship.y);
-
-                } else if (isTail) {
-
-                    //console.log(' >> TAIL');
-                    _validFreeCoordinates(ship.x + gap + index, ship.y);
-                    _validFreeCoordinates(ship.x + gap + index, ship.y + gap + index);
-                    _validFreeCoordinates(ship.x,               ship.y + gap + index);
-                    _validFreeCoordinates(ship.x - gap + index, ship.y + gap + index);
-                    _validFreeCoordinates(ship.x - gap + index, ship.y);
-
-                } else {
-
-                    //console.log(' >> MIDDLE');
-                    _validFreeCoordinates(ship.x + gap, ship.y + index);
-                    _validFreeCoordinates(ship.x - gap, ship.y + index);
-
-                }
-
-            } catch (exception) {
-
-                //bs.helpers.handleException(exception);
-                return false;
-
-            }
-
-        }
-
-        return true;
+        return ship.x >= 0 && ship.x + hLength - 1 < max &&
+               ship.y >= 0 && ship.y + vLength - 1 < max;
 
     }
 
