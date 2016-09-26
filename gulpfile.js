@@ -256,21 +256,21 @@ function _copyimgs() {
  */
 function _useref() {
 
-    var userefAssets = useref.assets(),
-        cssFilter = filter('./www/css/*.min.css'),
-        jsFilter = filter('./www/dist/tmp/**/*.js');
+    var jsFilter = filter('./www/dist/tmp/**/*.js', { restore: true }),
+        cssFilter = filter('./www/css/*.min.css', { restore: true }),
+        indexHtmlFilter = filter(['**/*', '!**/index.html'], { restore: true });
 
-    return gulp.src('./www/*.html')
-        .pipe(userefAssets)         // Concatenate with gulp-useref
+    return gulp.src('www/*.html')
+        .pipe(useref())             // Concatenate with gulp-useref
         .pipe(jsFilter)
         .pipe(uglify())             // Minify any javascript sources
-        .pipe(jsFilter.restore())
+        .pipe(jsFilter.restore)
         .pipe(cssFilter)
         .pipe(csso())               // Minify any CSS sources
-        .pipe(cssFilter.restore())
-        .pipe(rev())                // Rename the concatenated files
-        .pipe(userefAssets.restore())
-        .pipe(useref())
+        .pipe(cssFilter.restore)
+        .pipe(indexHtmlFilter)
+        .pipe(rev())                // Rename the concatenated files (but not index.html)
+        .pipe(indexHtmlFilter.restore)
         .pipe(revReplace())         // Substitute in new filenames
         .pipe(gulp.dest('./www/dist'));
 
@@ -281,21 +281,11 @@ function _useref() {
  * @name _scratch
  * @function
  */
-function _scratch(done, toDelete) {
+function _scratch(error, toDelete) {
 
-    toDelete = toDelete || [
-            './www/css',
-            './www/dist',
-            './www/fonts'
-        ];
+    toDelete = toDelete || ['www/css', 'www/dist', 'www/fonts'];
 
-    var nextToDelete = toDelete.pop();
-
-    if (nextToDelete === undefined) return done && done() || done;
-
-    console.log('> Removing:', nextToDelete);
-
-    del(nextToDelete, function () { return _scratch(done, toDelete); });
+    return del(toDelete);
 
 }
 
@@ -306,7 +296,8 @@ function _scratch(done, toDelete) {
  */
 function _build() {
 
-    return _scratch(_zip, ['./www/dist/tmp']);
+    return _scratch(null, './www/dist/tmp/**')
+        .then(_zip);
 
 }
 
@@ -317,8 +308,10 @@ function _build() {
  */
 function _zip() {
 
+    var timestamp = new Date().toJSON().substring(0, 20).replace(/-|:/g, '').replace('T', '_');
+
     return gulp.src('./www/dist/**')
-        .pipe(zip('dist.zip'))
+        .pipe(zip('battleship_' + timestamp + 'zip'))
         .pipe(gulp.dest('./www/dist'));
 
 }
