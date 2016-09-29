@@ -17,10 +17,16 @@
 
     bs.constants.CANVAS = {};
     bs.constants.CANVAS.CANVAS = document.getElementById('battlefield-container');
-    bs.constants.CANVAS.CONTEXT = bs.constants.CANVAS.CANVAS.getContext('2d');
+    bs.constants.CANVAS.CONTEXT = null;
     bs.constants.CANVAS.SIZE = {};
-    bs.constants.CANVAS.SIZE.WIDTH = bs.constants.CANVAS.CANVAS.scrollWidth;
-    bs.constants.CANVAS.SIZE.HEIGHT = bs.constants.CANVAS.CANVAS.scrollHeight;
+    bs.constants.CANVAS.SIZE.WIDTH = 100;
+    bs.constants.CANVAS.SIZE.HEIGHT = 100;
+
+    if (bs.constants.CANVAS.CANVAS) {
+        bs.constants.CANVAS.CONTEXT = bs.constants.CANVAS.CANVAS.getContext('2d');
+        bs.constants.CANVAS.SIZE.WIDTH = bs.constants.CANVAS.CANVAS.scrollWidth;
+        bs.constants.CANVAS.SIZE.HEIGHT = bs.constants.CANVAS.CANVAS.scrollHeight;
+    }
 
     bs.constants.LINE = {};
     bs.constants.LINE.COUNT =  11;
