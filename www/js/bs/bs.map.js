@@ -18,12 +18,22 @@
     bs.map.addShip = addShip;
     bs.map.getShipAt = getShipAt;
     bs.map.isShipLocationValid = isShipLocationValid;
+    bs.map.absoluteToRelativeCoordinates = absoluteToRelativeCoordinates;
 
     /**********************************************************************************/
     /*                                                                                */
     /*                               PUBLIC FUNCTIONS                                 */
     /*                                                                                */
     /**********************************************************************************/
+
+    function absoluteToRelativeCoordinates(absX, absY) {
+
+        return {
+            x: Math.floor(absX / bs.constants.LINE.SIZE.WIDTH),
+            y: Math.floor(absY / bs.constants.LINE.SIZE.HEIGHT)
+        };
+
+    }
 
     function getShipAt(x, y) {
 

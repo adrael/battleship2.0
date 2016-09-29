@@ -26,7 +26,7 @@
         bs.constants.CANVAS.CANVAS.onclick = function (e) {
             var clickedX = e.pageX - this.offsetLeft,
                 clickedY = e.pageY - this.offsetTop,
-                coordinates = _toRelativeCoordinates(clickedX, clickedY);
+                coordinates = bs.map.absoluteToRelativeCoordinates(clickedX, clickedY);
 
             console.log(bs.map.getShipAt(coordinates.x, coordinates.y));
         };
@@ -124,15 +124,6 @@
     /*                              PRIVATE FUNCTIONS                                 */
     /*                                                                                */
     /**********************************************************************************/
-
-    function _toRelativeCoordinates(absX, absY) {
-
-        return {
-            x: Math.floor(absX / bs.constants.LINE.SIZE.WIDTH),
-            y: Math.floor(absY / bs.constants.LINE.SIZE.HEIGHT)
-        };
-
-    }
 
     function _placeShip(ship) {
 
