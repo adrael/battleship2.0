@@ -36,14 +36,30 @@
     function drawRandomShips() {
 
         var ships = [
-            { name: 'TORPEDO',          length: 2, x: 4, y: 2,  orientation: 'HORIZONTAL' },
-            { name: 'SUBMARINE',        length: 3, x: 3, y: 4,  orientation: 'VERTICAL' },
-            { name: 'DESTROYER',        length: 3, x: 6, y: 6,  orientation: 'HORIZONTAL' },
-            { name: 'CRUISER',          length: 4, x: 9, y: 1,  orientation: 'VERTICAL' },
-            { name: 'AIRCRAFT CARRIER', length: 5, x: 2, y: 9,  orientation: 'HORIZONTAL' }
+            { name: 'TORPEDO',          length: 2 },
+            { name: 'SUBMARINE',        length: 3 },
+            { name: 'DESTROYER',        length: 3 },
+            { name: 'CRUISER',          length: 4 },
+            { name: 'AIRCRAFT_CARRIER', length: 5 }
         ];
 
-        bs.helpers.forEach(ships, _placeShip);
+        bs.helpers.forEach(ships, function (ship) {
+
+            try {
+
+                ship.orientation = ((Math.random() * 100) > 50 ? bs.constants.HORIZONTAL : bs.constants.VERTICAL);
+
+                var freeCoordinates = bs.map.getFreeCoordinates(ship.orientation, ship.length);
+                ship.x = freeCoordinates.x;
+                ship.y = freeCoordinates.y;
+
+                _placeShip(ship);
+            }
+            catch (exception) {
+                console.error('Cannot place ship:', ship);
+            }
+
+        });
 
     }
 
@@ -127,51 +143,21 @@
 
     function _placeShip(ship) {
 
-        //var orientation = ((Math.random() * 100) > 50 ? 'HORIZONTAL' : 'VERTICAL'),
-        //
-        //    shipRelativePosition = {
-        //        x: 1 + Math.abs(Math.floor(Math.random() * 10) - ship.length),
-        //        y: 1 + Math.abs(Math.floor(Math.random() * 10) - ship.length),
-        //        w: (orientation === 'HORIZONTAL' ? ship.length : 1),
-        //        h: (orientation === 'VERTICAL' ? ship.length : 1)
-        //    },
-        //
-        //    shipAbsolutePosition = {
-        //        x: shipRelativePosition.x * bs.constants.LINE.SIZE.WIDTH,
-        //        y: shipRelativePosition.y * bs.constants.LINE.SIZE.HEIGHT,
-        //        w: shipRelativePosition.w * bs.constants.LINE.SIZE.WIDTH,
-        //        h: shipRelativePosition.h * bs.constants.LINE.SIZE.HEIGHT
-        //    },
-        //
-        //    extendedShip = bs.helpers.merge({}, ship, shipRelativePosition, { orientation: orientation });
-        //
-        //if (!bs.map.isShipLocationValid(extendedShip)) {
-        //
-        //    console.error('Cannot place ship:', extendedShip);
-        //    return _placeShip(ship);
-        //}
-        //
-        //bs.map.addShip(extendedShip);
-        //
-        //bs.canvas.fillRect(shipAbsolutePosition, bs.constants.COLORS.RED);
-        //bs.canvas.drawRect(shipAbsolutePosition);
-
-        var shipAbsolutePosition = {
-            x: ship.x * bs.constants.LINE.SIZE.WIDTH,
-            y: ship.y * bs.constants.LINE.SIZE.HEIGHT,
-            w: (ship.orientation === 'HORIZONTAL' ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
-            h: (ship.orientation === 'VERTICAL'   ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
-        };
-
         if (!bs.map.isShipLocationValid(ship)) {
-            console.error('Cannot place ship:', ship);
             throw new bs.exceptions.BSInvalidCoordinatesException(ship.x, ship.y);
         }
 
         bs.map.addShip(ship);
 
-        bs.canvas.fillRect(shipAbsolutePosition, bs.constants.COLORS.RED);
-        bs.canvas.drawRect(shipAbsolutePosition);
+        var shipPosition = {
+            x: ship.x * bs.constants.LINE.SIZE.WIDTH,
+            y: ship.y * bs.constants.LINE.SIZE.HEIGHT,
+            w: (ship.orientation === bs.constants.HORIZONTAL ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
+            h: (ship.orientation === bs.constants.VERTICAL   ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
+        };
+
+        bs.canvas.fillRect(shipPosition, bs.constants.COLORS.RED);
+        bs.canvas.drawRect(shipPosition);
 
     }
 

@@ -10,6 +10,9 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    bs.constants.VERTICAL = 'VERTICAL';
+    bs.constants.HORIZONTAL = 'HORIZONTAL';
+
     bs.constants.COLORS = {};
     bs.constants.COLORS.RED = '#FF5E5B';
     bs.constants.COLORS.WHITE = '#f8f8ff';

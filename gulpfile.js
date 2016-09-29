@@ -221,13 +221,13 @@ function _copyfonts() {
             .pipe(gulp.dest('./www/dist/fonts/Material'));
 
     var fontsRoboto =
-        gulp.src(['./bower_components/roboto-fontface/fonts/roboto/*.{ttf,woff,woff2,eot,svg}'])
+        gulp.src(['./bower_components/roboto-fontface/fonts/roboto/*+(Regular).{ttf,woff,woff2,eot,svg}'])
             .pipe(gulp.dest('./www/fonts/Roboto'))
             .pipe(gulp.dest('./www/css/fonts/Roboto'))
             .pipe(gulp.dest('./www/dist/fonts/Roboto'));
 
     var fontsBebasNeue =
-        gulp.src(['./www/lib/bebas_neue/*.{ttf,otf}'])
+        gulp.src(['./www/lib/bebas_neue/*+(Regular).{ttf,otf}'])
             .pipe(gulp.dest('./www/fonts/Bebas-Neue'))
             .pipe(gulp.dest('./www/css/fonts/Bebas-Neue'))
             .pipe(gulp.dest('./www/dist/fonts/Bebas-Neue'));
