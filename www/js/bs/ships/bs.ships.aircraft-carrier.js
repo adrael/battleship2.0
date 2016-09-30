@@ -2,7 +2,7 @@
 
     'use strict';
 
-    console.debug('BATTLESHIP 2.0 - Loading game...');
+    console.debug('BATTLESHIP 2.0 - Loading AIRCRAFT-CARRIER...');
 
     /**********************************************************************************/
     /*                                                                                */
@@ -10,11 +10,16 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    document.addEventListener('DOMContentLoaded', function() {
+    bs.ships.push({
 
-        bs.display.drawGrid();
-        bs.display.drawRandomShips();
-        bs.display.setInterface();
+        name: 'AIRCRAFT-CARRIER',
+        length: 5,
+        sprite: {
+            x: -15,
+            y: -626,
+            width: 982,
+            height: 158
+        }
 
     });
 

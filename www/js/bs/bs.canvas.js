@@ -14,12 +14,54 @@
     bs.canvas.drawRect = drawRect;
     bs.canvas.drawLine = drawLine;
     bs.canvas.drawText = drawText;
+    bs.canvas.drawImage = drawImage;
+    bs.canvas.drawImageFromSprite = drawImageFromSprite;
 
     /**********************************************************************************/
     /*                                                                                */
     /*                               PUBLIC FUNCTIONS                                 */
     /*                                                                                */
     /**********************************************************************************/
+
+    function drawImage(imgSrc, pixelsLeft, pixelsTop, spriteWidth, spriteHeight) {
+
+        imgSrc       = (imgSrc       || '');
+        pixelsTop    = (pixelsTop    || null);
+        pixelsLeft   = (pixelsLeft   || null);
+        spriteWidth  = (spriteWidth  || null);
+        spriteHeight = (spriteHeight || null);
+
+        var img = new Image();
+
+        img.onload = function() {
+            console.log(img);
+            bs.constants.CANVAS.CONTEXT.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight);
+        };
+
+        img.src = imgSrc;
+    }
+
+    function drawImageFromSprite(imgSrc, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, canvasPosX, canvasPosY, imgWidth, imgHeight) {
+
+        imgSrc       = (imgSrc       || '');
+        imgWidth     = (imgWidth     || null);
+        imgHeight    = (imgHeight    || null);
+        pixelsTop    = (pixelsTop    || null);
+        pixelsLeft   = (pixelsLeft   || null);
+        canvasPosX   = (canvasPosX   || null);
+        canvasPosY   = (canvasPosY   || null);
+        spriteWidth  = (spriteWidth  || null);
+        spriteHeight = (spriteHeight || null);
+
+        var img = new Image();
+
+        img.onload = function() {
+            console.log(img);
+            bs.constants.CANVAS.CONTEXT.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, canvasPosX, canvasPosY, imgWidth, imgHeight);
+        };
+
+        img.src = imgSrc;
+    }
 
     function drawText(text, position, color) {
 

@@ -2,7 +2,7 @@
 
     'use strict';
 
-    console.debug('BATTLESHIP 2.0 - Loading game...');
+    console.debug('BATTLESHIP 2.0 - Loading CRUISER...');
 
     /**********************************************************************************/
     /*                                                                                */
@@ -10,11 +10,16 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    document.addEventListener('DOMContentLoaded', function() {
+    bs.ships.push({
 
-        bs.display.drawGrid();
-        bs.display.drawRandomShips();
-        bs.display.setInterface();
+        name: 'CRUISER',
+        length: 3,
+        sprite: {
+            x: -18,
+            y: -290,
+            width: 418,
+            height: 127
+        }
 
     });
 

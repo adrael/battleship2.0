@@ -10,8 +10,8 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    bs.display.drawShip = drawShip;
     bs.display.drawGrid = drawGrid;
-    bs.display.drawIndexes = drawIndexes;
     bs.display.setInterface = setInterface;
     bs.display.drawRandomShips = drawRandomShips;
 
@@ -35,15 +35,7 @@
 
     function drawRandomShips() {
 
-        var ships = [
-            { name: 'TORPEDO',          length: 2 },
-            { name: 'SUBMARINE',        length: 3 },
-            { name: 'DESTROYER',        length: 3 },
-            { name: 'CRUISER',          length: 4 },
-            { name: 'AIRCRAFT_CARRIER', length: 5 }
-        ];
-
-        bs.helpers.forEach(ships, function (ship) {
+        bs.helpers.forEach(bs.ships, function (ship) {
 
             try {
 
@@ -53,7 +45,8 @@
                 ship.x = freeCoordinates.x;
                 ship.y = freeCoordinates.y;
 
-                _placeShip(ship);
+                drawShip(ship);
+
             }
             catch (exception) {
                 console.error('Cannot place ship:', ship);
@@ -61,9 +54,76 @@
 
         });
 
+        bs.canvas.drawImageFromSprite(
+            'img/ships_sprite.png',
+             16, // ship.sprite.x
+            199, // ship.sprite.y
+            430, // ship.sprite.width
+             79, // ship.sprite.height
+            100, // canvas X position to draw
+            100, // canvas Y position to draw
+            430, // ship.sprite.width
+             79  // ship.sprite.height
+        );
+
     }
 
-    function drawIndexes() {
+    function drawGrid() {
+
+        _drawLines();
+        _drawIndexes();
+
+    }
+
+    function drawShip(ship) {
+
+        if (!bs.map.isShipLocationValid(ship)) {
+            throw new bs.exceptions.BSInvalidCoordinatesException(ship.x, ship.y);
+        }
+
+        bs.map.addShip(ship);
+
+        var shipPosition = {
+            x: ship.x * bs.constants.LINE.SIZE.WIDTH,
+            y: ship.y * bs.constants.LINE.SIZE.HEIGHT,
+            w: (ship.orientation === bs.constants.HORIZONTAL ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
+            h: (ship.orientation === bs.constants.VERTICAL   ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
+        };
+
+        bs.canvas.fillRect(shipPosition, bs.constants.COLORS.RED);
+        bs.canvas.drawRect(shipPosition);
+
+    }
+
+    /**********************************************************************************/
+    /*                                                                                */
+    /*                              PRIVATE FUNCTIONS                                 */
+    /*                                                                                */
+    /**********************************************************************************/
+
+    function _drawLines() {
+
+        for (var line = 1; line < bs.constants.LINE.COUNT; ++line) {
+
+            var currentVerticalPosition = (line * bs.constants.LINE.SIZE.WIDTH);
+            bs.canvas.drawLine(
+                { x: currentVerticalPosition, y: 0 },
+                { x: currentVerticalPosition, y: bs.constants.CANVAS.SIZE.WIDTH },
+                .2
+            );
+
+            var currentHorizontalPosition = (line * bs.constants.LINE.SIZE.HEIGHT);
+            bs.canvas.drawLine(
+                { x: 0, y: currentHorizontalPosition },
+                { x: bs.constants.CANVAS.SIZE.HEIGHT, y: currentHorizontalPosition },
+                .2
+            );
+
+        }
+
+    }
+
+    function _drawIndexes() {
 
         var verticalIndexes = bs.constants.MAP.INDEXES.VERTICAL,
             horizontalIndexes = bs.constants.MAP.INDEXES.HORIZONTAL,
@@ -83,11 +143,7 @@
             bs.canvas.fillRect({ x: 0, y: currentHorizontalPosition, w: squareWidth, h: squareHeight });
 
             if (index <= 0) {
-                var img = new Image();
-                img.onload = function() {
-                    context.drawImage(img, 5, 5, squareWidth-10, squareHeight-10);
-                };
-                img.src = 'img/battleship.png';
+                bs.canvas.drawImage('img/battleship.png', 5, 5, squareWidth - 10, squareHeight - 10);
                 continue;
             }
 
@@ -110,54 +166,6 @@
             );
 
         }
-
-    }
-
-    function drawGrid() {
-
-        for (var line = 1; line < bs.constants.LINE.COUNT; ++line) {
-
-            var currentVerticalPosition = (line * bs.constants.LINE.SIZE.WIDTH);
-            bs.canvas.drawLine(
-                { x: currentVerticalPosition, y: 0 },
-                { x: currentVerticalPosition, y: bs.constants.CANVAS.SIZE.WIDTH },
-                .2
-            );
-
-            var currentHorizontalPosition = (line * bs.constants.LINE.SIZE.HEIGHT);
-            bs.canvas.drawLine(
-                { x: 0, y: currentHorizontalPosition },
-                { x: bs.constants.CANVAS.SIZE.HEIGHT, y: currentHorizontalPosition },
-                .2
-            );
-
-        }
-
-    }
-
-    /**********************************************************************************/
-    /*                                                                                */
-    /*                              PRIVATE FUNCTIONS                                 */
-    /*                                                                                */
-    /**********************************************************************************/
-
-    function _placeShip(ship) {
-
-        if (!bs.map.isShipLocationValid(ship)) {
-            throw new bs.exceptions.BSInvalidCoordinatesException(ship.x, ship.y);
-        }
-
-        bs.map.addShip(ship);
-
-        var shipPosition = {
-            x: ship.x * bs.constants.LINE.SIZE.WIDTH,
-            y: ship.y * bs.constants.LINE.SIZE.HEIGHT,
-            w: (ship.orientation === bs.constants.HORIZONTAL ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
-            h: (ship.orientation === bs.constants.VERTICAL   ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
-        };
-
-        bs.canvas.fillRect(shipPosition, bs.constants.COLORS.RED);
-        bs.canvas.drawRect(shipPosition);
 
     }
 

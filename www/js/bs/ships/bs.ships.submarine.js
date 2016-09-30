@@ -2,7 +2,7 @@
 
     'use strict';
 
-    console.debug('BATTLESHIP 2.0 - Loading game...');
+    console.debug('BATTLESHIP 2.0 - Loading SUBMARINE...');
 
     /**********************************************************************************/
     /*                                                                                */
@@ -10,11 +10,16 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    document.addEventListener('DOMContentLoaded', function() {
+    bs.ships.push({
 
-        bs.display.drawGrid();
-        bs.display.drawRandomShips();
-        bs.display.setInterface();
+        name: 'SUBMARINE',
+        length: 3,
+        sprite: {
+            x: 16,
+            y: 199,
+            width: 430,
+            height: 79
+        }
 
     });
 

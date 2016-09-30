@@ -2,7 +2,7 @@
 
     'use strict';
 
-    console.debug('BATTLESHIP 2.0 - Loading game...');
+    console.debug('BATTLESHIP 2.0 - Loading TORPEDO...');
 
     /**********************************************************************************/
     /*                                                                                */
@@ -10,11 +10,16 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    document.addEventListener('DOMContentLoaded', function() {
+    bs.ships.push({
 
-        bs.display.drawGrid();
-        bs.display.drawRandomShips();
-        bs.display.setInterface();
+        name: 'TORPEDO',
+        length: 2,
+        sprite: {
+            x: -9,
+            y: -15,
+            width: 436,
+            height: 159
+        }
 
     });
 

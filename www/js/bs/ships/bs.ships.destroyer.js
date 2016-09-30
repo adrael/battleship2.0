@@ -2,7 +2,7 @@
 
     'use strict';
 
-    console.debug('BATTLESHIP 2.0 - Loading game...');
+    console.debug('BATTLESHIP 2.0 - Loading DESTROYER...');
 
     /**********************************************************************************/
     /*                                                                                */
@@ -10,11 +10,16 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    document.addEventListener('DOMContentLoaded', function() {
+    bs.ships.push({
 
-        bs.display.drawGrid();
-        bs.display.drawRandomShips();
-        bs.display.setInterface();
+        name: 'DESTROYER',
+        length: 4,
+        sprite: {
+            x: -13,
+            y: -436,
+            width: 556,
+            height: 172
+        }
 
     });
 
