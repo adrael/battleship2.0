@@ -57,7 +57,7 @@ Creates a zip archive of the `dist` directory for easy deployment purposes.
 
 ## Tests
 
-To run the tests, use the `npm test` command. It will use Karma, Jasmine and PhantomJS to automatically run the tests described in `./test`.
+To run the tests, use the `npm test` command. It will use Karma, Jasmine and PhantomJS to automatically run the tests described in `./tests`.
 
 ## References
 

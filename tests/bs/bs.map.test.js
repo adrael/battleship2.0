@@ -1,4 +1,4 @@
-describe('ship', function() {
+describeLogic('Map (bs.map)', function() {
 
     var ship = {
         name: 'PETIT BATO',
@@ -7,7 +7,7 @@ describe('ship', function() {
         orientation: 'HORIZONTAL'
     };
 
-    describe('horizontal placement', function() {
+    describeLogicPoint('horizontal placement', function() {
 
         beforeEach(function () {
             ship.length = 1;
@@ -24,10 +24,13 @@ describe('ship', function() {
         });
 
         it('should not exceed map length', function () {
-            ship.x = 10;
+            ship.x = 11;
             expect(bs.map.isShipLocationValid(ship)).toBeFalsy();
 
-            ship.x = 9;
+            ship.x = 0;
+            expect(bs.map.isShipLocationValid(ship)).toBeTruthy();
+
+            ship.x = 10;
             expect(bs.map.isShipLocationValid(ship)).toBeTruthy();
 
             ship.length = 3;
@@ -38,7 +41,7 @@ describe('ship', function() {
         });
     });
 
-    describe('vertical placement', function() {
+    describeLogicPoint('vertical placement', function() {
 
         beforeEach(function () {
             ship.length = 1;
@@ -55,10 +58,13 @@ describe('ship', function() {
         });
 
         it('should not exceed map height', function () {
-            ship.y = 10;
+            ship.y = 11;
             expect(bs.map.isShipLocationValid(ship)).toBeFalsy();
 
-            ship.y = 9;
+            ship.y = 0;
+            expect(bs.map.isShipLocationValid(ship)).toBeTruthy();
+
+            ship.y = 10;
             expect(bs.map.isShipLocationValid(ship)).toBeTruthy();
 
             ship.length = 3;
@@ -69,7 +75,7 @@ describe('ship', function() {
         });
     });
 
-    describe('placement on map', function () {
+    describeLogicPoint('placement on map', function () {
 
         var placedShipA = {};
         var _setShipPosition = function (x, y) {

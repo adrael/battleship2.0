@@ -2,8 +2,6 @@
 
     'use strict';
 
-    console.debug('BATTLESHIP 2.0 - Loading helpers...');
-
     /**********************************************************************************/
     /*                                                                                */
     /*                                     SETUP                                      */
@@ -18,6 +16,7 @@
     bs.helpers.handleException = handleException;
     bs.helpers.printBSException = printBSException;
     bs.helpers.getAspectRatioFit = getAspectRatioFit;
+    bs.helpers.extractInfoFromStack = extractInfoFromStack;
 
     /**********************************************************************************/
     /*                                                                                */

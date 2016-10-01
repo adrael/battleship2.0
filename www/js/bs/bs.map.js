@@ -2,8 +2,6 @@
 
     'use strict';
 
-    console.debug('BATTLESHIP 2.0 - Loading map...');
-
     /**********************************************************************************/
     /*                                                                                */
     /*                                     SETUP                                      */
@@ -162,8 +160,7 @@
 
     function _locationIsWithinMap(ship) {
 
-        var gap = bs.constants.MAP.GAP,
-            max = bs.constants.LINE.COUNT - gap,
+        var max = bs.constants.LINE.COUNT,
             vLength = (ship.orientation === bs.constants.VERTICAL) ? ship.length : 1,
             hLength = (ship.orientation === bs.constants.HORIZONTAL) ? ship.length : 1;
 
