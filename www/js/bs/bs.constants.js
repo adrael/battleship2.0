@@ -10,6 +10,10 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    bs.constants.SPRITES = {};
+    bs.constants.SPRITES.VERTICAL = 'img/ships_vertical_sprite.png';
+    bs.constants.SPRITES.HORIZONTAL = 'img/ships_horizontal_sprite.png';
+
     bs.constants.VERTICAL = 'VERTICAL';
     bs.constants.HORIZONTAL = 'HORIZONTAL';
 

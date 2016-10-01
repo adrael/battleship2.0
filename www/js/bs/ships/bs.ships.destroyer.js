@@ -15,10 +15,18 @@
         name: 'DESTROYER',
         length: 4,
         sprite: {
-            x: -13,
-            y: -436,
-            width: 556,
-            height: 172
+            HORIZONTAL: {
+                x: 13,
+                y: 436,
+                width: 556,
+                height: 172
+            },
+            VERTICAL: {
+                x: 436,
+                y: 437,
+                width: 172,
+                height: 556
+            }
         }
 
     });

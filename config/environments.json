@@ -1,12 +1,20 @@
 {
     "hooks": {
         "app-": {
-            "debugEnabled": {
+            "debugDisabled": {
                 "pattern": "/\\*__debugDisabled__\\*/ false /\\*__debugDisabled__\\*/",
                 "environments": {
                     "dev": false,
                     "staging": true,
                     "prod": true
+                }
+            },
+            "debugEnabled": {
+                "pattern": "/\\*__debugEnabled__\\*/ true /\\*__debugEnabled__\\*/",
+                "environments": {
+                    "dev": true,
+                    "staging": false,
+                    "prod": false
                 }
             }
         }

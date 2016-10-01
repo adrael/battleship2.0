@@ -113,8 +113,8 @@
 
         do {
 
-            _ship.x = 1 + Math.abs(Math.floor(Math.random() * (bs.constants.LINE.COUNT - 1)) - length);
-            _ship.y = 1 + Math.abs(Math.floor(Math.random() * (bs.constants.LINE.COUNT - 1)) - length);
+            _ship.x = 1 + Math.abs(Math.floor(Math.random() * (bs.constants.LINE.COUNT)) - length);
+            _ship.y = 1 + Math.abs(Math.floor(Math.random() * (bs.constants.LINE.COUNT)) - length);
 
         } while(!isShipLocationValid(_ship));
 

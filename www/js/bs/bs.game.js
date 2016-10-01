@@ -12,7 +12,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
 
-        bs.display.drawGrid();
+        bs.display.drawBoard();
         bs.display.drawRandomShips();
         bs.display.setInterface();
 

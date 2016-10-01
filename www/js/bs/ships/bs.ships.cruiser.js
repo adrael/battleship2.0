@@ -15,10 +15,18 @@
         name: 'CRUISER',
         length: 3,
         sprite: {
-            x: -18,
-            y: -290,
-            width: 418,
-            height: 127
+            HORIZONTAL: {
+                x: 18,
+                y: 290,
+                width: 418,
+                height: 127
+            },
+            VERTICAL: {
+                x: 290,
+                y: 570,
+                width: 127,
+                height: 418
+            }
         }
 
     });

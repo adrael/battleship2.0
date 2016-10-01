@@ -15,10 +15,18 @@
         name: 'TORPEDO',
         length: 2,
         sprite: {
-            x: -9,
-            y: -15,
-            width: 436,
-            height: 159
+            HORIZONTAL: {
+                x: 9,
+                y: 15,
+                width: 436,
+                height: 159
+            },
+            VERTICAL: {
+                x: 15,
+                y: 559,
+                width: 159,
+                height: 438
+            }
         }
 
     });

@@ -11,7 +11,7 @@
     /**********************************************************************************/
 
     bs.display.drawShip = drawShip;
-    bs.display.drawGrid = drawGrid;
+    bs.display.drawBoard = drawBoard;
     bs.display.setInterface = setInterface;
     bs.display.drawRandomShips = drawRandomShips;
 
@@ -28,6 +28,7 @@
                 clickedY = e.pageY - this.offsetTop,
                 coordinates = bs.map.absoluteToRelativeCoordinates(clickedX, clickedY);
 
+            console.log('Click registered at:', coordinates.x, coordinates.y);
             console.log(bs.map.getShipAt(coordinates.x, coordinates.y));
         };
 
@@ -54,21 +55,9 @@
 
         });
 
-        bs.canvas.drawImageFromSprite(
-            'img/ships_sprite.png',
-             16, // ship.sprite.x
-            199, // ship.sprite.y
-            430, // ship.sprite.width
-             79, // ship.sprite.height
-            100, // canvas X position to draw
-            100, // canvas Y position to draw
-            430, // ship.sprite.width
-             79  // ship.sprite.height
-        );
-
     }
 
-    function drawGrid() {
+    function drawBoard() {
 
         _drawLines();
         _drawIndexes();
@@ -84,14 +73,30 @@
         bs.map.addShip(ship);
 
         var shipPosition = {
-            x: ship.x * bs.constants.LINE.SIZE.WIDTH,
-            y: ship.y * bs.constants.LINE.SIZE.HEIGHT,
-            w: (ship.orientation === bs.constants.HORIZONTAL ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
-            h: (ship.orientation === bs.constants.VERTICAL   ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
-        };
+                x: ship.x * bs.constants.LINE.SIZE.WIDTH,
+                y: ship.y * bs.constants.LINE.SIZE.HEIGHT,
+                w: (ship.orientation === bs.constants.HORIZONTAL ? ship.length : 1) * bs.constants.LINE.SIZE.WIDTH,
+                h: (ship.orientation === bs.constants.VERTICAL   ? ship.length : 1) * bs.constants.LINE.SIZE.HEIGHT
+            },
+            shipSpriteData = ship.sprite[ship.orientation],
+            aspectRatio = bs.helpers.getAspectRatioFit(shipSpriteData.width, shipSpriteData.height, shipPosition.w, shipPosition.h);
 
-        bs.canvas.fillRect(shipPosition, bs.constants.COLORS.RED);
-        bs.canvas.drawRect(shipPosition);
+        if(/*__debugEnabled__*/ true /*__debugEnabled__*/) {
+            //bs.canvas.fillRect(shipPosition, bs.constants.COLORS.WHITE);
+            bs.canvas.drawRect(shipPosition);
+        }
+
+        bs.canvas.drawImageFromSprite(
+            bs.constants.SPRITES[ship.orientation],
+            shipSpriteData.x,
+            shipSpriteData.y,
+            shipSpriteData.width,
+            shipSpriteData.height,
+            shipPosition.x + ((shipPosition.w - aspectRatio.width) / 2),
+            shipPosition.y + ((shipPosition.h - aspectRatio.height) / 2),
+            aspectRatio.width,
+            aspectRatio.height
+        );
 
     }
 
@@ -143,6 +148,7 @@
             bs.canvas.fillRect({ x: 0, y: currentHorizontalPosition, w: squareWidth, h: squareHeight });
 
             if (index <= 0) {
+                bs.canvas.fillRect({ x: 0, y: currentHorizontalPosition, w: squareWidth, h: squareHeight}, bs.constants.COLORS.WHITE);
                 bs.canvas.drawImage('img/battleship.png', 5, 5, squareWidth - 10, squareHeight - 10);
                 continue;
             }

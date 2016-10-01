@@ -31,11 +31,13 @@
         spriteWidth  = (spriteWidth  || null);
         spriteHeight = (spriteHeight || null);
 
+        bs.constants.CANVAS.CONTEXT.imageSmoothingEnabled = false;
+
         var img = new Image();
 
         img.onload = function() {
-            console.log(img);
             bs.constants.CANVAS.CONTEXT.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight);
+            bs.constants.CANVAS.CONTEXT.imageSmoothingEnabled = true;
         };
 
         img.src = imgSrc;
@@ -53,11 +55,13 @@
         spriteWidth  = (spriteWidth  || null);
         spriteHeight = (spriteHeight || null);
 
+        bs.constants.CANVAS.CONTEXT.imageSmoothingEnabled = false;
+
         var img = new Image();
 
         img.onload = function() {
-            console.log(img);
             bs.constants.CANVAS.CONTEXT.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, canvasPosX, canvasPosY, imgWidth, imgHeight);
+            bs.constants.CANVAS.CONTEXT.imageSmoothingEnabled = true;
         };
 
         img.src = imgSrc;

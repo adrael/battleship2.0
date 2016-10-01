@@ -17,12 +17,34 @@
     bs.helpers.validObject = validObject;
     bs.helpers.handleException = handleException;
     bs.helpers.printBSException = printBSException;
+    bs.helpers.getAspectRatioFit = getAspectRatioFit;
 
     /**********************************************************************************/
     /*                                                                                */
     /*                               PUBLIC FUNCTIONS                                 */
     /*                                                                                */
     /**********************************************************************************/
+
+    /**
+     * @name getAspectRatioFit
+     * @kind function
+     *
+     * @description
+     * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
+     * images to fit into a certain area.
+     *
+     * @param {Number} srcWidth Source area width
+     * @param {Number} srcHeight Source area height
+     * @param {Number} maxWidth Fittable area maximum available width
+     * @param {Number} maxHeight Fittable area maximum available height
+     * @return {Object} { width, height }
+     */
+    function getAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+
+        var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+        return { width: srcWidth * ratio, height: srcHeight * ratio };
+
+    }
 
     /**
      * @name noop

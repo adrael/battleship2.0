@@ -55,6 +55,10 @@ Builds the project for the selected environment. See the `./config/environments.
 * `gulp zip`:
 Creates a zip archive of the `dist` directory for easy deployment purposes.
 
+## Tests
+
+To run the tests, use the `npm test` command. It will use Karma, Jasmine and PhantomJS to automatically run the tests described in `./test`.
+
 ## References
 
 * https://fr.wikipedia.org/wiki/Bataille_navale_(jeu)

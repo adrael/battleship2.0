@@ -15,10 +15,18 @@
         name: 'SUBMARINE',
         length: 3,
         sprite: {
-            x: 16,
-            y: 199,
-            width: 430,
-            height: 79
+            HORIZONTAL: {
+                x: 16,
+                y: 199,
+                width: 430,
+                height: 79
+            },
+            VERTICAL: {
+                x: 199,
+                y: 560,
+                width: 79,
+                height: 430
+            }
         }
 
     });
