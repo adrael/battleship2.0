@@ -49,7 +49,7 @@ Build and prepare the files into the `dist` directory.
 
 #### Compiling
 
-* `gulp build [--{ dev (default) | staging | prod}]`:
+* `gulp build [--{ dev (default) | staging | prod }]`:
 Builds the project for the selected environment. See the `./config/environments.json` hook file for more information.
 
 * `gulp zip`:
