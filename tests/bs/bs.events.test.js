@@ -1,24 +1,25 @@
 describeLogic('Events (bs.events)', function() {
 
-    var testEventName, testObject;
+    var testEventName, testEventListener, testObject;
 
     beforeEach(function () {
-        testEventName = 'BS::TEST';
         testObject = [{a: 'A'}, 23, null];
+        testEventName = 'BS::TEST';
+        testEventListener = function () {};
         bs.events.flush();
     });
 
     it('can register an event', function () {
-        bs.events.on(testEventName, bs.helpers.noop);
+        bs.events.on(testEventName, testEventListener);
 
         var registeredEventListeners = bs.events.get(testEventName);
 
         expect(registeredEventListeners.length).toBe(1);
-        expect(registeredEventListeners).toEqual([bs.helpers.noop]);
+        expect(registeredEventListeners).toEqual([testEventListener]);
     });
 
     it('can de-register an event', function () {
-        var off = bs.events.on(testEventName, bs.helpers.noop);
+        var off = bs.events.on(testEventName, testEventListener);
         bs.events.on(testEventName, Array.isArray);
         bs.events.on(testEventName, console.log);
 
