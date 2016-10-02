@@ -26,8 +26,7 @@
                 clickedY = e.pageY - this.offsetTop,
                 coordinates = bs.map.absoluteToRelativeCoordinates(clickedX, clickedY);
 
-            console.log('Click registered at:', coordinates.x, coordinates.y);
-            console.log(bs.map.getShipAt(coordinates.x, coordinates.y));
+            bs.events.broadcast(bs.constants.EVENTS.ONCLICK, coordinates);
         };
 
     }

@@ -8,6 +8,9 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    bs.constants.EVENTS = {};
+    bs.constants.EVENTS.ONCLICK = 'BS::ONCLICK';
+
     bs.constants.SPRITES = {};
     bs.constants.SPRITES.VERTICAL = 'img/ships_vertical_sprite.png';
     bs.constants.SPRITES.HORIZONTAL = 'img/ships_horizontal_sprite.png';

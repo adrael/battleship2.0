@@ -12,6 +12,7 @@ module.exports = function(config) {
 
         files: [
             'www/js/bs/bs.core.js',
+            'www/js/bs/bs.events.js',
             'www/js/bs/ships/bs.ships.torpedo.js',
             'www/js/bs/ships/bs.ships.cruiser.js',
             'www/js/bs/ships/bs.ships.destroyer.js',

@@ -8,23 +8,25 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    window.battleship = window.bs = (window.battleship || window.bs || {});
+    bs.events.on(bs.constants.EVENTS.ONCLICK, function (coordinates) {
+        console.log('Click registered at:', coordinates.x, coordinates.y);
+        console.log(bs.map.getShipAt(coordinates.x, coordinates.y));
+    });
 
     /**********************************************************************************/
     /*                                                                                */
-    /*                                    MEMBERS                                     */
+    /*                               PUBLIC FUNCTIONS                                 */
     /*                                                                                */
     /**********************************************************************************/
 
-    bs.map = {};
-    bs.gui = {};
-    bs.ships = [];
-    bs.utils = {};
-    bs.events = {};
-    bs.canvas = {};
-    bs.display = {};
-    bs.helpers = {};
-    bs.constants = {};
-    bs.exceptions = {};
+
+
+    /**********************************************************************************/
+    /*                                                                                */
+    /*                              PRIVATE FUNCTIONS                                 */
+    /*                                                                                */
+    /**********************************************************************************/
+
+
 
 })();
