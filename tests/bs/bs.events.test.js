@@ -13,18 +13,20 @@ describeLogic('Events (bs.events)', function() {
 
         var registeredEventListeners = bs.events.get(testEventName);
 
-        expect(registeredEventListeners.length).not.toBeLessThan(0);
+        expect(registeredEventListeners.length).toBe(1);
         expect(registeredEventListeners).toEqual([bs.helpers.noop]);
     });
 
     it('can de-register an event', function () {
         var off = bs.events.on(testEventName, bs.helpers.noop);
+        bs.events.on(testEventName, Array.isArray);
+        bs.events.on(testEventName, console.log);
 
         off();
         var registeredEventListeners = bs.events.get(testEventName);
 
-        expect(registeredEventListeners.length).toBe(0);
-        expect(registeredEventListeners).toEqual([]);
+        expect(registeredEventListeners.length).toBe(2);
+        expect(registeredEventListeners).toEqual([Array.isArray, console.log]);
     });
 
     it('can broadcast an event', function () {
