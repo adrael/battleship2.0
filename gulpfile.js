@@ -258,7 +258,7 @@ function _useref() {
 
     var jsFilter = filter('./www/dist/tmp/**/*.js', { restore: true }),
         cssFilter = filter('./www/css/*.min.css', { restore: true }),
-        indexHtmlFilter = filter(['**/*', '!**/index.html'], { restore: true });
+        indexHtmlFilter = filter(['**/*', '!**/*.html'], { restore: true });
 
     return gulp.src('www/*.html')
         .pipe(useref())             // Concatenate with gulp-useref

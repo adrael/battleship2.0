@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+                .line {
+                    display: block;
+                }
+
+                .line .name, .line .msg {
+                    display: inline-block;
+                }
+
+                .name {
+                    width: 350px;
+                    font-weight: bold;
+                }
+        </style>
+    </head>
+    <body>
+        <div>
+            Message: <input type='textfield' name='chat-message'/>
+            <div id='messages'>
+            </div>
+        </div>
+        <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script>
+            var socket = io();
+
+            var colors = {};
+            var input = document.querySelector("input[name='chat-message']");
+            input.addEventListener('keypress', function (key) {
+                if (key.keyCode === 13 && input.value.trim().length > 0) {
+                    sendMessage(input.value.trim());
+                    input.value = '';
+                }
+            });
+
+            var addUser = function (id) {
+                colors[id] = {
+                    'r' : Math.floor(Math.random() * 100) + 100,
+                    'g' : Math.floor(Math.random() * 100) + 100,
+                    'b' : Math.floor(Math.random() * 100) + 100
+                };
+            };
+
+            var sendMessage = function (message) {
+                socket.emit('message', { 'msg': message });
+            };
+
+            var addElementToChat = function (id, message) {
+                var name = document.createElement('div');
+                var c = colors[id];
+                name.classList.add('name');
+                name.textContent = 'user ' + id;
+
+                var msg = document.createElement('div');
+                msg.classList.add('msg');
+                msg.textContent = message;
+
+                var line = document.createElement('div');
+                line.appendChild(name);
+                line.appendChild(msg);
+                line.classList.add('line');
+                name.style.color = 'rgb(' + c.r + ',' + c.g + ',' + c.b + ')';
+
+                document.getElementById('messages').appendChild(line);
+            }; 
+
+            socket.on('message', function (data) {
+                if (colors[data.id] === undefined) {
+                    addUser(data.id);
+                }
+                addElementToChat(data.id, data.msg);
+            });
+
+            socket.on('new user', function (data) {
+                var message = 'has join the chat';
+                addUser(data.id);
+                addElementToChat(data.id, message);
+            });
+
+            socket.on('left room', function (data) {
+                var message = 'has left the chat';
+                addElementToChat(data.id, message);
+                delete colors[data.id];
+            });
+        </script>
+    </body>
+</html>
