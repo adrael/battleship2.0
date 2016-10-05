@@ -22,7 +22,7 @@
             <div id='messages'>
             </div>
         </div>
-        <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script src="https://cdn.socket.io/socket.io-1.4.8.js"></script>
         <script>
             var socket = io();
 
@@ -64,7 +64,7 @@
                 name.style.color = 'rgb(' + c.r + ',' + c.g + ',' + c.b + ')';
 
                 document.getElementById('messages').appendChild(line);
-            }; 
+            };
 
             socket.on('message', function (data) {
                 if (colors[data.id] === undefined) {
