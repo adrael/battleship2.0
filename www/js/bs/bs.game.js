@@ -10,9 +10,13 @@
 
     document.addEventListener('DOMContentLoaded', function() {
 
-        bs.display.drawBoard();
-        bs.display.drawRandomShips();
-        bs.display.setInterface();
+        var board = new bs.graphic.Board();
+
+        board.drawGrid();
+
+        //bs.display.drawBoard();
+        //bs.display.drawRandomShips();
+        //bs.display.setInterface();
 
     });
 
