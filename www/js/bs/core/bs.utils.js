@@ -8,17 +8,20 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    bs.utils.isDate = isDate;
-    bs.utils.isNull = isNull;
-    bs.utils.isArray = isArray;
-    bs.utils.isString = isString;
-    bs.utils.isRegExp = isRegExp;
-    bs.utils.isObject = isObject;
-    bs.utils.isNumber = isNumber;
-    bs.utils.isDefined = isDefined;
-    bs.utils.isElement = isElement;
-    bs.utils.isFunction = isFunction;
-    bs.utils.isUndefined = isUndefined;
+    window.bs = (window.bs || {});
+    window.bs.utils = (window.bs.utils || {});
+
+    window.bs.utils.isDate = isDate;
+    window.bs.utils.isNull = isNull;
+    window.bs.utils.isArray = isArray;
+    window.bs.utils.isString = isString;
+    window.bs.utils.isRegExp = isRegExp;
+    window.bs.utils.isObject = isObject;
+    window.bs.utils.isNumber = isNumber;
+    window.bs.utils.isDefined = isDefined;
+    window.bs.utils.isElement = isElement;
+    window.bs.utils.isFunction = isFunction;
+    window.bs.utils.isUndefined = isUndefined;
 
     /**********************************************************************************/
     /*                                                                                */

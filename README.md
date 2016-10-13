@@ -62,6 +62,7 @@ To run the tests, use the `npm test` command. It will use Karma, Jasmine and Pha
 ## References
 
 * https://fr.wikipedia.org/wiki/Bataille_navale_(jeu)
+* https://en.wikipedia.org/wiki/Battleship_(game)
 * https://coolors.co/ff5e5b-acede7-a3d8ec-f8f8ff-36393b
 
 # What's next?
