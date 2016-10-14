@@ -9,6 +9,7 @@
     /**********************************************************************************/
 
     window.bs = (window.bs || {});
+    window._bs = (window._bs || {});
 
     window.bs.Core = Core;
 
@@ -62,7 +63,7 @@
         // MEMBERS
         ///////////////////////
 
-        this.stage = new createjs.Stage(this.constants.canvas.node);
+        this.stage = window._bs._stage = (window._bs._stage || new createjs.Stage(this.constants.canvas.node));
 
         ///////////////////////
         // SETUP
@@ -73,6 +74,8 @@
     }
 
     Core.prototype.constructor = Core;
+
+    Core.prototype.staticShit = '12';
 
     /**********************************************************************************/
     /*                                                                                */

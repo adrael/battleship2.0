@@ -19,7 +19,7 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    var _shipShape = new createjs.Bitmap();
+
 
     /**********************************************************************************/
     /*                                                                                */
@@ -31,14 +31,10 @@
 
         this.name = 'ABSTRACT_SHIP';
         this.length = 0;
-        this.template = null;
+        this.template = new createjs.Bitmap();
         this.location = { x: 0, y: 0 };
+        this.isSetOnMap = false;
         this.orientation = this.constants.orientation.horizontal;
-
-        _shipShape.x = this.location.x;
-        _shipShape.y = this.location.y;
-        _shipShape.name = this.name;
-        _shipShape.cursor = 'pointer';
 
     }
 
@@ -51,50 +47,83 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    Ship.prototype.setTemplate = function setTemplate(template) {
+        this.template = template;
+        this.template.name = this.name;
+        this.template.cursor = 'pointer';
+
+        var self = this,
+            update = false;
+
+        this.template.on('mousedown', function (evt) {
+            console.log('mousedown on', self.name);
+            this.parent.addChild(this);
+            this.offset = {x: this.x - evt.stageX, y: this.y - evt.stageY};
+        });
+
+        this.template.on('pressup', function (evt) {
+            console.log('pressup on', self.name);
+        });
+
+        this.template.on("pressmove", function (evt) {
+            this.x = evt.stageX + this.offset.x;
+            this.y = evt.stageY + this.offset.y;
+            // indicate that the stage should be updated on the next tick:
+            update = true;
+        });
+
+        this.template.on("rollover", function (evt) {
+            console.log('rollover on', self.name);
+        });
+
+        this.template.on("rollout", function (evt) {
+            console.log('rollout on', self.name);
+        });
+
+        createjs.Ticker.addEventListener("tick", function tick(event) {
+            // this set makes it so the stage only re-renders when an event handler indicates a change has happened.
+            if (update) {
+                update = false; // only update once
+                self.stage.update(event);
+            }
+        });
+    };
+
     Ship.prototype.setName = function setName(name) {
-        this.name = _shipShape.name = name;
+        this.name = this.template.name = name;
     };
 
     Ship.prototype.clear = function clear() {
-        _shipShape.graphics.clear();
-        this.stage.update();
+        this.template.graphics.clear();
+
+        if (this.isSetOnMap) {
+            this.stage.update();
+        }
     };
 
     Ship.prototype.moveTo = function moveTo(x, y) {
-        this.location.x = _shipShape.x = x;
-        this.location.y = _shipShape.y = y;
-        this.stage.update();
-    };
+        this.template.x = x;
+        this.template.y = y;
 
-    Ship.prototype.load = function load() {
-
-        var self = this,
-            ship = new createjs.Bitmap(this.template);
-
-        ship.image.onload = function () {
-            _shipShape.image = ship.image;
-            self.draw();
-        };
-
-    };
-
-    Ship.prototype.draw = function draw() {
-
-        if (bs.utils.isDefined(_shipShape.image)) {
-
-            //_shipShape.regX = _shipShape.image.width / 2 | 0;
-            //_shipShape.regY = _shipShape.image.height / 2 | 0;
-
-            // check for orientation
-            //_shipShape.rotation = 360 * Math.random() | 0;
-
-            //_shipShape.scaleX = _shipShape.scaleY = .4;
-
-            this.stage.addChild(_shipShape);
+        if (this.isSetOnMap) {
             this.stage.update();
+        }
+    };
 
+    Ship.prototype.rotate = function rotate(angle, center) {
+        this.template.regX = this.template.image.width / (center || 0) | 0;
+        this.template.regY = this.template.image.height / (center || 0) | 0;
+        this.template.rotation = (angle || 0);
+    };
+
+    Ship.prototype.init = function init(template, x, y) {
+        if (bs.utils.isElement(template)) {
+            this.setTemplate(new createjs.Bitmap(template));
         }
 
+        if (bs.utils.isNumber(x) && bs.utils.isNumber(y)) {
+            this.moveTo(x, y);
+        }
     };
 
     /**********************************************************************************/

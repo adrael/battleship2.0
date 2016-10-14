@@ -19,12 +19,11 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Submarine() {
-
-        this.setName('SUBMARINE');
+    function Submarine(template, x, y) {
 
         this.length = 3;
-        this.template = 'img/ships/submarine.png';
+        this.setName('SUBMARINE');
+        this.init(template, x, y);
 
     }
 

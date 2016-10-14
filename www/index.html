@@ -27,16 +27,25 @@
 <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
 
 <!-- bower:js -->
+<script src="../bower_components/jquery/dist/jquery.min.js"></script>
 <!-- endbower -->
 
 <script src="js/battleship.js"></script>
 
-<script src="js/bs/core/bs.utils.js"></script>
+<script src="js/bs/core/bs.utils.core.js"></script>
+<script src="js/bs/core/bs.exceptions.core.js"></script>
 <script src="js/bs/core/bs.core.js"></script>
-<script src="js/bs/core/bs.game.js"></script>
+<script src="js/bs/core/bs.assets.core.js"></script>
+<script src="js/bs/core/bs.game.core.js"></script>
 
-<script src="js/bs/ships/bs.ship.js"></script>
+<script src="js/bs/ships/bs.abstract.ship.js"></script>
+<script src="js/bs/ships/bs.destroyer.ship.js"></script>
 <script src="js/bs/ships/bs.submarine.ship.js"></script>
+<script src="js/bs/ships/bs.cruiser.ship.js"></script>
+<script src="js/bs/ships/bs.battleship.ship.js"></script>
+<script src="js/bs/ships/bs.carrier.ship.js"></script>
+
+<script src="js/bs/logics/bs.map.logic.js"></script>
 
 <script src="js/bs/graphics/bs.board.graphic.js"></script>
 <!--<script src="js/bs/bs.events.js"></script>-->

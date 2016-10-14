@@ -8,10 +8,13 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    bs.exceptions.BSFactoryException = BSFactoryException;
-    bs.exceptions.BSInvalidValueException = BSInvalidValueException;
-    bs.exceptions.BSMissingPropertyException = BSMissingPropertyException;
-    bs.exceptions.BSInvalidCoordinatesException = BSInvalidCoordinatesException;
+    window.bs = (window.bs || {});
+    window.bs.exceptions = (window.bs.exceptions || {});
+
+    window.bs.exceptions.BSFactoryException = BSFactoryException;
+    window.bs.exceptions.BSInvalidValueException = BSInvalidValueException;
+    window.bs.exceptions.BSMissingPropertyException = BSMissingPropertyException;
+    window.bs.exceptions.BSInvalidCoordinatesException = BSInvalidCoordinatesException;
 
     /**********************************************************************************/
     /*                                                                                */

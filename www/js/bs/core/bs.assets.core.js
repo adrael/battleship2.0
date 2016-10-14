@@ -8,43 +8,36 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    bs.helpers.validObject = validObject;
+    window.bs = (window.bs || {});
+
+    window.bs.Assets = Assets;
 
     /**********************************************************************************/
     /*                                                                                */
-    /*                               PUBLIC FUNCTIONS                                 */
+    /*                                  CONSTRUCTOR                                   */
     /*                                                                                */
     /**********************************************************************************/
 
-    /**
-     * @name validObject
-     * @kind function
-     *
-     * @description
-     * Parses the given object and validate each of its properties against the selected array of properties.
-     *
-     * @param {Object} object Source object.
-     * @param {Array} requiredProperties Required properties.
-     */
-    function validObject(object, requiredProperties) {
-        forEach(requiredProperties, function (property) {
-            if (!object.hasOwnProperty(property)) {
-                throw new bs.exceptions.BSMissingPropertyException(property, requiredProperties);
-            }
+    function Assets() {
 
-            if (bs.utils.isUndefined(object[property]) || bs.utils.isNull(object[property])) {
-                throw new bs.exceptions.BSInvalidValueException(object[property], property);
-            }
-        });
+
+
     }
 
-
+    Assets.prototype = new bs.Core();
+    Assets.prototype.constructor = Assets;
 
     /**********************************************************************************/
     /*                                                                                */
-    /*                              PRIVATE FUNCTIONS                                 */
+    /*                                PUBLIC MEMBERS                                  */
     /*                                                                                */
     /**********************************************************************************/
+
+    Assets.prototype.start = function start() {
+
+
+
+    };
 
 
 

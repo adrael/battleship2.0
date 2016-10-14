@@ -8,41 +8,39 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    bs.helpers.validObject = validObject;
+    window.bs = (window.bs || {});
+    window.bs.ships = (window.bs.ships || {});
+
+    window.bs.ships.Cruiser = Cruiser;
 
     /**********************************************************************************/
     /*                                                                                */
-    /*                               PUBLIC FUNCTIONS                                 */
+    /*                                  CONSTRUCTOR                                   */
     /*                                                                                */
     /**********************************************************************************/
 
-    /**
-     * @name validObject
-     * @kind function
-     *
-     * @description
-     * Parses the given object and validate each of its properties against the selected array of properties.
-     *
-     * @param {Object} object Source object.
-     * @param {Array} requiredProperties Required properties.
-     */
-    function validObject(object, requiredProperties) {
-        forEach(requiredProperties, function (property) {
-            if (!object.hasOwnProperty(property)) {
-                throw new bs.exceptions.BSMissingPropertyException(property, requiredProperties);
-            }
+    function Cruiser(template, x, y) {
 
-            if (bs.utils.isUndefined(object[property]) || bs.utils.isNull(object[property])) {
-                throw new bs.exceptions.BSInvalidValueException(object[property], property);
-            }
-        });
+        this.length = 3;
+        this.setName('CRUISER');
+        this.init(template, x, y);
+
     }
 
+    Cruiser.prototype = new bs.ships.Ship();
+    Cruiser.prototype.constructor = Cruiser;
+
+    /**********************************************************************************/
+    /*                                                                                */
+    /*                                PUBLIC MEMBERS                                  */
+    /*                                                                                */
+    /**********************************************************************************/
+
 
 
     /**********************************************************************************/
     /*                                                                                */
-    /*                              PRIVATE FUNCTIONS                                 */
+    /*                               PRIVATE MEMBERS                                  */
     /*                                                                                */
     /**********************************************************************************/
 
