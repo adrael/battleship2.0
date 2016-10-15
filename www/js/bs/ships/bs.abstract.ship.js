@@ -68,11 +68,12 @@
 
         var self = this;
 
-        this.template.on('pressup',   function (event) { _shipUnselected.call(this, event, self) });
-        this.template.on('rollout',   function (event) { _shipUnhovered.call(this, event, self) });
-        this.template.on('rollover',  function (event) { _shipHovered.call(this, event, self) });
-        this.template.on('pressmove', function (event) { _shipMoved.call(this, event, self) });
-        this.template.on('mousedown', function (event) { _shipSelected.call(this, event, self) });
+        this.template.on('click',     function (event) { _shipClicked.call(this, event, self); });
+        this.template.on('pressup',   function (event) { _shipUnselected.call(this, event, self); });
+        this.template.on('rollout',   function (event) { _shipUnhovered.call(this, event, self); });
+        this.template.on('rollover',  function (event) { _shipHovered.call(this, event, self); });
+        this.template.on('pressmove', function (event) { _shipMoved.call(this, event, self); });
+        this.template.on('mousedown', function (event) { _shipSelected.call(this, event, self); });
 
     };
 
@@ -169,6 +170,7 @@
 
             aspectRatio = bs.utils.getAspectRatioFit(this.template.image.width, this.template.image.height, shipPosition.w, shipPosition.h);
 
+            this.rotate(0);
             this.moveTo(
                 shipPosition.x + ((shipPosition.w - aspectRatio.width) / 2),
                 shipPosition.y + ((shipPosition.h - aspectRatio.height) / 2)
@@ -199,9 +201,18 @@
         this.offset = {x: this.x - event.stageX, y: this.y - event.stageY};
     }
 
+    function _shipClicked(event, ship) {
+        // IMPORTANT NOTE: The this instance refers to this.template
+        if (ship.orientation === ship.constants.orientation.vertical) {
+            ship.orientation = ship.constants.orientation.horizontal;
+        }
+        else { ship.orientation = ship.constants.orientation.vertical; }
+
+        ship.ticker.requestUpdate();
+    }
+
     function _shipMoved(event, ship) {
         // IMPORTANT NOTE: The this instance refers to this.template
-
         var abs = ship.absoluteToRelativeCoordinates(event.stageX + this.offset.x, event.stageY + this.offset.y);
         ship.location.x = abs.x;
         ship.location.y = abs.y;
@@ -214,7 +225,6 @@
 
     function _shipUnselected(event, ship) {
         // IMPORTANT NOTE: The this instance refers to this.template
-
         var abs = ship.absoluteToRelativeCoordinates(event.stageX + this.offset.x, event.stageY + this.offset.y);
 
         if (abs.x < 1) abs.x = 1;
