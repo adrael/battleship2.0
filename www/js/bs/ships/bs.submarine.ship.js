@@ -23,7 +23,7 @@
 
         this.length = 3;
         this.setName('SUBMARINE');
-        this.init(template, x, y);
+        this.init(template || window._bs._preload.getResult('SUBMARINE'), x, y);
 
     }
 

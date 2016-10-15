@@ -23,7 +23,7 @@
 
         this.length = 4;
         this.setName('BATTLESHIP');
-        this.init(template, x, y);
+        this.init(template || window._bs._preload.getResult('BATTLESHIP'), x, y);
 
     }
 

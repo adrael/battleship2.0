@@ -10,8 +10,9 @@
 
     window.bs = (window.bs || {});
     window._bs = (window._bs || {});
+    window.bs.core = (window.bs.core || {});
 
-    window.bs.Core = Core;
+    window.bs.core.Core = Core;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -74,8 +75,6 @@
     }
 
     Core.prototype.constructor = Core;
-
-    Core.prototype.staticShit = '12';
 
     /**********************************************************************************/
     /*                                                                                */

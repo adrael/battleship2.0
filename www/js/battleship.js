@@ -4,6 +4,8 @@ $(document).ready(function () {
     // CONFIGURATION
     ///////////////////////
 
+    window._bs = (window._bs || {});
+
     if(/*__debugDisabled__*/ false /*__debugDisabled__*/) {
 
         // CONSOLE OVERRIDE
@@ -20,23 +22,34 @@ $(document).ready(function () {
     // ASSETS LOADING
     ///////////////////////
 
-    window.console.error('TODO: Replace assets loading by PreloadJS');
-    // -- Replace with PreloadJS
-    // -- Resources to be loaded here:
-    // - img/logo.png
-    // - img/ships/*.png
+    var itemsLoaded = 0,
+        manifest = [
+            { 'id': 'LOGO',       'src': 'logo.png' },
+            { 'id': 'DESTROYER',  'src': 'ships/destroyer.png' },
+            { 'id': 'SUBMARINE',  'src': 'ships/submarine.png' },
+            { 'id': 'CRUISER',    'src': 'ships/cruiser.png' },
+            { 'id': 'BATTLESHIP', 'src': 'ships/battleship.png' },
+            { 'id': 'CARRIER',    'src': 'ships/carrier.png' }
+        ];
 
-    var ship = new createjs.Bitmap('img/ships/submarine.png');
+    window._bs._preload = new createjs.LoadQueue(true);
 
-    ship.image.onload = function () {
-        window._SUBMARINE = ship.image;
-        new bs.Game().start();
-    };
+    // http://www.createjs.com/demos/preloadjs/mediagrid
+    // window._bs._preload.on('error', handleError);
 
-    ///////////////////////
-    // GAME
-    ///////////////////////
+    window._bs._preload.on('complete', function () {
+        window.console.log('COMPLETED!');
+        new bs.core.Game().start();
+    });
 
-    //new bs.Game().start();
+    window._bs._preload.on('fileload', function (event) {
+        window.console.log('LOADED ASSET:', event.item.id);
+        window.console.log('PROGRESSION:', Math.floor((++itemsLoaded * 100) / manifest.length) + '%');
+    });
+
+    window._bs._preload.loadManifest({
+        path: 'img/',
+        manifest: manifest
+    });
 
 });

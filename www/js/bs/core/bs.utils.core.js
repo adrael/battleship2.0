@@ -244,7 +244,7 @@
     function handleException(exception) {
 
         if (exception instanceof bs.exceptions.BSFactoryException) {
-            return bs.helpers.printBSException(exception);
+            return printBSException(exception);
         }
 
         console.error(exception);
@@ -379,7 +379,7 @@
 
         if (obj) {
 
-            if (bs.utils.isFunction(obj)) {
+            if (isFunction(obj)) {
 
                 for (key in obj) {
                     if (key !== 'prototype' && key !== 'length' && key !== 'name' && obj.hasOwnProperty(key)) {
@@ -387,7 +387,7 @@
                     }
                 }
 
-            } else if (bs.utils.isArray(obj) || _isArrayLike(obj)) {
+            } else if (isArray(obj) || _isArrayLike(obj)) {
 
                 var isPrimitive = typeof obj !== 'object';
                 for (key = 0, length = obj.length; key < length; key++) {
@@ -451,7 +451,7 @@
 
             var obj = objs[i];
 
-            if (!bs.utils.isObject(obj) && !bs.utils.isFunction(obj)) continue;
+            if (!isObject(obj) && !isFunction(obj)) continue;
 
             var keys = Object.keys(obj);
 
@@ -460,18 +460,18 @@
                 var key = keys[j];
                 var src = obj[key];
 
-                if (deep && bs.utils.isObject(src)) {
+                if (deep && isObject(src)) {
 
-                    if (bs.utils.isDate(src)) {
+                    if (isDate(src)) {
                         dst[key] = new Date(src.valueOf());
-                    } else if (bs.utils.isRegExp(src)) {
+                    } else if (isRegExp(src)) {
                         dst[key] = new RegExp(src);
                     } else if (src.nodeName) {
                         dst[key] = src.cloneNode(true);
-                    } else if (bs.utils.isElement(src)) {
+                    } else if (isElement(src)) {
                         dst[key] = src.clone();
                     } else {
-                        if (!bs.utils.isObject(dst[key])) dst[key] = bs.utils.isArray(src) ? [] : {};
+                        if (!isObject(dst[key])) dst[key] = isArray(src) ? [] : {};
                         _baseExtend(dst[key], [src], true);
                     }
 
@@ -505,7 +505,7 @@
         // * jqLite is either the jQuery or jqLite constructor function
         // * we have to check the existence of jqLite first as this method is called
         //   via the forEach method when constructing the jqLite object in the first place
-        if (bs.utils.isArray(obj) || bs.utils.isString(obj)) return true;
+        if (isArray(obj) || isString(obj)) return true;
 
         // Support: iOS 8.2 (not reproducible in simulator)
         // "length" in obj used to prevent JIT error (gh-11508)
@@ -513,7 +513,7 @@
 
         // NodeList objects (with `item` method) and
         // other objects with suitable length characteristics are array-like
-        return bs.utils.isNumber(length) &&
+        return isNumber(length) &&
             (length >= 0 && ((length - 1) in obj || obj instanceof Array) || typeof obj.item === 'function');
 
     }

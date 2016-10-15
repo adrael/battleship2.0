@@ -19,7 +19,10 @@
     /*                                                                                */
     /**********************************************************************************/
 
-
+    var _self = null,
+        _redFilter = new createjs.ColorFilter(0,0,0,1, 255,0,0,0),
+        _blackFilter = new createjs.ColorFilter(0,0,0,1, 0,0,0,0),
+        _updateGraphics = false;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -29,16 +32,20 @@
 
     function Ship() {
 
+        _self = this;
+
         this.name = 'ABSTRACT_SHIP';
         this.length = 0;
-        this.template = new createjs.Bitmap();
+        this.template = null;
         this.location = { x: 0, y: 0 };
         this.isSetOnMap = false;
         this.orientation = this.constants.orientation.horizontal;
 
+        this.setTemplate(new createjs.Bitmap())
+
     }
 
-    Ship.prototype = new bs.Core();
+    Ship.prototype = new bs.core.Core();
     Ship.prototype.constructor = Ship;
 
     /**********************************************************************************/
@@ -48,45 +55,26 @@
     /**********************************************************************************/
 
     Ship.prototype.setTemplate = function setTemplate(template) {
-        this.template = template;
-        this.template.name = this.name;
-        this.template.cursor = 'pointer';
 
-        var self = this,
-            update = false;
+        _self = this;
 
-        this.template.on('mousedown', function (evt) {
-            console.log('mousedown on', self.name);
-            this.parent.addChild(this);
-            this.offset = {x: this.x - evt.stageX, y: this.y - evt.stageY};
-        });
+        _self.template = template;
+        _self.template.name = _self.name;
+        _self.template.cursor = 'pointer';
+        _self.template.filters = [ _blackFilter ];
 
-        this.template.on('pressup', function (evt) {
-            console.log('pressup on', self.name);
-        });
+        if (bs.utils.isElement(_self.template.image)) {
+            _self.template.cache(_self.template.x, _self.template.y, _self.template.image.width, _self.template.image.height);
+        }
 
-        this.template.on("pressmove", function (evt) {
-            this.x = evt.stageX + this.offset.x;
-            this.y = evt.stageY + this.offset.y;
-            // indicate that the stage should be updated on the next tick:
-            update = true;
-        });
+        this.template.on('pressup',   _shipUnselected);
+        this.template.on('rollout',   _shipUnhovered);
+        this.template.on('rollover',  _shipHovered);
+        this.template.on('pressmove', _shipMoved);
+        this.template.on('mousedown', _shipSelected);
 
-        this.template.on("rollover", function (evt) {
-            console.log('rollover on', self.name);
-        });
+        createjs.Ticker.addEventListener('tick', _updateShipGraphics);
 
-        this.template.on("rollout", function (evt) {
-            console.log('rollout on', self.name);
-        });
-
-        createjs.Ticker.addEventListener("tick", function tick(event) {
-            // this set makes it so the stage only re-renders when an event handler indicates a change has happened.
-            if (update) {
-                update = false; // only update once
-                self.stage.update(event);
-            }
-        });
     };
 
     Ship.prototype.setName = function setName(name) {
@@ -132,6 +120,45 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    function _shipSelected(event) {
+        // IMPORTANT NOTE: The this instance refers to this.template
+        this.parent.addChild(this);
+        this.offset = {x: this.x - event.stageX, y: this.y - event.stageY};
+    }
 
+    function _shipMoved(event) {
+        // IMPORTANT NOTE: The this instance refers to this.template
+        this.x = event.stageX + this.offset.x;
+        this.y = event.stageY + this.offset.y;
+        _updateGraphics = true;
+
+        // TODO: Snap ship to grid here
+    }
+
+    function _shipHovered(event) {
+        // IMPORTANT NOTE: The this instance refers to this.template
+        this.filters = [ _redFilter ];
+        this.updateCache();
+        _updateGraphics = true;
+    }
+
+    function _shipUnhovered(event) {
+        // IMPORTANT NOTE: The this instance refers to this.template
+        this.filters = [ _blackFilter ];
+        this.updateCache();
+        _updateGraphics = true;
+    }
+
+    function _shipUnselected(event) {
+        // IMPORTANT NOTE: The this instance refers to this.template
+    }
+
+    function _updateShipGraphics(event) {
+        // This set makes it so the stage only re-renders when an event handler indicates a change has happened.
+        if (_updateGraphics) {
+            _updateGraphics = false; // Only update the stage once
+            _self.stage.update(event);
+        }
+    }
 
 })();

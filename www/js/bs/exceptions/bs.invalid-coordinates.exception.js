@@ -9,9 +9,9 @@
     /**********************************************************************************/
 
     window.bs = (window.bs || {});
-    window.bs.ships = (window.bs.ships || {});
+    window.bs.exceptions = (window.bs.exceptions || {});
 
-    window.bs.ships.Cruiser = Cruiser;
+    window.bs.exceptions.BSInvalidCoordinatesException = BSInvalidCoordinatesException;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -19,16 +19,29 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Cruiser(template, x, y) {
+    /**
+     * @name BSInvalidCoordinatesException
+     * @kind Exception
+     *
+     * @description
+     * Use this exception when invalid coordinates are spotted to be read or written on the map.
+     *
+     * @param {Number} x The x coordinate.
+     * @param {Number} y The y coordinate.
+     */
+    function BSInvalidCoordinatesException(x, y) {
+        this.name = 'BSInvalidCoordinatesException';
+        this.stack = (new Error()).stack;
+        this.toString = function () { return this.name + ': ' + this.message; };
+        this.message = 'Encountered invalid coordinates';
 
-        this.length = 3;
-        this.setName('CRUISER');
-        this.init(template || window._bs._preload.getResult('CRUISER'), x, y);
-
+        if (bs.utils.isNumber(x) && bs.utils.isNumber(y)) {
+            this.message = 'Encountered invalid coordinates: (' + x + ', ' + y + ')';
+        }
     }
 
-    Cruiser.prototype = new bs.ships.Ship();
-    Cruiser.prototype.constructor = Cruiser;
+    BSInvalidCoordinatesException.prototype = Object.create(window.bs.exceptions.BSFactoryException.prototype);
+    BSInvalidCoordinatesException.prototype.constructor = BSInvalidCoordinatesException;
 
     /**********************************************************************************/
     /*                                                                                */

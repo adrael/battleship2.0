@@ -9,8 +9,9 @@
     /**********************************************************************************/
 
     window.bs = (window.bs || {});
+    window.bs.core = (window.bs.core || {});
 
-    window.bs.Game = Game;
+    window.bs.core.Game = Game;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -31,19 +32,19 @@
 
         _self = this;
 
-        _self.map = new bs.logics.Map();
-        _self.board = new bs.graphics.Board();
+        _self.map = new bs.core.Map();
+        _self.board = new bs.core.Board();
         _self.ships = [
-            new bs.ships.Destroyer(window._SUBMARINE),
-            new bs.ships.Submarine(window._SUBMARINE),
-            new bs.ships.Cruiser(window._SUBMARINE),
-            new bs.ships.Battleship(window._SUBMARINE),
-            new bs.ships.Carrier(window._SUBMARINE)
+            new bs.ships.Destroyer(),
+            new bs.ships.Submarine(),
+            new bs.ships.Cruiser(),
+            new bs.ships.Battleship(),
+            new bs.ships.Carrier()
         ];
 
     }
 
-    Game.prototype = new bs.Core();
+    Game.prototype = new bs.core.Core();
     Game.prototype.constructor = Game;
 
     /**********************************************************************************/
@@ -60,11 +61,9 @@
             _self.board.drawGrid();
             _setShips();
 
-            //bs.display.drawBoard();
-            //bs.display.drawRandomShips();
-            //bs.display.setInterface();
-
         }
+
+        return this;
 
     };
 
@@ -80,9 +79,11 @@
 
             try {
 
-                ship.orientation =
-                    ((Math.random() * 100) > 50 ?
-                        _self.constants.orientation.horizontal : _self.constants.orientation.vertical);
+                // The ship is horizontal by default
+                // See bs.abstract.ship constructor
+                if ((Math.random() * 100) > 50) {
+                    ship.orientation = _self.constants.orientation.vertical;
+                }
 
                 var freeCoordinates = _self.map.getFreeCoordinates(ship.orientation, ship.length);
                 ship.location.x = freeCoordinates.x;

@@ -9,9 +9,9 @@
     /**********************************************************************************/
 
     window.bs = (window.bs || {});
-    window.bs.graphics = (window.bs.graphics || {});
+    window.bs.core = (window.bs.core || {});
 
-    window.bs.graphics.Board = Board;
+    window.bs.core.Board = Board;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -20,7 +20,7 @@
     /**********************************************************************************/
 
     function Board() {}
-    Board.prototype = new bs.Core();
+    Board.prototype = new bs.core.Core();
     Board.prototype.constructor = Board;
 
     /**********************************************************************************/

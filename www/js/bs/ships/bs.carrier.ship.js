@@ -23,7 +23,7 @@
 
         this.length = 5;
         this.setName('CARRIER');
-        this.init(template, x, y);
+        this.init(template || window._bs._preload.getResult('CARRIER'), x, y);
 
     }
 

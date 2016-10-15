@@ -9,9 +9,9 @@
     /**********************************************************************************/
 
     window.bs = (window.bs || {});
-    window.bs.logics = (window.bs.logics || {});
+    window.bs.core = (window.bs.core || {});
 
-    window.bs.logics.Map = Map;
+    window.bs.core.Map = Map;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -35,7 +35,7 @@
         _self.reset();
     }
 
-    Map.prototype = new bs.Core();
+    Map.prototype = new bs.core.Core();
     Map.prototype.constructor = Map;
 
     /**********************************************************************************/

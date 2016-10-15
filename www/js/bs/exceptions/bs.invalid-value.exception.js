@@ -9,9 +9,9 @@
     /**********************************************************************************/
 
     window.bs = (window.bs || {});
-    window.bs.ships = (window.bs.ships || {});
+    window.bs.exceptions = (window.bs.exceptions || {});
 
-    window.bs.ships.Cruiser = Cruiser;
+    window.bs.exceptions.BSInvalidValueException = BSInvalidValueException;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -19,16 +19,29 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Cruiser(template, x, y) {
+    /**
+     * @name BSInvalidValueException
+     * @kind Exception
+     *
+     * @description
+     * Use this exception when the value of a property is not matching required specifications.
+     *
+     * @param {*} value The invalid property's value.
+     * @param {String} property The invalid property's name.
+     */
+    function BSInvalidValueException(value, property) {
+        this.name = 'BSInvalidValueException';
+        this.stack = (new Error()).stack;
+        this.toString = function () { return this.name + ': ' + this.message; };
+        this.message = 'Encountered invalid value: ' + value;
 
-        this.length = 3;
-        this.setName('CRUISER');
-        this.init(template || window._bs._preload.getResult('CRUISER'), x, y);
-
+        if (bs.utils.isString(property) && property.trim().length) {
+            this.message = 'Property `' + property + '` has an invalid value: `' + value + '`';
+        }
     }
 
-    Cruiser.prototype = new bs.ships.Ship();
-    Cruiser.prototype.constructor = Cruiser;
+    BSInvalidValueException.prototype = Object.create(window.bs.exceptions.BSFactoryException.prototype);
+    BSInvalidValueException.prototype.constructor = BSInvalidValueException;
 
     /**********************************************************************************/
     /*                                                                                */

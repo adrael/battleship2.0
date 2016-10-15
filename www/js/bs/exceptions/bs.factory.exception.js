@@ -9,8 +9,9 @@
     /**********************************************************************************/
 
     window.bs = (window.bs || {});
+    window.bs.exceptions = (window.bs.exceptions || {});
 
-    window.bs.Assets = Assets;
+    window.bs.exceptions.BSFactoryException = BSFactoryException;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -18,14 +19,22 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Assets() {
-
-
-
+    /**
+     * @name BSFactoryException
+     * @kind Exception
+     *
+     * @description
+     * The factory exception to inherit from.
+     */
+    function BSFactoryException() {
+        this.name = 'BSFactoryException';
+        this.stack = (new Error()).stack;
+        this.toString = function () { return this.name + ': ' + this.message; };
+        this.message = 'An error occured.';
     }
 
-    Assets.prototype = new bs.Core();
-    Assets.prototype.constructor = Assets;
+    BSFactoryException.prototype = Object.create(Error.prototype);
+    BSFactoryException.prototype.constructor = BSFactoryException;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -33,11 +42,13 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    Assets.prototype.start = function start() {
 
 
-
-    };
+    /**********************************************************************************/
+    /*                                                                                */
+    /*                               PRIVATE MEMBERS                                  */
+    /*                                                                                */
+    /**********************************************************************************/
 
 
 

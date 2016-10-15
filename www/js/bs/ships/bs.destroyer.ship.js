@@ -23,7 +23,7 @@
 
         this.length = 2;
         this.setName('DESTROYER');
-        this.init(template, x, y);
+        this.init(template || window._bs._preload.getResult('DESTROYER'), x, y);
 
     }
 
