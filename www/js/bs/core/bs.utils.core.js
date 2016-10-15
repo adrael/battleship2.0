@@ -8,21 +8,208 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    bs.helpers.noop = noop;
-    bs.helpers.merge = merge;
-    bs.helpers.extend = extend;
-    bs.helpers.forEach = forEach;
-    bs.helpers.validObject = validObject;
-    bs.helpers.handleException = handleException;
-    bs.helpers.printBSException = printBSException;
-    bs.helpers.getAspectRatioFit = getAspectRatioFit;
-    bs.helpers.extractInfoFromStack = extractInfoFromStack;
+    window.bs = (window.bs || {});
+    window.bs.utils = (window.bs.utils || {});
+
+    window.bs.utils.noop = noop;
+    window.bs.utils.merge = merge;
+    window.bs.utils.extend = extend;
+    window.bs.utils.forEach = forEach;
+    window.bs.utils.handleException = handleException;
+    window.bs.utils.printBSException = printBSException;
+    window.bs.utils.getAspectRatioFit = getAspectRatioFit;
+    window.bs.utils.extractInfoFromStack = extractInfoFromStack;
+
+    window.bs.utils.isDate = isDate;
+    window.bs.utils.isNull = isNull;
+    window.bs.utils.isArray = isArray;
+    window.bs.utils.isString = isString;
+    window.bs.utils.isRegExp = isRegExp;
+    window.bs.utils.isObject = isObject;
+    window.bs.utils.isNumber = isNumber;
+    window.bs.utils.isDefined = isDefined;
+    window.bs.utils.isElement = isElement;
+    window.bs.utils.isFunction = isFunction;
+    window.bs.utils.isUndefined = isUndefined;
 
     /**********************************************************************************/
     /*                                                                                */
     /*                               PUBLIC FUNCTIONS                                 */
     /*                                                                                */
     /**********************************************************************************/
+
+    /**
+     * @name isNull
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is `null`.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is `null`.
+     */
+    function isNull(value) {
+        return value === null && typeof value === 'object';
+    }
+
+    /**
+     * @name isString
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is a `String`.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `String`.
+     */
+    function isString(value) {
+        return typeof value === 'string';
+    }
+
+    /**
+     * @name isUndefined
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is undefined.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is undefined.
+     */
+    function isUndefined(value) {
+        return typeof value === 'undefined';
+    }
+
+    /**
+     * @name isDefined
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is defined.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is defined.
+     */
+    function isDefined(value) {
+        return typeof value !== 'undefined';
+    }
+
+    /**
+     * @name isObject
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is an `Object`. Unlike `typeof` in JavaScript, `null`s are not
+     * considered to be objects. Note that JavaScript arrays are objects.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is an `Object` but not `null`.
+     */
+    function isObject(value) {
+        return value !== null && typeof value === 'object';
+    }
+
+    /**
+     * @name isNumber
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is a `Number`.
+     *
+     * This includes the "special" numbers `NaN`, `+Infinity` and `-Infinity`.
+     *
+     * If you wish to exclude these then you can use the native
+     * [`isFinite'](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isFinite)
+     * method.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `Number`.
+     */
+    function isNumber(value) {
+        return typeof value === 'number';
+    }
+
+    /**
+     * @name isDate
+     * @kind function
+     *
+     * @description
+     * Determines if a value is a date.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `Date`.
+     */
+    function isDate(value) {
+        return Object.prototype.toString.call(value) === '[object Date]';
+    }
+
+    /**
+     * @name isArray
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is an `Array`.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is an `Array`.
+     */
+    function isArray(value) {
+        return Array.isArray(value);
+    }
+
+    /**
+     * @name isFunction
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is a `Function`.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `Function`.
+     */
+    function isFunction(value) {
+        return typeof value === 'function';
+    }
+
+    /**
+     * @name isElement
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is a DOM element (or wrapped jQuery element).
+     *
+     * @param {*} node Reference to check.
+     * @returns {boolean} True if `value` is a DOM element (or wrapped jQuery element).
+     */
+    function isElement(node) {
+        return !!(node &&
+        (node.nodeName  // we are a direct element
+        || (node.prop && node.attr && node.find)));  // we have an on and find method part of jQuery API
+    }
+
+    /**
+     * @name isRegExp
+     * @kind function
+     *
+     * @description
+     * Determines if a value is a regular expression object.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `RegExp`.
+     */
+    function isRegExp(value) {
+        return toString.call(value) === '[object RegExp]';
+    }
+
+    /**
+     * @name noop
+     * @kind function
+     *
+     * @description
+     * A function that performs no operations. This function can be useful when writing code in the
+     * functional style.
+     */
+    function noop() {}
 
     /**
      * @name getAspectRatioFit
@@ -41,19 +228,9 @@
     function getAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
 
         var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
-        return { width: srcWidth * ratio, height: srcHeight * ratio };
+        return { ratio: ratio, width: srcWidth * ratio, height: srcHeight * ratio };
 
     }
-
-    /**
-     * @name noop
-     * @kind function
-     *
-     * @description
-     * A function that performs no operations. This function can be useful when writing code in the
-     * functional style.
-     */
-    function noop() {}
 
     /**
      * @name handleException
@@ -67,7 +244,7 @@
     function handleException(exception) {
 
         if (exception instanceof bs.exceptions.BSFactoryException) {
-            return bs.helpers.printBSException(exception);
+            return printBSException(exception);
         }
 
         console.error(exception);
@@ -130,28 +307,6 @@
 
         console.error(exception || 'Unknown, unpredicted exception occurred.');
 
-    }
-
-    /**
-     * @name validObject
-     * @kind function
-     *
-     * @description
-     * Parses the given object and validate each of its properties against the selected array of properties.
-     *
-     * @param {Object} object Source object.
-     * @param {Array} requiredProperties Required properties.
-     */
-    function validObject(object, requiredProperties) {
-        forEach(requiredProperties, function (property) {
-            if (!object.hasOwnProperty(property)) {
-                throw new bs.exceptions.BSMissingPropertyException(property, requiredProperties);
-            }
-
-            if (bs.utils.isUndefined(object[property]) || bs.utils.isNull(object[property])) {
-                throw new bs.exceptions.BSInvalidValueException(object[property], property);
-            }
-        });
     }
 
     /**
@@ -224,7 +379,7 @@
 
         if (obj) {
 
-            if (bs.utils.isFunction(obj)) {
+            if (isFunction(obj)) {
 
                 for (key in obj) {
                     if (key !== 'prototype' && key !== 'length' && key !== 'name' && obj.hasOwnProperty(key)) {
@@ -232,7 +387,7 @@
                     }
                 }
 
-            } else if (bs.utils.isArray(obj) || _isArrayLike(obj)) {
+            } else if (isArray(obj) || _isArrayLike(obj)) {
 
                 var isPrimitive = typeof obj !== 'object';
                 for (key = 0, length = obj.length; key < length; key++) {
@@ -296,7 +451,7 @@
 
             var obj = objs[i];
 
-            if (!bs.utils.isObject(obj) && !bs.utils.isFunction(obj)) continue;
+            if (!isObject(obj) && !isFunction(obj)) continue;
 
             var keys = Object.keys(obj);
 
@@ -305,18 +460,18 @@
                 var key = keys[j];
                 var src = obj[key];
 
-                if (deep && bs.utils.isObject(src)) {
+                if (deep && isObject(src)) {
 
-                    if (bs.utils.isDate(src)) {
+                    if (isDate(src)) {
                         dst[key] = new Date(src.valueOf());
-                    } else if (bs.utils.isRegExp(src)) {
+                    } else if (isRegExp(src)) {
                         dst[key] = new RegExp(src);
                     } else if (src.nodeName) {
                         dst[key] = src.cloneNode(true);
-                    } else if (bs.utils.isElement(src)) {
+                    } else if (isElement(src)) {
                         dst[key] = src.clone();
                     } else {
-                        if (!bs.utils.isObject(dst[key])) dst[key] = bs.utils.isArray(src) ? [] : {};
+                        if (!isObject(dst[key])) dst[key] = isArray(src) ? [] : {};
                         _baseExtend(dst[key], [src], true);
                     }
 
@@ -350,7 +505,7 @@
         // * jqLite is either the jQuery or jqLite constructor function
         // * we have to check the existence of jqLite first as this method is called
         //   via the forEach method when constructing the jqLite object in the first place
-        if (bs.utils.isArray(obj) || bs.utils.isString(obj)) return true;
+        if (isArray(obj) || isString(obj)) return true;
 
         // Support: iOS 8.2 (not reproducible in simulator)
         // "length" in obj used to prevent JIT error (gh-11508)
@@ -358,7 +513,7 @@
 
         // NodeList objects (with `item` method) and
         // other objects with suitable length characteristics are array-like
-        return bs.utils.isNumber(length) &&
+        return isNumber(length) &&
             (length >= 0 && ((length - 1) in obj || obj instanceof Array) || typeof obj.item === 'function');
 
     }

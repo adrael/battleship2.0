@@ -8,14 +8,31 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    bs.events.on(bs.constants.EVENTS.ONCLICK, function (coordinates) {
-        console.log('Click registered at:', coordinates.x, coordinates.y);
-        console.log(bs.map.getShipAt(coordinates.x, coordinates.y));
-    });
+    window.bs = (window.bs || {});
+    window.bs.ships = (window.bs.ships || {});
+
+    window.bs.ships.Cruiser = Cruiser;
 
     /**********************************************************************************/
     /*                                                                                */
-    /*                               PUBLIC FUNCTIONS                                 */
+    /*                                  CONSTRUCTOR                                   */
+    /*                                                                                */
+    /**********************************************************************************/
+
+    function Cruiser(template, x, y) {
+
+        this.length = 3;
+        this.setName('CRUISER');
+        this.init(template || window._bs._preload.getResult('CRUISER'), x, y);
+
+    }
+
+    Cruiser.prototype = new bs.ships.AbstractShip();
+    Cruiser.prototype.constructor = Cruiser;
+
+    /**********************************************************************************/
+    /*                                                                                */
+    /*                                PUBLIC MEMBERS                                  */
     /*                                                                                */
     /**********************************************************************************/
 
@@ -23,7 +40,7 @@
 
     /**********************************************************************************/
     /*                                                                                */
-    /*                              PRIVATE FUNCTIONS                                 */
+    /*                               PRIVATE MEMBERS                                  */
     /*                                                                                */
     /**********************************************************************************/
 

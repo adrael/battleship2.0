@@ -8,12 +8,21 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    var _listeners = {};
+    window.bs = (window.bs || {});
+    window.bs.events = (window.bs.events || {});
 
-    bs.events.on = on;
-    bs.events.get = get;
-    bs.events.flush = flush;
-    bs.events.broadcast = broadcast;
+    window.bs.events.on = on;
+    window.bs.events.get = get;
+    window.bs.events.flush = flush;
+    window.bs.events.broadcast = broadcast;
+
+    /**********************************************************************************/
+    /*                                                                                */
+    /*                              PRIVATE PROPERTIES                                */
+    /*                                                                                */
+    /**********************************************************************************/
+
+    var _listeners = {};
 
     /**********************************************************************************/
     /*                                                                                */
@@ -53,9 +62,9 @@
         var namedListeners = _listeners[name];
         if (!namedListeners) return;
 
-        bs.helpers.forEach(namedListeners, function (listener) {
+        bs.utils.forEach(namedListeners, function (listener) {
             try { listener.apply(null, [args]); }
-            catch (exception) { bs.helpers.handleException(exception); }
+            catch (exception) { bs.utils.handleException(exception); }
         });
 
     }
