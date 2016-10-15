@@ -65,6 +65,7 @@
         ///////////////////////
 
         this.stage = window._bs._stage = (window._bs._stage || new createjs.Stage(this.constants.canvas.node));
+        this.ticker = window._bs._ticker = (window._bs._ticker || new bs.core.Ticker());
 
         ///////////////////////
         // SETUP
@@ -95,6 +96,22 @@
 
     };
 
+    Core.prototype.absoluteToRelativeCoordinates = function absoluteToRelativeCoordinates(absX, absY) {
 
+        return {
+            x: Math.floor(absX / this.constants.line.size.width),
+            y: Math.floor(absY / this.constants.line.size.height)
+        };
+
+    };
+
+    Core.prototype.relativeToAbsoluteCoordinates = function relativeToAbsoluteCoordinates(relX, relY) {
+
+        return {
+            x: Math.floor(relX * this.constants.line.size.width),
+            y: Math.floor(relY * this.constants.line.size.height)
+        };
+
+    };
 
 })();

@@ -38,13 +38,13 @@ $(document).ready(function () {
     // window._bs._preload.on('error', handleError);
 
     window._bs._preload.on('complete', function () {
-        window.console.log('COMPLETED!');
+        //window.console.log('COMPLETED!');
         new bs.core.Game().start();
     });
 
     window._bs._preload.on('fileload', function (event) {
-        window.console.log('LOADED ASSET:', event.item.id);
-        window.console.log('PROGRESSION:', Math.floor((++itemsLoaded * 100) / manifest.length) + '%');
+        //window.console.log('LOADED ASSET:', event.item.id);
+        //window.console.log('PROGRESSION:', Math.floor((++itemsLoaded * 100) / manifest.length) + '%');
     });
 
     window._bs._preload.loadManifest({

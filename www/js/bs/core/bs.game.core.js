@@ -79,18 +79,12 @@
 
             try {
 
-                // The ship is horizontal by default
-                // See bs.abstract.ship constructor
-                if ((Math.random() * 100) > 50) {
-                    ship.orientation = _self.constants.orientation.vertical;
-                }
-
                 var freeCoordinates = _self.map.getFreeCoordinates(ship.orientation, ship.length);
                 ship.location.x = freeCoordinates.x;
                 ship.location.y = freeCoordinates.y;
 
                 _self.map.addShip(ship);
-                _self.board.drawShip(ship);
+                ship.draw();
 
             }
             catch (exception) {

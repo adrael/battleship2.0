@@ -27,7 +27,7 @@
 
     }
 
-    Carrier.prototype = new bs.ships.Ship();
+    Carrier.prototype = new bs.ships.AbstractShip();
     Carrier.prototype.constructor = Carrier;
 
     /**********************************************************************************/

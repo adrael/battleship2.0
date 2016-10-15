@@ -11,7 +11,7 @@
     window.bs = (window.bs || {});
     window.bs.ships = (window.bs.ships || {});
 
-    window.bs.ships.Ship = Ship;
+    window.bs.ships.AbstractShip = AbstractShip;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -19,10 +19,8 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    var _self = null,
-        _redFilter = new createjs.ColorFilter(0,0,0,1, 255,0,0,0),
-        _blackFilter = new createjs.ColorFilter(0,0,0,1, 0,0,0,0),
-        _updateGraphics = false;
+    var _redFilter = new createjs.ColorFilter(0,0,0,1, 255,0,0,0),
+        _blackFilter = new createjs.ColorFilter(0,0,0,1, 0,0,0,0);
 
     /**********************************************************************************/
     /*                                                                                */
@@ -30,23 +28,26 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Ship() {
-
-        _self = this;
+    function AbstractShip() {
 
         this.name = 'ABSTRACT_SHIP';
+        this.drawn = false;
         this.length = 0;
         this.template = null;
         this.location = { x: 0, y: 0 };
-        this.isSetOnMap = false;
+        this.debugArea = new createjs.Shape();
         this.orientation = this.constants.orientation.horizontal;
 
-        this.setTemplate(new createjs.Bitmap())
+        if ((Math.random() * 100) > 50) {
+            this.orientation = this.constants.orientation.vertical;
+        }
+
+        this.setTemplate(new createjs.Bitmap());
 
     }
 
-    Ship.prototype = new bs.core.Core();
-    Ship.prototype.constructor = Ship;
+    AbstractShip.prototype = new bs.core.Core();
+    AbstractShip.prototype.constructor = AbstractShip;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -54,57 +55,70 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    Ship.prototype.setTemplate = function setTemplate(template) {
+    AbstractShip.prototype.setTemplate = function setTemplate(template) {
 
-        _self = this;
+        this.template = template;
+        this.template.name = this.name;
+        this.template.cursor = 'pointer';
+        this.template.filters = [ _blackFilter ];
 
-        _self.template = template;
-        _self.template.name = _self.name;
-        _self.template.cursor = 'pointer';
-        _self.template.filters = [ _blackFilter ];
-
-        if (bs.utils.isElement(_self.template.image)) {
-            _self.template.cache(_self.template.x, _self.template.y, _self.template.image.width, _self.template.image.height);
+        if (bs.utils.isElement(this.template.image)) {
+            this.template.cache(this.template.x, this.template.y, this.template.image.width, this.template.image.height);
         }
 
-        this.template.on('pressup',   _shipUnselected);
-        this.template.on('rollout',   _shipUnhovered);
-        this.template.on('rollover',  _shipHovered);
-        this.template.on('pressmove', _shipMoved);
-        this.template.on('mousedown', _shipSelected);
+        var self = this;
 
-        createjs.Ticker.addEventListener('tick', _updateShipGraphics);
+        this.template.on('pressup',   function (event) { _shipUnselected.call(this, event, self) });
+        this.template.on('rollout',   function (event) { _shipUnhovered.call(this, event, self) });
+        this.template.on('rollover',  function (event) { _shipHovered.call(this, event, self) });
+        this.template.on('pressmove', function (event) { _shipMoved.call(this, event, self) });
+        this.template.on('mousedown', function (event) { _shipSelected.call(this, event, self) });
 
     };
 
-    Ship.prototype.setName = function setName(name) {
+    AbstractShip.prototype.setName = function setName(name) {
         this.name = this.template.name = name;
     };
 
-    Ship.prototype.clear = function clear() {
+    AbstractShip.prototype.clear = function clear() {
         this.template.graphics.clear();
-
-        if (this.isSetOnMap) {
-            this.stage.update();
-        }
     };
 
-    Ship.prototype.moveTo = function moveTo(x, y) {
+    AbstractShip.prototype.moveTo = function moveTo(x, y) {
         this.template.x = x;
         this.template.y = y;
-
-        if (this.isSetOnMap) {
-            this.stage.update();
-        }
     };
 
-    Ship.prototype.rotate = function rotate(angle, center) {
+    AbstractShip.prototype.debug = function debugAt() {
+
+        var shipPosition = this.getPosition();
+
+        this.debugArea.graphics.clear();
+
+        this.debugArea
+            .graphics
+            .setStrokeStyle(1)
+            .beginStroke(this.constants.colors.black)
+            .drawRect(shipPosition.x, shipPosition.y, shipPosition.w, shipPosition.h)
+            .endStroke();
+
+        if (!this.debugArea.activated) {
+            this.debugArea.activated = true;
+            this.stage.addChild(this.debugArea);
+        }
+
+    };
+
+    AbstractShip.prototype.rotate = function rotate(angle, center) {
         this.template.regX = this.template.image.width / (center || 0) | 0;
         this.template.regY = this.template.image.height / (center || 0) | 0;
         this.template.rotation = (angle || 0);
     };
 
-    Ship.prototype.init = function init(template, x, y) {
+    AbstractShip.prototype.init = function init(template, x, y) {
+
+        var self = this;
+
         if (bs.utils.isElement(template)) {
             this.setTemplate(new createjs.Bitmap(template));
         }
@@ -112,6 +126,65 @@
         if (bs.utils.isNumber(x) && bs.utils.isNumber(y)) {
             this.moveTo(x, y);
         }
+
+        if (bs.utils.isFunction(this.updateListener)) {
+            this.updateListener();
+        }
+
+        this.updateListener = this.ticker.notifyOnUpdate(function (event) {
+            self.draw(event);
+        })
+
+    };
+
+    AbstractShip.prototype.getPosition = function getPosition() {
+        return {
+            x: this.location.x * this.constants.line.size.width,
+            y: this.location.y * this.constants.line.size.height,
+            w: (this.orientation === this.constants.orientation.horizontal ? this.length : 1) * this.constants.line.size.width,
+            h: (this.orientation === this.constants.orientation.vertical   ? this.length : 1) * this.constants.line.size.height
+        };
+    };
+
+    AbstractShip.prototype.draw = function draw(event) {
+
+        var shipPosition = this.getPosition(),
+            aspectRatio = null;
+
+        if(/*__debugEnabled__*/ true /*__debugEnabled__*/) {
+            this.debug();
+        }
+
+        if (this.orientation === this.constants.orientation.vertical) {
+
+            aspectRatio = bs.utils.getAspectRatioFit(this.template.image.height, this.template.image.width, shipPosition.w, shipPosition.h);
+
+            this.rotate(270, 1);
+            this.moveTo(
+                shipPosition.x + ((shipPosition.w + aspectRatio.width) / 2),
+                shipPosition.y + ((shipPosition.h - aspectRatio.height) / 2)
+            );
+
+        } else {
+
+            aspectRatio = bs.utils.getAspectRatioFit(this.template.image.width, this.template.image.height, shipPosition.w, shipPosition.h);
+
+            this.moveTo(
+                shipPosition.x + ((shipPosition.w - aspectRatio.width) / 2),
+                shipPosition.y + ((shipPosition.h - aspectRatio.height) / 2)
+            );
+
+        }
+
+        this.template.scaleX = this.template.scaleY = this.template.scale = aspectRatio.ratio;
+
+        if (!this.drawn) {
+            this.drawn = true;
+            this.stage.addChild(this.template);
+        }
+
+        this.stage.update(event);
+
     };
 
     /**********************************************************************************/
@@ -120,45 +193,70 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function _shipSelected(event) {
+    function _shipSelected(event, ship) {
         // IMPORTANT NOTE: The this instance refers to this.template
         this.parent.addChild(this);
         this.offset = {x: this.x - event.stageX, y: this.y - event.stageY};
     }
 
-    function _shipMoved(event) {
+    function _shipMoved(event, ship) {
         // IMPORTANT NOTE: The this instance refers to this.template
+
+        var abs = ship.absoluteToRelativeCoordinates(event.stageX + this.offset.x, event.stageY + this.offset.y);
+        ship.location.x = abs.x;
+        ship.location.y = abs.y;
+
         this.x = event.stageX + this.offset.x;
         this.y = event.stageY + this.offset.y;
-        _updateGraphics = true;
 
-        // TODO: Snap ship to grid here
+        ship.ticker.requestUpdate();
     }
 
-    function _shipHovered(event) {
+    function _shipUnselected(event, ship) {
+        // IMPORTANT NOTE: The this instance refers to this.template
+
+        var abs = ship.absoluteToRelativeCoordinates(event.stageX + this.offset.x, event.stageY + this.offset.y);
+
+        if (abs.x < 1) abs.x = 1;
+        if (abs.y < 1) abs.y = 1;
+
+        switch (ship.orientation) {
+
+            case ship.constants.orientation.vertical:
+                if (abs.y + ship.length >= ship.constants.line.count)
+                    abs.y = ship.constants.line.count - ship.length;
+                break;
+
+            case ship.constants.orientation.horizontal:
+                if (abs.x + ship.length >= ship.constants.line.count)
+                    abs.x = ship.constants.line.count - ship.length;
+                break;
+
+        }
+
+        ship.location.x = abs.x;
+        ship.location.y = abs.y;
+
+        var rel = ship.relativeToAbsoluteCoordinates(abs.x, abs.y);
+        this.x = rel.x;
+        this.y = rel.y;
+
+        ship.ticker.requestUpdate();
+
+    }
+
+    function _shipHovered(event, ship) {
         // IMPORTANT NOTE: The this instance refers to this.template
         this.filters = [ _redFilter ];
         this.updateCache();
-        _updateGraphics = true;
+        ship.ticker.requestUpdate();
     }
 
-    function _shipUnhovered(event) {
+    function _shipUnhovered(event, ship) {
         // IMPORTANT NOTE: The this instance refers to this.template
         this.filters = [ _blackFilter ];
         this.updateCache();
-        _updateGraphics = true;
-    }
-
-    function _shipUnselected(event) {
-        // IMPORTANT NOTE: The this instance refers to this.template
-    }
-
-    function _updateShipGraphics(event) {
-        // This set makes it so the stage only re-renders when an event handler indicates a change has happened.
-        if (_updateGraphics) {
-            _updateGraphics = false; // Only update the stage once
-            _self.stage.update(event);
-        }
+        ship.ticker.requestUpdate();
     }
 
 })();

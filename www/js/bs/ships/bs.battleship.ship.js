@@ -27,7 +27,7 @@
 
     }
 
-    Battleship.prototype = new bs.ships.Ship();
+    Battleship.prototype = new bs.ships.AbstractShip();
     Battleship.prototype.constructor = Battleship;
 
     /**********************************************************************************/

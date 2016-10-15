@@ -36,57 +36,6 @@
 
     };
 
-    Board.prototype.drawShip = function drawShip(ship) {
-
-        var shipPosition = {
-                x: ship.location.x * this.constants.line.size.width,
-                y: ship.location.y * this.constants.line.size.height,
-                w: (ship.orientation === this.constants.orientation.horizontal ? ship.length : 1) * this.constants.line.size.width,
-                h: (ship.orientation === this.constants.orientation.vertical   ? ship.length : 1) * this.constants.line.size.height
-            },
-            aspectRatio = null;
-
-        if(/*__debugEnabled__*/ true /*__debugEnabled__*/) {
-
-            var border = new createjs.Shape();
-            border
-                .graphics
-                .setStrokeStyle(1)
-                .beginStroke(this.constants.colors.black)
-                .drawRect(shipPosition.x, shipPosition.y, shipPosition.w, shipPosition.h)
-                .endStroke();
-
-            this.stage.addChild(border);
-        }
-
-        if (ship.orientation === this.constants.orientation.vertical) {
-
-            aspectRatio = bs.utils.getAspectRatioFit(ship.template.image.height, ship.template.image.width, shipPosition.w, shipPosition.h);
-
-            ship.rotate(270, 1);
-            ship.moveTo(
-                shipPosition.x + ((shipPosition.w + aspectRatio.width) / 2),
-                shipPosition.y + ((shipPosition.h - aspectRatio.height) / 2)
-            );
-
-        } else {
-
-            aspectRatio = bs.utils.getAspectRatioFit(ship.template.image.width, ship.template.image.height, shipPosition.w, shipPosition.h);
-
-            ship.moveTo(
-                shipPosition.x + ((shipPosition.w - aspectRatio.width) / 2),
-                shipPosition.y + ((shipPosition.h - aspectRatio.height) / 2)
-            );
-
-        }
-
-        ship.template.scaleX = ship.template.scaleY = ship.template.scale = aspectRatio.ratio;
-
-        this.stage.addChild(ship.template);
-        this.stage.update();
-
-    };
-
     Board.prototype.drawGrid = function drawGrid() {
 
         // Drawing board

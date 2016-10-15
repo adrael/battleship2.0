@@ -27,7 +27,7 @@
 
     }
 
-    Submarine.prototype = new bs.ships.Ship();
+    Submarine.prototype = new bs.ships.AbstractShip();
     Submarine.prototype.constructor = Submarine;
 
     /**********************************************************************************/

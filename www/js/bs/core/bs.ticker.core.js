@@ -9,9 +9,19 @@
     /**********************************************************************************/
 
     window.bs = (window.bs || {});
-    window.bs.ships = (window.bs.ships || {});
+    window.bs.core = (window.bs.core || {});
 
-    window.bs.ships.Cruiser = Cruiser;
+    window.bs.core.Ticker = Ticker;
+
+    /**********************************************************************************/
+    /*                                                                                */
+    /*                              PRIVATE PROPERTIES                                */
+    /*                                                                                */
+    /**********************************************************************************/
+
+    var _self = null,
+        _update = false,
+        _tickerUpdateEvent = 'BS::TICKER::UPDATE';
 
     /**********************************************************************************/
     /*                                                                                */
@@ -19,16 +29,14 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Cruiser(template, x, y) {
+    function Ticker() {
 
-        this.length = 3;
-        this.setName('CRUISER');
-        this.init(template || window._bs._preload.getResult('CRUISER'), x, y);
+        _self = this;
+        createjs.Ticker.addEventListener('tick', _notifyClients);
 
     }
 
-    Cruiser.prototype = new bs.ships.AbstractShip();
-    Cruiser.prototype.constructor = Cruiser;
+    Ticker.prototype.constructor = Ticker;
 
     /**********************************************************************************/
     /*                                                                                */
@@ -36,13 +44,29 @@
     /*                                                                                */
     /**********************************************************************************/
 
+    Ticker.prototype.requestUpdate = function requestUpdate() {
+        _update = true;
+    };
 
+    Ticker.prototype.notifyOnUpdate = function notifyOnUpdate(callback) {
+        return bs.events.on(_tickerUpdateEvent, callback);
+    };
 
     /**********************************************************************************/
     /*                                                                                */
     /*                               PRIVATE MEMBERS                                  */
     /*                                                                                */
     /**********************************************************************************/
+
+    function _notifyClients(event) {
+
+        // This set makes it so the stage only re-renders when an event handler indicates a change has happened.
+        if (_update) {
+            _update = false;
+            bs.events.broadcast(_tickerUpdateEvent, event)
+        }
+
+    }
 
 
 

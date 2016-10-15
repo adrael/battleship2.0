@@ -44,24 +44,6 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    Map.prototype.absoluteToRelativeCoordinates = function absoluteToRelativeCoordinates(absX, absY) {
-
-        return {
-            x: Math.floor(absX / _self.constants.line.size.width),
-            y: Math.floor(absY / _self.constants.line.size.height)
-        };
-
-    };
-
-    Map.prototype.relativeToAbsoluteCoordinates = function relativeToAbsoluteCoordinates(relX, relY) {
-
-        return {
-            x: Math.floor(relX * _self.constants.line.size.width),
-            y: Math.floor(relY * _self.constants.line.size.height)
-        };
-
-    };
-
     Map.prototype.getShipAt = function getShipAt(x, y) {
 
         var result = null;
@@ -115,8 +97,6 @@
                 _ships.push(ship);
 
             }
-
-            ship.isSetOnMap = true;
 
         } catch (exceptions) {
             bs.utils.handleException(exceptions);

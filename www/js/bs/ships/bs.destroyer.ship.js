@@ -27,7 +27,7 @@
 
     }
 
-    Destroyer.prototype = new bs.ships.Ship();
+    Destroyer.prototype = new bs.ships.AbstractShip();
     Destroyer.prototype.constructor = Destroyer;
 
     /**********************************************************************************/
