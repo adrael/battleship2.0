@@ -57,7 +57,11 @@ Creates a zip archive of the `dist` directory for easy deployment purposes.
 
 ## Tests
 
-To run the tests, use the `npm test` command. It will use Karma, Jasmine and PhantomJS to automatically run the tests described in `./tests`.
+### client
+To run the tests, use the `npm test` command. It will use Karma, Jasmine and PhantomJS to automatically run the tests described in `./tests/bs`.
+
+### server
+To run the server-side tests, use the `gulp test-server` command. This tests are run Mocha and chai.
 
 ## References
 

@@ -22,7 +22,14 @@ module.exports = function (io) {
     };
 
     var isPlaying = function (player) {
-        return !player.game || player.game in bf.games;
+        return player.game && player.game in bf.games;
+    };
+
+    var playerData = function (player) {
+        return {
+            id: player.id,
+            nickname: player.nickname
+        };
     };
 
     io.sockets.on('connection', function (player) {
@@ -35,7 +42,7 @@ module.exports = function (io) {
         player.emit('nickname', player.nickname);
 
         player.on('disconnect', function () {
-            if (player.game !== null) {
+            if (isPlaying(player)) {
                 bf.games[player.game].removePlayer(player);
             }
             delete bf.sockets[player.nickname];
@@ -44,7 +51,7 @@ module.exports = function (io) {
         // room creation
 
         player.on('create game', function (gameData) {
-            if (isPlaying(player)) {
+            if (!isPlaying(player)) {
                 gameId += 1;
                 var game = new Game(gameId, gameData.name, gameData.maxPlayers, gameData.password);
                 game.addPlayer(player);
@@ -59,7 +66,7 @@ module.exports = function (io) {
                 var game = bf.games[gameId];
                 if (game.acceptPlayer(player, data)) {
                     game.addPlayer(player);
-                    game.emit(io, 'new player', {nickname: player.nickname});
+                    game.emit(io, 'new player', playerData(player));
                     if (game.started) {
                         game.emit(io, 'game start');
                     }

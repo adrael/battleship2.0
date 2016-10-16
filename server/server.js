@@ -6,6 +6,6 @@ var server = restify.createServer();
 
 socket(io.listen(server.server));
 
-server.listen(8080, function () {
+server.listen(9001, function () {
     console.log('server open at: %s', server.url);
 });
