@@ -14,6 +14,7 @@ var fs              = require('fs'),
     csso            = require('gulp-csso'),
     sass            = require('gulp-sass'),
     merge           = require('merge-stream'),
+    mocha           = require('gulp-mocha'),
     watch           = require('gulp-watch'),
     rename          = require('gulp-rename'),
     useref          = require('gulp-useref'),
@@ -31,6 +32,10 @@ var fs              = require('fs'),
 
         sass: ['./scss/**/*.scss'],
         images: ['./www/img/*'],
+        tests: {
+            server: ['./tests/server/**/*.js'],
+            client: ['./tests/bs/**/*.js']
+        },
         useref: ['./www/*.html', '!./www/index.html']
 
     };
@@ -57,6 +62,11 @@ gulp.task('browser',                                                        _bro
 gulp.task('scratch',                                                        _scratch);
 gulp.task('copyimgs',                                                       _copyimgs);
 gulp.task('copyfonts',                                                      _copyfonts);
+
+gulp.task('watch-test',                                                     _watchTest);
+gulp.task('test-client',    ['watch-test'],                                 _testClient);
+gulp.task('test-server',    ['watch-test'],                                 _testServer);
+gulp.task('test',           ['test-client', 'test-server', 'watch-test']);
 
 /**********************************************************************************/
 /*                                                                                */
@@ -331,6 +341,12 @@ function _watch() {
 
 }
 
+function _watchTest() {
+
+    gulp.watch(paths.tests.server, ['test-server']);
+    gulp.watch(paths.tests.client, ['test-client']);
+}
+
 /**
  * _bower
  * @name _bower
@@ -364,4 +380,33 @@ function _browser() {
 
     return opn('http://localhost:8080/www');
 
+}
+
+/**
+ * _testServer
+ * @name _testServer
+ * @function
+ */
+function _testServer() {
+
+    var config = {
+        reporter: 'dot'
+    };
+
+    return gulp.src(paths.tests.server)
+        .pipe(mocha(config));
+}
+
+/**
+ * _testClient
+ * @name _testClient
+ * @function
+ */
+function _testClient() {
+
+    Server = require('karma').Server;
+    new Server({
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true
+    });
 }

@@ -6,14 +6,15 @@ var expect = require('chai').expect,
 
 describe('test', function () {
 
-    var server = restify.createServer(),
+    var server,
         clientA, clientB, clientC,
         port = 9000,
         url = 'http://localhost:' + port;
 
-    server.listen(port);
 
     beforeEach(function (done) {
+        server = restify.createServer();
+        server.listen(port);
         socket(io.listen(server.server));
         clientA = ioClient.connect(url);
         clientB = ioClient.connect(url);
@@ -25,7 +26,9 @@ describe('test', function () {
         clientA.disconnect();
         clientB.disconnect();
         clientC.disconnect();
+        server.close();
     });
+
     it('should give a nickname to a connecting socket', function (done) {
         clientA.on('nickname', function (nickname) {
             expect(nickname.length).to.be.gt(0);
@@ -62,7 +65,7 @@ describe('test', function () {
         });
     });
 
-    it('should let player join when he has the correct password', function (done) {
+    it('should let player join when the correct password is provided', function (done) {
         clientB = ioClient.connect(url);
         var gameId;
         clientA.emit('create game', {name: 'game with pass', maxPlayers: 4, password: 'password'});
