@@ -67,7 +67,7 @@ module.exports = function (io) {
                 if (game.acceptPlayer(player, data)) {
                     game.addPlayer(player);
                     game.emit(io, 'new player', playerData(player));
-                    if (game.started) {
+                    if (game.state === Game.STATE.READY) {
                         game.emit(io, 'game start');
                     }
                 } else {
@@ -85,7 +85,7 @@ module.exports = function (io) {
                 game.emit(io, 'player left', {nickname: player.nickname});
                 player.emit('game left');
                 var playersCount = game.countPlayers();
-                if (playersCount <= 0 || (game.started && !game.isStillPlayable())) {
+                if (playersCount <= 0 || (game.state === Game.STATE.READY && !game.isStillPlayable())) {
                     if (playersCount > 0) {
                         game.emit('game stoped', 'sorry');
                         game.removeAllPlayers(bf.sockets);

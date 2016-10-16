@@ -40,6 +40,7 @@
     "opn": "^4.0.2",
     "phantomjs-prebuilt": "^2.1.12",
     "shelljs": "^0.7.4",
+    "sinon": "^1.17.6",
     "uglify-js": "^2.7.3",
     "wiredep": "^4.0.0"
   },

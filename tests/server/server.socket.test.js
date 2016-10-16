@@ -4,7 +4,7 @@ var expect = require('chai').expect,
     io = require('socket.io'),
     ioClient = require('socket.io-client');
 
-describe('game', function () {
+describe('socket', function () {
 
     var server,
         clientA, clientB, clientC,

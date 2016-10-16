@@ -2,25 +2,32 @@ function Game (id, name, maxPlayers, password) {
     this.id = id;
     this.name = name;
     this.password = password ? password : '';
-    this.maxPlayers = maxPlayers > 2 && maxPlayers <= 10 ? maxPlayers : 4;
+    this.maxPlayers = maxPlayers >= 2 && maxPlayers <= 10 ? maxPlayers : 4;
     this.players = {};
-    this.started = false;
+    this.state = Game.STATE.WAITING_PLAYERS;
 
     this.socket_room_name = '/game/' + this.id + '-' + this.name;
 }
+
+Game.STATE = {
+    READY: 1,
+    PLAYING: 2,
+    WAITING_PLAYERS: 3,
+    SETTING: 4
+};
 
 Game.prototype = {
 
     constructor : Game,
 
     addPlayer: function (player) {
-        this.players[player.nickname] = {};
+        this.players[player.nickname] = {
+            isReady: false
+        };
         player.join(this.socket_room_name);
         player.leave('lobby');
         player.game = this.id;
-        if (!this.started && !this._hasAvailableSlot()) {
-            this.started = true;
-        }
+        this._updateState();
     },
 
     removePlayer: function (player) {
@@ -28,6 +35,7 @@ Game.prototype = {
         player.leave(this.socket_room_name);
         player.game = null;
         delete this.players[player.nickname];
+        this._updateState();
     },
 
     removeAllPlayers: function (players) {
@@ -41,7 +49,8 @@ Game.prototype = {
     },
 
     acceptPlayer: function (player, data) {
-        return !this.started &&
+        return player.game === null &&
+            this.state === Game.STATE.WAITING_PLAYERS &&
             this._hasAvailableSlot() &&
             this._passwordIsCorrect(data) &&
             !this._hasPlayer(player)
@@ -52,7 +61,7 @@ Game.prototype = {
     },
 
     isOpen: function () {
-        return !this.started && this._hasAvailableSlot();
+        return this.state === Game.STATE.WAITING_PLAYERS && this._hasAvailableSlot();
     },
 
     summary: function () {
@@ -87,6 +96,45 @@ Game.prototype = {
 
     countPlayers: function () {
         return this.getPlayersList().length;
+    },
+
+    setPlayerReady: function(player, isReady) {
+        if (this._hasPlayer(player) && this.state === Game.STATE.READY) {
+            this.players[player.nickname].isReady = isReady;
+            this._updateState();
+        }
+    },
+
+    _updateState: function () {
+        switch (this.state) {
+            case Game.STATE.WAITING_PLAYERS:
+                if (!this._hasAvailableSlot()) {
+                    this.state = Game.STATE.READY;
+                }
+                break;
+            case Game.STATE.READY:
+                if (this._hasAvailableSlot()) {
+                    this.state = Game.STATE.WAITING_PLAYERS;
+                }
+                if (this._areAllPlayersReady()) {
+                    this.state = Game.STATE.SETTING;
+                }
+                break;
+            case Game.STATE.PLAYING:
+                break;
+        }
+    },
+
+    _areAllPlayersReady: function () {
+        for (var nickname in this.players) {
+            if (!this.players.hasOwnProperty(nickname)) {
+                continue;
+            }
+            if (!this.players[nickname].isReady) {
+                return false;
+            }
+        }
+        return true;
     },
 
     _hasPlayer: function (player) {
