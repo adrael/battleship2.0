@@ -1,9 +1,10 @@
 var restify = require('restify'),
-    socket = require('./src/socket.js');
+    socket = require('./src/socket.js'),
+    io = require('socket.io');
 
 var server = restify.createServer();
 
-socket(server);
+socket(io.listen(server.server));
 
 server.listen(8080, function () {
     console.log('server open at: %s', server.url);

@@ -2,7 +2,7 @@ function Game (id, name, maxPlayers, password) {
     this.id = id;
     this.name = name;
     this.password = password ? password : '';
-    this.maxPlayers = maxPlayers > 2 && maxPlayers < 10 ? maxPlayers : 4;
+    this.maxPlayers = maxPlayers > 2 && maxPlayers <= 10 ? maxPlayers : 4;
     this.players = {};
     this.started = false;
 
@@ -65,11 +65,11 @@ Game.prototype = {
         };
     },
 
-    emit: function (io, event, message) {
+    emit: function (io, event, data) {
         if (data === undefined) {
             io.sockets.in(this.socket_room_name).emit(event);
         } else {
-            io.sockets.in(this.socket_room_name).emit(event, message);
+            io.sockets.in(this.socket_room_name).emit(event, data);
         }
     },
 

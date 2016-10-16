@@ -27,7 +27,7 @@ module.exports = function(config) {
             'www/js/bs/bs.map.js',
 
             'tests/common-helpers.js',
-            'tests/**/*!(common-helpers).js'
+            'tests/bs/*!(common-helpers).js'
         ],
 
 

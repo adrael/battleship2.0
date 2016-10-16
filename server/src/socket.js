@@ -1,5 +1,4 @@
-module.exports = function (server) {
-    var io = require('socket.io').listen(server.server);
+module.exports = function (io) {
     var Game = require('./game');
     var words = require('./words');
 
@@ -45,11 +44,12 @@ module.exports = function (server) {
         // room creation
 
         player.on('create game', function (gameData) {
-            if (!player.game) {
+            if (isPlaying(player)) {
                 gameId += 1;
                 var game = new Game(gameId, gameData.name, gameData.maxPlayers, gameData.password);
                 game.addPlayer(player);
                 bf.games[game.id] = game;
+                player.emit('game created', game.summary());
             }
         });
 
@@ -75,7 +75,8 @@ module.exports = function (server) {
             if (player.game !== null) {
                 var game = bf.games[player.game];
                 game.removePlayer(player);
-                game.emit(io, 'new player', {nickname: player.nickname});
+                game.emit(io, 'player left', {nickname: player.nickname});
+                player.emit('game left');
                 var playersCount = game.countPlayers();
                 if (playersCount <= 0 || (game.started && !game.isStillPlayable())) {
                     if (playersCount > 0) {
@@ -96,7 +97,7 @@ module.exports = function (server) {
                     games.push(bf.games[id].summary());
                 }
             });
-            player.emit('list of games', games);
+            player.emit('list games', games);
         });
 
         // game
