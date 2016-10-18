@@ -19,11 +19,12 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Cruiser(template, x, y) {
+    function Cruiser(map) {
 
         this.length = 3;
+        this.setMap(map);
         this.setName('CRUISER');
-        this.init(template || window._bs._preload.getResult('CRUISER'), x, y);
+        this.init(window._bs._preload.getResult('CRUISER'));
 
     }
 

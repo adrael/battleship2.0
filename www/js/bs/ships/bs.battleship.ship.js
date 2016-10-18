@@ -19,11 +19,12 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Battleship(template, x, y) {
+    function Battleship(map) {
 
         this.length = 4;
+        this.setMap(map);
         this.setName('BATTLESHIP');
-        this.init(template || window._bs._preload.getResult('BATTLESHIP'), x, y);
+        this.init(window._bs._preload.getResult('BATTLESHIP'));
 
     }
 

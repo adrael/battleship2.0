@@ -19,11 +19,12 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Carrier(template, x, y) {
+    function Carrier(map) {
 
         this.length = 5;
+        this.setMap(map);
         this.setName('CARRIER');
-        this.init(template || window._bs._preload.getResult('CARRIER'), x, y);
+        this.init(window._bs._preload.getResult('CARRIER'));
 
     }
 

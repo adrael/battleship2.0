@@ -60,6 +60,10 @@
         this.constants.map.indexes.vertical = 'A,B,C,D,E,F,G,H,I,J'.split(',');
         this.constants.map.indexes.horizontal = '1,2,3,4,5,6,7,8,9,10'.split(',');
 
+        if(/*__debugEnabled__*/ true /*__debugEnabled__*/) {
+            this.constants.map.indexes.vertical = '1,2,3,4,5,6,7,8,9,10'.split(',');
+        }
+
         ///////////////////////
         // MEMBERS
         ///////////////////////
@@ -92,7 +96,7 @@
         this.stage.enableMouseOver(10);
 
         // Keep tracking the mouse even when it leaves the canvas
-        this.stage.mouseMoveOutside = true;
+        //this.stage.mouseMoveOutside = true;
 
     };
 

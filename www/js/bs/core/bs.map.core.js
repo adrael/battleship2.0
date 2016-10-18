@@ -67,50 +67,36 @@
 
     };
 
-    Map.prototype.addShip = function addShip(ship) {
+    Map.prototype.moveShip = function moveShip(oldShip, newShip) {
+        try {
+            _clearShipOnMap(oldShip);
+            _addShipOnMap(newShip);
+        } catch (exceptions) {
+            bs.utils.handleException(exceptions);
+        }
+    };
 
+    Map.prototype.addShip = function addShip(ship) {
         if (!_self.isShipLocationValid(ship)) {
             throw new bs.exceptions.BSInvalidCoordinatesException(ship.location.x, ship.location.y);
         }
 
-        try {
-
-            _writeMap(ship.location.x, ship.location.y, 1);
-
-            for (var index = 1; index < ship.length; ++index) {
-
-                var nextLocation = {};
-
-                switch (ship.orientation) {
-                    case _self.constants.orientation.horizontal:
-                        nextLocation.x = ship.location.x + index;
-                        nextLocation.y = ship.location.y;
-                        break;
-
-                    case _self.constants.orientation.vertical:
-                        nextLocation.x = ship.location.x;
-                        nextLocation.y = ship.location.y + index;
-                        break;
-                }
-
-                _writeMap(nextLocation.x, nextLocation.y, 1);
-                _ships.push(ship);
-
-            }
-
-        } catch (exceptions) {
-            bs.utils.handleException(exceptions);
-        }
-
+        try { _addShipOnMap(ship); }
+        catch (exceptions) { bs.utils.handleException(exceptions); }
     };
 
     Map.prototype.isShipLocationValid = function isShipLocationValid(ship) {
-        return _locationIsWithinMap(ship) && !_overlappingOtherShips(ship);
+        return _self.locationIsWithinMap(ship) && !_overlappingOtherShips(ship);
     };
 
     Map.prototype.getFreeCoordinates = function getFreeCoordinates(orientation, length) {
 
-        var _ship = { length: length, orientation: orientation, location: {} };
+        var _ship = {
+            name: 'FAKE',
+            length: length,
+            orientation: orientation,
+            location: {}
+        };
 
         do {
 
@@ -129,6 +115,40 @@
         _setupMap();
     };
 
+    Map.prototype.print = function print() {
+
+        console.log('      [1] [2] [3] [4] [5] [6] [7] [8] [9] [10]');
+        console.log('     -----------------------------------------');
+
+        bs.utils.forEach(_map, function (indexes, row) {
+            var _row = row + 1,
+                line = (_row <= 9 ? ' ' : '') + '[' + _row + '] | ';
+
+            bs.utils.forEach(indexes, function (index) {
+                line += index.length + ' | ';
+            });
+
+            console.log(line);
+            if (row < _map.length - 1) {
+                console.log('     |---|---|---|---|---|---|---|---|---|---|');
+            } else {
+                console.log('     -----------------------------------------');
+            }
+        });
+
+    };
+
+    Map.prototype.locationIsWithinMap = function locationIsWithinMap(ship) {
+
+        var max = _self.constants.line.count,
+            vLength = (ship.orientation === _self.constants.orientation.vertical) ? ship.length : 1,
+            hLength = (ship.orientation === _self.constants.orientation.horizontal) ? ship.length : 1;
+
+        return ship.location.x >= 1 && ship.location.x + hLength - 1 < max &&
+            ship.location.y >= 1 && ship.location.y + vLength - 1 < max;
+
+    };
+
     /**********************************************************************************/
     /*                                                                                */
     /*                               PRIVATE MEMBERS                                  */
@@ -140,60 +160,51 @@
         var cursor = {},
             isHorizontal = (ship.orientation === _self.constants.orientation.horizontal);
 
-        cursor.x = ship.location.x;
-        cursor.y = ship.location.y;
-
         try {
 
             for (var index = 0; index < ship.length; ++index) {
-                _validFreeCoordinates(cursor.x, cursor.y);
-
-                cursor.x += isHorizontal ? 1 : 0;
-                cursor.y += !isHorizontal ? 1 : 0;
+                cursor.x = ship.location.x + (isHorizontal ? index : 0);
+                cursor.y = ship.location.y + (isHorizontal ? 0 : index);
+                _validFreeCoordinates(cursor.x, cursor.y, ship);
             }
 
         } catch (exception) {
-
             return true;
-
         }
 
         return false;
     }
 
-    function _locationIsWithinMap(ship) {
-
-        var max = _self.constants.line.count,
-            vLength = (ship.orientation === _self.constants.orientation.vertical) ? ship.length : 1,
-            hLength = (ship.orientation === _self.constants.orientation.horizontal) ? ship.length : 1;
-
-        return ship.location.x >= 0 && ship.location.x + hLength - 1 < max &&
-            ship.location.y >= 0 && ship.location.y + vLength - 1 < max;
-
-    }
-
-    function _writeMap(x, y, value) {
+    function _validFreeCoordinates(x, y, ship) {
 
         var _x = x - 1,
             _y = y - 1;
 
-        if (!bs.utils.isDefined(_map[_y][_x])) {
-            throw new bs.exceptions.BSInvalidCoordinatesException(x, y);
+        if (bs.utils.isUndefined(_map[_y]) || bs.utils.isUndefined(_map[_y][_x])) {
+            throw new bs.exceptions.BSInvalidCoordinatesException(x, y)
         }
 
-        _map[_y][_x] = value;
+        if (_map[_y][_x].length === 0) {
 
-    }
+            return true;
 
-    function _validFreeCoordinates(x, y) {
+        } else {
 
-        var _x = x - 1,
-            _y = y - 1;
+            var __map = bs.utils.merge([], _map[_y][_x]),
+                shipIndex = __map.indexOf(ship.name);
 
-        if (!bs.utils.isDefined(_map[_y])) return true;
-        if (!bs.utils.isDefined(_map[_y][_x])) return true;
+            if (shipIndex !== -1) {
+                __map.splice(__map.indexOf(ship.name), 1);
+            }
 
-        if (_map[_y][_x] !== 0) {
+            if (__map.length === 0) {
+                return true;
+            }
+
+            if(/*__debugEnabled__*/ true /*__debugEnabled__*/) {
+                //console.error('('+x+', '+y+') has:', __map, 'besides', ship.name);
+            }
+
             throw new bs.exceptions.BSInvalidCoordinatesException(x, y);
         }
 
@@ -203,16 +214,64 @@
 
         var line = [];
 
-        for (var columns = 1; columns < _self.constants.line.count; ++columns) {
-            line.push(0);
+        for (var columns = 0; columns < _self.constants.line.count - 1; ++columns) {
+            line.push([]);
         }
 
-        for (var rows = 1; rows < _self.constants.line.count; ++rows) {
+        for (var rows = 0; rows < _self.constants.line.count - 1; ++rows) {
             _map.push(bs.utils.merge([], line));
         }
 
     }
 
+    function _clearShipOnMap(ship) {
+        _shipWriter(ship, ship.name, true);
+    }
 
+    function _addShipOnMap(ship) {
+        _shipWriter(ship, ship.name);
+        _ships.push(ship);
+    }
+
+    function _shipWriter(ship, value, erase) {
+
+        for (var index = 0; index < ship.length; ++index) {
+
+            var nextLocation = {};
+
+            switch (ship.orientation) {
+                case _self.constants.orientation.horizontal:
+                    nextLocation.x = ship.location.x + index;
+                    nextLocation.y = ship.location.y;
+                    break;
+
+                case _self.constants.orientation.vertical:
+                    nextLocation.x = ship.location.x;
+                    nextLocation.y = ship.location.y + index;
+                    break;
+            }
+
+            _writeMap(nextLocation.x, nextLocation.y, value, erase);
+
+        }
+
+    }
+
+    function _writeMap(x, y, value, erase) {
+
+        var _x = x - 1,
+            _y = y - 1;
+
+        if (bs.utils.isUndefined(_map[_y]) || bs.utils.isUndefined(_map[_y][_x])) {
+            throw new bs.exceptions.BSInvalidCoordinatesException(x, y);
+        }
+
+        if (erase) {
+            _map[_y][_x].splice(_map[_y][_x].indexOf(value), 1);
+        } else {
+            _map[_y][_x].push(value);
+        }
+
+    }
 
 })();

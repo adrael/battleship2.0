@@ -19,11 +19,12 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Submarine(template, x, y) {
+    function Submarine(map) {
 
         this.length = 3;
+        this.setMap(map);
         this.setName('SUBMARINE');
-        this.init(template || window._bs._preload.getResult('SUBMARINE'), x, y);
+        this.init(window._bs._preload.getResult('SUBMARINE'));
 
     }
 

@@ -19,11 +19,12 @@
     /*                                                                                */
     /**********************************************************************************/
 
-    function Destroyer(template, x, y) {
+    function Destroyer(map) {
 
         this.length = 2;
+        this.setMap(map);
         this.setName('DESTROYER');
-        this.init(template || window._bs._preload.getResult('DESTROYER'), x, y);
+        this.init(window._bs._preload.getResult('DESTROYER'));
 
     }
 
