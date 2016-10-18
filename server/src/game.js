@@ -5,6 +5,7 @@ function Game (id, name, maxPlayers, password) {
     this.maxPlayers = maxPlayers >= 2 && maxPlayers <= 10 ? maxPlayers : 4;
     this.players = {};
     this.state = Game.STATE.WAITING_PLAYERS;
+    this.mechanic = require('./mechanics/basic');
 
     this.socket_room_name = '/game/' + this.id + '-' + this.name;
 }
