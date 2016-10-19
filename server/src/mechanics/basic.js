@@ -9,12 +9,12 @@ Mechanic = {
 
     isActionsValid: function (map, actions) {
         return actions.length <= map.max.action &&
-            Mechanic._validNumberOf(map, actions, 'bomb') &&
+            Mechanic._validNumberOfActions(map, actions) &&
             Mechanic._actionsWithinBoundaries(map, actions) &&
             Mechanic._actionsDoNotOverlap(map, actions);
     },
 
-    processTurn: function (boards, bombs) {
+    processTurn: function (boards, actions) {
 
     },
 
@@ -48,15 +48,24 @@ Mechanic = {
         return true;
     },
 
-    _validNumberOf: function (map, actions, type) {
-        if (map.max[type] === undefined) {
-            return true;
-        }
-        var count = 0;
-        actions.forEach(function(action) {
-            count += (action.type === type) ? 1 : 0;
+    _validNumberOfActions: function (map, actions) {
+        var check = {},
+            result;
+
+        actions.forEach(function (action) {
+            result = check[action.type];
+            check[action.type] = (result !== undefined) ? result + 1 : 1;
         });
-        return count <= map.max[type];
+
+        for (var type in check) {
+            if (!check.hasOwnProperty(type)) {
+                continue;
+            }
+            if (map.max[type] !== undefined && check[type] > map.max[type]) {
+                return false;
+            }
+        }
+        return true;
     },
 
     _mapDimensionsAreValid: function (map) {
@@ -72,15 +81,14 @@ Mechanic = {
                 expected: map.ships[types[t]]
             };
         }
-        for (t = 0; t < ships.length; ++t) {
-            var type = ships[t].type;
+        var result, type;
+        for (var i = 0; i < ships.length; ++i) {
+            type = ships[i].type;
             if (!check[type]) {
                 return false;
             }
-            if (!check[type].result) {
-                check[type].result = 0;
-            }
-            check[type].result += 1;
+            result = check[type].result;
+            check[type].result = (result !== undefined) ? result + 1 : 1;
         }
 
         for (var element in check) {
