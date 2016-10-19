@@ -7,12 +7,56 @@ Mechanic = {
             Mechanic._noShipsAreOverlapping(ships);
     },
 
-    isPlayValid: function (map_boundaries, bombs) {
-
+    isActionsValid: function (map, actions) {
+        return actions.length <= map.max.action &&
+            Mechanic._validNumberOf(map, actions, 'bomb') &&
+            Mechanic._actionsWithinBoundaries(map, actions) &&
+            Mechanic._actionsDoNotOverlap(map, actions);
     },
 
     processTurn: function (boards, bombs) {
 
+    },
+
+    _actionsWithinBoundaries: function (map, actions) {
+        for (var i = 0; i < actions.length; ++i) {
+            if (!Mechanic._actionWithinBoundaries(map, actions[i])) {
+                return false;
+            }
+        }
+        return true;
+    },
+
+    _actionWithinBoundaries: function (map, action) {
+        if (action.type === 'bomb') {
+            return action.x >= 0 && action.x < map.width &&
+                action.y >= 0 && action.y < map.height;
+        }
+        return false;
+    },
+
+    _actionsDoNotOverlap: function (map, actions) {
+        var occupied = [];
+
+        for (var i = 0; i < actions.length; ++i) {
+            var index = actions[i].x + actions[i].y * map.width;
+            if (occupied.indexOf(index) !== -1) {
+                return false;
+            }
+            occupied.push(index);
+        }
+        return true;
+    },
+
+    _validNumberOf: function (map, actions, type) {
+        if (map.max[type] === undefined) {
+            return true;
+        }
+        var count = 0;
+        actions.forEach(function(action) {
+            count += (action.type === type) ? 1 : 0;
+        });
+        return count <= map.max[type];
     },
 
     _mapDimensionsAreValid: function (map) {
