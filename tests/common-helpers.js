@@ -1,9 +1,9 @@
 function describeLogic(name, testsDescription) {
-    _describeComponent(name, 'Logic', testsDescription);
+    _describeComponent(name, null, testsDescription);
 }
 
 function describeLogicPoint(name, testsDescription) {
-    _describeComponent(name, 'logic', testsDescription, '    ');
+    _describeComponent(name, null, testsDescription, '    ');
 }
 
 
@@ -15,6 +15,6 @@ function _describeComponent(name, type, testsDescription, prefix) {
 }
 function _logTestStart(name, type, prefix) {
     beforeAll(function () {
-        console.log((prefix || '') + '>> Testing ' + name + ' ' + type);
+        console.log((prefix || '') + '>> ' + name + (type ? ' ' + type : ''));
     });
 }

@@ -11,6 +11,7 @@
     <!-- build:css styles/app.css -->
 
     <!-- bower:css -->
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css"/>
     <!-- endbower -->
 
     <link rel="stylesheet" href="css/main.css">
@@ -19,8 +20,16 @@
 </head>
 <body>
 
-<h1 class="header-title">BattleShip 2.0</h1>
-<canvas id="battlefield" class="battlefield" width="576" height="576"></canvas>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <h1 class="header-title">BattleShip 2.0</h1>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <canvas id="battlefield" class="battlefield hidden" width="600" height="600"></canvas>
+        </div>
+    </div>
+</div>
 
 <!-- build:js js/app.js -->
 
@@ -38,12 +47,13 @@
 <script src="js/bs/exceptions/bs.invalid-coordinates.exception.js"></script>
 
 <script src="js/bs/core/bs.utils.core.js"></script>
+<script src="js/bs/core/bs.events.core.js"></script>
 <script src="js/bs/core/bs.ticker.core.js"></script>
+<script src="js/bs/core/bs.constants.core.js"></script>
 <script src="js/bs/core/bs.core.js"></script>
 <script src="js/bs/core/bs.map.core.js"></script>
 <script src="js/bs/core/bs.game.core.js"></script>
 <script src="js/bs/core/bs.board.core.js"></script>
-<script src="js/bs/core/bs.events.core.js"></script>
 
 <script src="js/bs/ships/bs.abstract.ship.js"></script>
 <script src="js/bs/ships/bs.cruiser.ship.js"></script>

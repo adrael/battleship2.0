@@ -185,16 +185,15 @@
         }
 
         if (_map[_y][_x].length === 0) {
-
             return true;
-
-        } else {
+        }
+        else {
 
             var __map = bs.utils.merge([], _map[_y][_x]),
                 shipIndex = __map.indexOf(ship.name);
 
             if (shipIndex !== -1) {
-                __map.splice(__map.indexOf(ship.name), 1);
+                __map.splice(shipIndex, 1);
             }
 
             if (__map.length === 0) {
@@ -202,7 +201,7 @@
             }
 
             if(/*__debugEnabled__*/ true /*__debugEnabled__*/) {
-                //console.error('('+x+', '+y+') has:', __map, 'besides', ship.name);
+                //console.error('('+x+', '+y+') has:', __map, 'and trying to add', ship.name);
             }
 
             throw new bs.exceptions.BSInvalidCoordinatesException(x, y);
@@ -211,7 +210,6 @@
     }
 
     function _setupMap() {
-
         var line = [];
 
         for (var columns = 0; columns < _self.constants.line.count - 1; ++columns) {
@@ -221,7 +219,6 @@
         for (var rows = 0; rows < _self.constants.line.count - 1; ++rows) {
             _map.push(bs.utils.merge([], line));
         }
-
     }
 
     function _clearShipOnMap(ship) {

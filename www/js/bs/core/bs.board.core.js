@@ -15,11 +15,23 @@
 
     /**********************************************************************************/
     /*                                                                                */
+    /*                              PRIVATE PROPERTIES                                */
+    /*                                                                                */
+    /**********************************************************************************/
+
+    var _self = null,
+        _children = [];
+
+    /**********************************************************************************/
+    /*                                                                                */
     /*                                  CONSTRUCTOR                                   */
     /*                                                                                */
     /**********************************************************************************/
 
-    function Board() {}
+    function Board() {
+        _self = this;
+    }
+
     Board.prototype = new bs.core.Core();
     Board.prototype.constructor = Board;
 
@@ -31,18 +43,22 @@
 
     Board.prototype.clear = function clear() {
 
-        this.stage.removeAllChildren();
-        this.stage.update();
+        _flushChildren();
+        _self.stage.update();
 
     };
 
     Board.prototype.drawGrid = function drawGrid() {
 
-        // Drawing board
-        var lineWidth = this.constants.line.size.width,
-            lineHeight = this.constants.line.size.height;
+        if (_children.length > 0) {
+            _flushChildren();
+        }
 
-        for (var index = 0; index < this.constants.line.count; ++index) {
+        // Drawing board
+        var lineWidth = _self.constants.line.size.width,
+            lineHeight = _self.constants.line.size.height;
+
+        for (var index = 0; index < _self.constants.line.count; ++index) {
 
             var lineShape = new createjs.Shape(),
                 rectShape = new createjs.Shape(),
@@ -55,15 +71,15 @@
                 .setStrokeStyle(.2)
 
                 // Vertical line
-                .beginStroke(this.constants.colors.black)
+                .beginStroke(_self.constants.colors.black)
                 .moveTo(currentVerticalPosition, 0)
-                .lineTo(currentVerticalPosition, this.constants.canvas.size.width)
+                .lineTo(currentVerticalPosition, _self.constants.canvas.size.width)
                 .endStroke()
 
                 // Horizontal line
-                .beginStroke(this.constants.colors.black)
+                .beginStroke(_self.constants.colors.black)
                 .moveTo(0, currentHorizontalPosition)
-                .lineTo(this.constants.canvas.size.height, currentHorizontalPosition)
+                .lineTo(_self.constants.canvas.size.height, currentHorizontalPosition)
                 .endStroke();
 
             // Drawing grid indexes
@@ -71,25 +87,28 @@
                 .graphics
 
                 // Vertical index
-                .beginFill(this.constants.colors.black)
+                .beginFill(_self.constants.colors.black)
                 .drawRect(currentVerticalPosition, 0, lineWidth, lineHeight)
                 .endFill()
 
                 // Horizontal index
-                .beginFill(this.constants.colors.black)
+                .beginFill(_self.constants.colors.black)
                 .drawRect(0, currentHorizontalPosition, lineWidth, lineHeight)
                 .endFill();
 
-            this.stage.addChild(lineShape);
-            this.stage.addChild(rectShape);
+            _children.push(lineShape);
+            _children.push(rectShape);
+            _self.stage.addChild(lineShape);
+            _self.stage.addChild(rectShape);
 
             // Drawing indexes text
             if (index > 0) {
 
-                var verticalText = this.constants.map.indexes.vertical[index - 1],
-                    horizontalText = this.constants.map.indexes.horizontal[index - 1],
-                    verticalIndexText = new createjs.Text(verticalText, '16pt Arial', this.constants.colors.white),
-                    horizontalIndexText = new createjs.Text(horizontalText, '16pt Arial', this.constants.colors.white);
+                var textScale = (lineWidth / 2),
+                    verticalText = _self.constants.map.indexes.vertical[index - 1],
+                    horizontalText = _self.constants.map.indexes.horizontal[index - 1],
+                    verticalIndexText = new createjs.Text(verticalText, textScale + 'px Arial', _self.constants.colors.white),
+                    horizontalIndexText = new createjs.Text(horizontalText, textScale + 'px Arial', _self.constants.colors.white);
 
                 verticalIndexText.x = (currentVerticalPosition + lineWidth / 2 - verticalIndexText.getBounds().width / 2);
                 verticalIndexText.y = (lineHeight / 2);
@@ -99,26 +118,26 @@
                 horizontalIndexText.y = (currentHorizontalPosition + lineHeight / 2);
                 horizontalIndexText.textBaseline = 'middle';
 
-                this.stage.addChild(verticalIndexText);
-                this.stage.addChild(horizontalIndexText);
+                _children.push(verticalIndexText);
+                _children.push(horizontalIndexText);
+                _self.stage.addChild(verticalIndexText);
+                _self.stage.addChild(horizontalIndexText);
 
             }
 
         }
 
-        this.stage.update();
-
         // Drawing logo
-        var self = this,
-            logo = new createjs.Bitmap('img/logo.png');
+        var logo = new createjs.Bitmap(window._bs._preload.getResult('LOGO')),
+            logoScale = lineWidth / logo.image.width;
 
-        logo.x = logo.y = 0;
-        logo.scaleX = logo.scaleY = logo.scale = .4;
+        logo.x = logo.y = (lineWidth - logo.image.width * logoScale) / 2;
+        logo.scaleX = logo.scaleY = logo.scale = logoScale;
 
-        logo.image.onload = function () {
-            self.stage.addChild(logo);
-            self.stage.update();
-        };
+        _children.push(logo);
+        _self.stage.addChild(logo);
+
+        _self.stage.update();
 
     };
 
@@ -128,6 +147,10 @@
     /*                                                                                */
     /**********************************************************************************/
 
-
+    function _flushChildren() {
+        bs.utils.forEach(_children, function (child) {
+            _self.stage.removeChild(child);
+        });
+    }
 
 })();

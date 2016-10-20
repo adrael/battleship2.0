@@ -37,7 +37,7 @@
         this.drawn = false;
         this.length = 0;
         this.template = null;
-        this.location = { x: 0, y: 0 };
+        this.location = { x: 1, y: 1 };
         this.debugArea = new createjs.Shape();
         this.orientation = this.constants.orientation.horizontal;
         this.beingDragged = false;
@@ -105,10 +105,13 @@
             return;
         }
 
+        this.clearLocationCheck();
+
         if (!this.map.isShipLocationValid(this)) {
 
+            //this.map.print();
+
             var shipPosition = this.getPosition();
-            this.clearLocationCheck();
 
             this.invalidLocationIndicator
                 .graphics
@@ -128,8 +131,6 @@
             this.invalidLocation = true;
             this.ticker.requestUpdate();
 
-        } else {
-            this.clearLocationCheck();
         }
     };
 
@@ -157,6 +158,7 @@
     AbstractShip.prototype.setLocation = function setLocation(x, y) {
 
         var oldShip = {
+            name: this.name,
             location: bs.utils.merge({}, this.location),
             length: this.length,
             orientation: this.orientation
@@ -293,7 +295,6 @@
 
     function _shipSelected(event, ship) {
         // IMPORTANT NOTE: The this instance refers to this.template
-        //this.parent.addChild(this);
         this.offset = {
             x: this.x - event.stageX,
             y: this.y - event.stageY
@@ -307,6 +308,7 @@
         }
 
         var oldShip = {
+            name: ship.name,
             location: bs.utils.merge({}, ship.location),
             length: ship.length,
             orientation: ship.orientation
@@ -318,7 +320,6 @@
         else { ship.orientation = ship.constants.orientation.vertical; }
 
         ship.map.moveShip(oldShip, ship);
-        ship.ticker.requestUpdate();
         bs.events.broadcast('BS::SHIP::MOVED');
     }
 
@@ -344,7 +345,6 @@
             if (ship.map.locationIsWithinMap(_ship)) {
                 ship.moveTo(x, y);
                 ship.setLocation(abs.x, abs.y);
-                ship.ticker.requestUpdate();
                 bs.events.broadcast('BS::SHIP::MOVED');
             }
         }

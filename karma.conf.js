@@ -11,23 +11,27 @@ module.exports = function(config) {
         frameworks: ['jasmine'],
 
         files: [
-            'www/js/bs/bs.core.js',
-            'www/js/bs/bs.events.js',
-            'www/js/bs/ships/bs.ships.torpedo.js',
-            'www/js/bs/ships/bs.ships.cruiser.js',
-            'www/js/bs/ships/bs.ships.destroyer.js',
-            'www/js/bs/ships/bs.ships.submarine.js',
-            'www/js/bs/ships/bs.ships.aircraft-carrier.js',
-            'www/js/bs/bs.constants.js',
-            'www/js/bs/bs.utils.js',
-            'www/js/bs/bs.exceptions.js',
-            'www/js/bs/bs.helpers.js',
-            'www/js/bs/bs.canvas.js',
-            'www/js/bs/bs.display.js',
-            'www/js/bs/bs.map.js',
+            'https://code.createjs.com/createjs-2015.11.26.min.js',
+            'www/js/bs/exceptions/bs.factory.exception.js',
+            'www/js/bs/exceptions/bs.invalid-value.exception.js',
+            'www/js/bs/exceptions/bs.missing-property.exception.js',
+            'www/js/bs/exceptions/bs.invalid-coordinates.exception.js',
+            'www/js/bs/core/bs.utils.core.js',
+            'www/js/bs/core/bs.events.core.js',
+            'www/js/bs/core/bs.ticker.core.js',
+            'www/js/bs/core/bs.core.js',
+            'www/js/bs/core/bs.map.core.js',
+            'www/js/bs/core/bs.game.core.js',
+            'www/js/bs/core/bs.board.core.js',
+            'www/js/bs/ships/bs.abstract.ship.js',
+            'www/js/bs/ships/bs.cruiser.ship.js',
+            'www/js/bs/ships/bs.carrier.ship.js',
+            'www/js/bs/ships/bs.destroyer.ship.js',
+            'www/js/bs/ships/bs.submarine.ship.js',
+            'www/js/bs/ships/bs.battleship.ship.js',
 
             'tests/common-helpers.js',
-            'tests/bs/*!(common-helpers).js'
+            'tests/bs/**/*.test.js'
         ],
 
 
