@@ -20,15 +20,14 @@
     /**********************************************************************************/
 
     function Battleship(map) {
-
+        bs.ships.AbstractShip.call(this);
         this.length = 4;
         this.setMap(map);
         this.setName('BATTLESHIP');
         this.init(window._bs._preload.getResult('BATTLESHIP'));
-
     }
 
-    Battleship.prototype = new bs.ships.AbstractShip();
+    Battleship.prototype = bs.ships.AbstractShip.prototype;
     Battleship.prototype.constructor = Battleship;
 
     /**********************************************************************************/

@@ -55,6 +55,8 @@
 
         // Keep tracking the mouse even when it leaves the canvas
         //this.stage.mouseMoveOutside = true;
+
+        return this;
     };
 
     Core.prototype.absoluteToRelativeCoordinates = function absoluteToRelativeCoordinates(absX, absY) {

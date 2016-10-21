@@ -20,15 +20,14 @@
     /**********************************************************************************/
 
     function Cruiser(map) {
-
+        bs.ships.AbstractShip.call(this);
         this.length = 3;
         this.setMap(map);
         this.setName('CRUISER');
         this.init(window._bs._preload.getResult('CRUISER'));
-
     }
 
-    Cruiser.prototype = new bs.ships.AbstractShip();
+    Cruiser.prototype = bs.ships.AbstractShip.prototype;
     Cruiser.prototype.constructor = Cruiser;
 
     /**********************************************************************************/

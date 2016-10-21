@@ -80,6 +80,7 @@
         if(/*__debugEnabled__*/ true /*__debugEnabled__*/) {
             Constants.prototype.map.indexes.vertical = '1,2,3,4,5,6,7,8,9,10'.split(',');
         }
+        return this;
 
     };
 

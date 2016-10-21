@@ -32,6 +32,8 @@
 
     function AbstractShip() {
 
+        bs.core.Core.call(this);
+
         this.map = null;
         this.name = 'ABSTRACT_SHIP';
         this.drawn = false;
@@ -50,7 +52,7 @@
 
     }
 
-    AbstractShip.prototype = new bs.core.Core();
+    AbstractShip.prototype = bs.core.Core.prototype;
     AbstractShip.prototype.constructor = AbstractShip;
 
     /**********************************************************************************/
@@ -76,6 +78,8 @@
 
         _templateCache(this.template);
 
+        return this;
+
     };
 
     AbstractShip.prototype.setName = function setName(name) {
@@ -90,26 +94,28 @@
         if (this.template) {
             this.template.name = _name;
         }
+
+        return this;
     };
 
     AbstractShip.prototype.setMap = function setMap(map) {
         if (!map instanceof bs.core.Map) {
-            return this.map = null;
+            this.map = null
+        } else {
+            this.map = map;
         }
-        this.map = map;
+        return this;
+    };
+
+    AbstractShip.prototype.hasValidMap = function hasValidMap() {
+        return this.map instanceof bs.core.Map;
 
     };
 
     AbstractShip.prototype.doLocationCheck = function doLocationCheck() {
-        if (!this.map instanceof bs.core.Map) {
-            return;
-        }
-
         this.clearLocationCheck();
 
-        if (!this.map.isShipLocationValid(this)) {
-
-            //this.map.print();
+        if (this.hasValidMap() && !this.map.isShipLocationValid(this)) {
 
             var shipPosition = this.getPosition();
 
@@ -132,6 +138,8 @@
             this.ticker.requestUpdate();
 
         }
+
+        return this;
     };
 
     AbstractShip.prototype.clearLocationCheck = function clearLocationCheck() {
@@ -141,18 +149,20 @@
             this.invalidLocationIndicator.graphics.clear();
             this.ticker.requestUpdate();
         }
+        return this;
     };
 
     AbstractShip.prototype.clear = function clear() {
-        this.template.graphics.clear();
         this.debugArea.graphics.clear();
         this.clearLocationCheck();
         this.ticker.requestUpdate();
+        return this;
     };
 
     AbstractShip.prototype.moveTo = function moveTo(x, y) {
         this.template.x = x;
         this.template.y = y;
+        return this;
     };
 
     AbstractShip.prototype.setLocation = function setLocation(x, y) {
@@ -167,15 +177,13 @@
         this.location.x = x;
         this.location.y = y;
 
-        if (!this.map instanceof bs.core.Map) {
-            return;
+        if (this.hasValidMap()) {
+            this.map.moveShip(oldShip, this);
         }
-
-        this.map.moveShip(oldShip, this);
+        return this;
     };
 
     AbstractShip.prototype.debug = function debug() {
-
         var shipPosition = this.getPosition();
 
         this.debugArea.graphics.clear();
@@ -191,18 +199,17 @@
             this.debugArea.activated = true;
             this.stage.addChild(this.debugArea);
         }
-
+        return this;
     };
 
     AbstractShip.prototype.rotate = function rotate(angle, center) {
         this.template.regX = this.template.image.width / (center || 0) | 0;
         this.template.regY = this.template.image.height / (center || 0) | 0;
         this.template.rotation = (angle || 0);
+        return this;
     };
 
     AbstractShip.prototype.init = function init(template) {
-
-        var self = this;
 
         if (bs.utils.isElement(template)) {
             this.setTemplate(new createjs.Bitmap(template));
@@ -212,9 +219,12 @@
             this.updateListener();
         }
 
+        var self = this;
         this.updateListener = this.ticker.notifyOnUpdate(function (event) {
             self.draw(event);
-        })
+        });
+
+        return this;
 
     };
 
@@ -231,18 +241,21 @@
         this.template.filters = [ _redFilter ];
         _templateCache(this.template);
         this.ticker.requestUpdate();
+        return this;
     };
 
     AbstractShip.prototype.green = function green() {
         this.template.filters = [ _greenFilter ];
         _templateCache(this.template);
         this.ticker.requestUpdate();
+        return this;
     };
 
     AbstractShip.prototype.black = function black() {
         this.template.filters = [ _blackFilter ];
         _templateCache(this.template);
         this.ticker.requestUpdate();
+        return this;
     };
 
     AbstractShip.prototype.draw = function draw(event) {
@@ -284,6 +297,7 @@
         }
 
         this.stage.update(event);
+        return this;
 
     };
 
@@ -319,7 +333,10 @@
         }
         else { ship.orientation = ship.constants.orientation.vertical; }
 
-        ship.map.moveShip(oldShip, ship);
+        if (ship.hasValidMap()) {
+            ship.map.moveShip(oldShip, ship);
+        }
+
         bs.events.broadcast('BS::SHIP::MOVED');
     }
 
@@ -342,7 +359,7 @@
                 }
             };
 
-            if (ship.map.locationIsWithinMap(_ship)) {
+            if (ship.hasValidMap() && ship.map.locationIsWithinMap(_ship)) {
                 ship.moveTo(x, y);
                 ship.setLocation(abs.x, abs.y);
                 bs.events.broadcast('BS::SHIP::MOVED');

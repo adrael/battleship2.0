@@ -20,15 +20,14 @@
     /**********************************************************************************/
 
     function Destroyer(map) {
-
+        bs.ships.AbstractShip.call(this);
         this.length = 2;
         this.setMap(map);
         this.setName('DESTROYER');
         this.init(window._bs._preload.getResult('DESTROYER'));
-
     }
 
-    Destroyer.prototype = new bs.ships.AbstractShip();
+    Destroyer.prototype = bs.ships.AbstractShip.prototype;
     Destroyer.prototype.constructor = Destroyer;
 
     /**********************************************************************************/

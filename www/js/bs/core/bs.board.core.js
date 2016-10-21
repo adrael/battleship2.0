@@ -29,10 +29,11 @@
     /**********************************************************************************/
 
     function Board() {
+        bs.core.Core.call(this);
         _self = this;
     }
 
-    Board.prototype = new bs.core.Core();
+    Board.prototype = bs.core.Core.prototype;
     Board.prototype.constructor = Board;
 
     /**********************************************************************************/
@@ -42,10 +43,9 @@
     /**********************************************************************************/
 
     Board.prototype.clear = function clear() {
-
         _flushChildren();
         _self.stage.update();
-
+        return this;
     };
 
     Board.prototype.drawGrid = function drawGrid() {
@@ -138,6 +138,7 @@
         _self.stage.addChild(logo);
 
         _self.stage.update();
+        return this;
 
     };
 

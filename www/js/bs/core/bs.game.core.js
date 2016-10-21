@@ -31,15 +31,22 @@
 
     function Game() {
 
+        bs.core.Core.call(this);
+
         _self = this;
 
         _self.map = new bs.core.Map();
         _self.board = new bs.core.Board();
         _self.ships = [
             new bs.ships.Destroyer(_self.map),
+            new bs.ships.Destroyer(_self.map),
+            new bs.ships.Submarine(_self.map),
             new bs.ships.Submarine(_self.map),
             new bs.ships.Cruiser(_self.map),
+            new bs.ships.Cruiser(_self.map),
             new bs.ships.Battleship(_self.map),
+            new bs.ships.Battleship(_self.map),
+            new bs.ships.Carrier(_self.map),
             new bs.ships.Carrier(_self.map)
         ];
 
@@ -48,7 +55,7 @@
 
     }
 
-    Game.prototype = new bs.core.Core();
+    Game.prototype = bs.core.Core.prototype;
     Game.prototype.constructor = Game;
 
     /**********************************************************************************/
@@ -60,7 +67,6 @@
     Game.prototype.start = function start() {
 
         if (!_gameStarted) {
-
             _gameStarted = true;
             _self.board.drawGrid();
             _setShips();
@@ -70,7 +76,6 @@
 
             _battlefield.$.removeClass('hidden');
             _resizeCanvas();
-
         }
 
         return this;

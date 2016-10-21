@@ -31,11 +31,13 @@
 
     function Map() {
 
+        bs.core.Core.call(this);
+
         _self = this;
         _self.reset();
     }
 
-    Map.prototype = new bs.core.Core();
+    Map.prototype = bs.core.Core.prototype;
     Map.prototype.constructor = Map;
 
     /**********************************************************************************/
@@ -71,6 +73,7 @@
         try {
             _clearShipOnMap(oldShip);
             _addShipOnMap(newShip);
+            return this;
         } catch (exceptions) {
             bs.utils.handleException(exceptions);
         }
@@ -81,8 +84,10 @@
             throw new bs.exceptions.BSInvalidCoordinatesException(ship.location.x, ship.location.y);
         }
 
-        try { _addShipOnMap(ship); }
-        catch (exceptions) { bs.utils.handleException(exceptions); }
+        try {
+            _addShipOnMap(ship);
+            return this;
+        } catch (exceptions) { bs.utils.handleException(exceptions); }
     };
 
     Map.prototype.isShipLocationValid = function isShipLocationValid(ship) {
@@ -113,6 +118,7 @@
         _map = [];
         _ships = [];
         _setupMap();
+        return this;
     };
 
     Map.prototype.print = function print() {
@@ -135,6 +141,7 @@
                 console.log('     -----------------------------------------');
             }
         });
+        return this;
 
     };
 
