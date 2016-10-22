@@ -7,7 +7,7 @@ describe('basic game mechanics', function () {
         actions = [],
         map = {};
 
-    Ships = {
+    var Ships = {
         carrier: 5,
         battleship: 4,
         cruiser: 3,
@@ -15,18 +15,27 @@ describe('basic game mechanics', function () {
         destroyer: 2
     };
 
+    var makeShip = function (x, y, type, horizontal) {
+        return {
+            x: x,
+            y: y,
+            width: horizontal ? Ships[type] : 1,
+            height: horizontal ? 1 : Ships[type],
+            type: type
+        };
+    };
+
+    var makeBomb = function (x, y) {
+        return {
+            type: 'bomb',
+            x: x,
+            y: y
+        };
+    };
+
     describe('ships settings', function () {
 
         var isValid = mechanics.isDispositionValid;
-        var makeShip = function (x, y, type, horizontal) {
-            return {
-                x: x,
-                y: y,
-                width: horizontal ? Ships[type] : 1,
-                height: horizontal ? 1 : Ships[type],
-                type: type
-            };
-        };
 
         beforeEach(function (done) {
             ships = [];
@@ -148,13 +157,6 @@ describe('basic game mechanics', function () {
     describe('bombs position', function () {
 
         var isValid = mechanics.isActionsValid;
-        var makeBomb = function (x, y) {
-            return {
-                type: 'bomb',
-                x: x,
-                y: y
-            };
-        };
 
         beforeEach(function (done) {
             map = {
@@ -229,6 +231,114 @@ describe('basic game mechanics', function () {
             bombC.x = 0;
             bombC.y = 1;
             expect(isValid(map, actions)).to.be.false;
+        })
+    });
+
+    describe('process turn (bomb)', function () {
+
+        var processTurn = mechanics.processTurn,
+            map,
+            actions;
+
+        beforeEach(function (done) {
+            map = {
+                width: 10,
+                height: 10,
+                boards: {
+                    player1: {
+                        ships: [makeShip(0, 0, 'carrier', true)]
+                    },
+                    player2: {
+                        ships: []
+                    },
+                    player3: {
+                        ships: []
+                    }
+                }
+            };
+            actions = {
+                player1: [],
+                player2: []
+            };
+            done();
+        });
+
+        it("should return the player's round score", function () {
+            map.boards.player2.ships = [makeShip(0, 0, 'carrier', true)];
+            map.boards.player1.ships = [makeShip(5, 5, 'destroyer', true)];
+            actions.player1 = [makeBomb(0, 0), makeBomb(5, 5)];
+            actions.player2 = [];
+
+            var result = processTurn(actions, map);
+
+            expect(result.scores).to.have.property('player1').to.equal(1);
+            expect(result.scores).to.have.property('player2').to.equal(0);
+
+            actions.player1 = [makeBomb(0, 0), makeBomb(1, 0)];
+            result = processTurn(actions, map);
+
+            expect(result.scores).to.have.property('player1').to.equal(2);
+            expect(result.scores).to.have.property('player2').to.equal(0);
+
+            actions.player2 = [makeBomb(5, 5)];
+            result = processTurn(actions, map);
+
+            expect(result.scores).to.have.property('player1').to.equal(2);
+            expect(result.scores).to.have.property('player2').to.equal(1);
+        });
+
+        it("should return information for every hits", function () {
+            map.boards.player1.ships = [makeShip(3, 2, 'destroyer', false)];
+            map.boards.player2.ships = [makeShip(0, 0, 'carrier', true)];
+            actions.player1 = [makeBomb(0, 0), makeBomb(5, 5)];
+            actions.player2 = [];
+
+            var result = processTurn(actions, map);
+            expect(result.hits).to.have.length(1);
+
+            var hit = result.hits[0];
+            expect(hit).to.have.property('player', 'player1');
+            expect(hit).to.have.property('x', 0);
+            expect(hit).to.have.property('y', 0);
+
+            actions.player2 = [makeBomb(3, 3)];
+            result = processTurn(actions, map);
+            expect(result.hits).to.have.length(2);
+            hit = result.hits[1];
+            expect(hit).to.have.property('player', 'player2');
+            expect(hit).to.have.property('x', 3);
+            expect(hit).to.have.property('y', 3);
+        });
+
+        it("should return information on ships that were hit", function() {
+            map.boards.player1.ships = [];
+            map.boards.player2.ships = [
+                makeShip(1, 2, 'destroyer', true),
+                makeShip(0, 5, 'carrier', true)
+            ];
+            map.boards.player3.ships = [
+                makeShip(0, 5, 'battleship', true)
+            ];
+            actions.player1 = [
+                makeBomb(1, 5),     // hits the carrier & the battleship
+                makeBomb(2, 2)      // hits the destroyer
+            ];
+            actions.player2 = [];
+
+            var result = processTurn(actions, map);
+            expect(result.hits).to.have.length(3);
+
+            expect(result.hits[0]).to.have.deep.property('ship.type', 'carrier');
+            expect(result.hits[0]).to.have.deep.property('ship.owner', 'player2');
+            expect(result.hits[0]).to.have.deep.property('ship.localHit').to.deep.equal({x: 1, y: 0});
+
+            expect(result.hits[1]).to.have.deep.property('ship.type', 'battleship');
+            expect(result.hits[1]).to.have.deep.property('ship.owner', 'player3');
+            expect(result.hits[1]).to.have.deep.property('ship.localHit').to.deep.equal({x: 1, y: 0});
+
+            expect(result.hits[2]).to.have.deep.property('ship.type', 'destroyer');
+            expect(result.hits[2]).to.have.deep.property('ship.owner', 'player2');
+            expect(result.hits[2]).to.have.deep.property('ship.localHit').to.deep.equal({x: 1, y: 0});
         })
     });
 });

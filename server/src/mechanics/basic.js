@@ -14,8 +14,69 @@ Mechanic = {
             Mechanic._actionsDoNotOverlap(map, actions);
     },
 
-    processTurn: function (boards, actions) {
+    processTurn: function (playersActions, map) {
 
+        var results = {
+            hits: [],
+            scores: {}
+        };
+        for (var player in playersActions) {
+            if (!playersActions.hasOwnProperty(player)) {
+                continue;
+            }
+            results.scores[player] = 0;
+            playersActions[player].forEach(function(action) {
+                Mechanic._processAction(results, player, action, map.boards);
+            });
+        }
+
+        return results
+    },
+
+    _processAction: function (results, player, action, boards) {
+        switch (action.type) {
+            case 'bomb':
+                Mechanic._processBomb(results, player, action, boards);
+                break;
+        }
+    },
+
+    _processBomb: function (results, player, bomb, boards) {
+        for (var p in boards) {
+            if (!boards.hasOwnProperty(p) || p === player) {
+                continue;
+            }
+            boards[p].ships.forEach(function (ship) {
+                var hit = Mechanic._colliding(bomb, ship);
+                if (hit) {
+                    results.scores[player] += 1;
+                    results.hits.push({
+                        x: bomb.x,
+                        y: bomb.y,
+                        player: player,
+                        ship: {
+                            owner: p,
+                            type: ship.type,
+                            localHit: hit
+                        }
+                    });
+                }
+            });
+        }
+    },
+
+    _colliding: function (bomb, ship) {
+        for (var x = 0; x < ship.width; ++x) {
+            for (var y = 0; y < ship.height; ++y) {
+                if (bomb.x === ship.x + x && bomb.y === ship.y + y) {
+                    return {
+                        x: x,
+                        y: y
+                    }
+                }
+            }
+        }
+        return false;
     },
 
     _actionsWithinBoundaries: function (map, actions) {
