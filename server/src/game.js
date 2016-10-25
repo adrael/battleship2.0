@@ -4,6 +4,16 @@ function Game (id, name, maxPlayers, password) {
     this.password = password ? password : '';
     this.maxPlayers = maxPlayers >= 2 && maxPlayers <= 10 ? maxPlayers : 4;
     this.players = {};
+    this.map = {
+        width: 10,
+        height: 10,
+        ships: {
+            'destroyer': 1
+        },
+        boards: {}
+    };
+    this.history = [];
+
     this.state = Game.STATE.WAITING_PLAYERS;
     this.mechanic = require('./mechanics/basic');
 
@@ -84,11 +94,42 @@ Game.prototype = {
     },
 
     placePlayerShips: function (player, ships) {
-
+        if (this.mechanic.isDispositionValid(this.map, ships)) {
+            if (this.map.boards[player.nickname] === undefined) {
+                this.map.boards[player.nickname] = {};
+            }
+            this.map.boards[player.nickname].ships = ships;
+            return true;
+        }
+        return false;
     },
 
-    placePlayerBomb: function (player, bomb) {
+    setNextActions: function (player, actions) {
+        if (this.mechanic.isActionsValid(this.map, actions)) {
+            this.actions[player.nickname] = actions;
+            return true;
+        }
+        return false;
+    },
 
+    hasEveryonePlayedTheTurn: function () {
+        for (var player in Object.keys(this.players)) {
+            if (!this.players.hasOwnProperty(player)) {
+                continue;
+            }
+            if (this.actions[player] === undefined) {
+                return false;
+            }
+        }
+        return true;
+    },
+
+    playTheTurn: function () {
+        var result = this.mechanic.processTurn(this.actions, this.map);
+        this._updateBoards(result);
+        this.history.push(JSON.parse(JSON.stringify(this.actions)));
+        this.actions = {};
+        return result;
     },
 
     getPlayersList: function () {
@@ -104,6 +145,10 @@ Game.prototype = {
             this.players[player.nickname].isReady = isReady;
             this._updateState();
         }
+    },
+
+    _updateBoards: function(result) {
+        console.log(result);
     },
 
     _updateState: function () {

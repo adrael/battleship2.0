@@ -109,6 +109,19 @@ module.exports = function (io) {
 
         // game
 
+        player.on('ready', function (ready) {
+            if (isPlaying(player)) {
+                var game = bf.games[player.game];
+                if (game.state === Game.STATE.READY) {
+                    game.setPlayerReady(player, ready);
+                    game.emit(io, 'player ready', {nickname: player.nickname, isReady: ready});
+                    if (game.state === Game.STATE.SETTING) {
+                        game.emit(io, 'set ships', game.map.ships);
+                    }
+                }
+            }
+        });
+
         player.on('place ships', function (ships) {
             if (isPlaying(player)) {
                 var game = bf.games[player.game];
@@ -123,7 +136,7 @@ module.exports = function (io) {
         player.on('place bomb', function (bomb) {
             if (isPlaying(player)) {
                 var game = bf.games[player.game];
-                if (game.placePlayerBomb(player, bomb)) {
+                if (game.setNextActions(player, bomb)) {
                     player.emit('bomb placed', true);
                 } else {
                     player.emit('bomb placed', {error: 'learn how to place a bomb…'});
