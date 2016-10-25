@@ -34,7 +34,7 @@ var fs              = require('fs'),
         ts: ['./ts/**/*.ts'],
         js: ['./www/**/*.js'],
         sass: ['./scss/**/*.scss'],
-        images: ['./www/img/*'],
+        images: ['./www/img/**/*'],
         tests: {
             server: ['./tests/server/**/*.js'],
             client: ['./tests/bs/**/*.js']

@@ -3,22 +3,6 @@
 $(document).ready(() => {
 
     ///////////////////////
-    // CONFIGURATION
-    ///////////////////////
-
-    if(!bs._.debugEnabled) {
-
-        // CONSOLE OVERRIDE
-        window.console = <any>{
-            log: () => {},
-            info: () => {},
-            error: () => {},
-            debug: () => {}
-        };
-
-    }
-
-    ///////////////////////
     // ASSETS LOADING
     ///////////////////////
 

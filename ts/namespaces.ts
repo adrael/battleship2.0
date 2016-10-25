@@ -14,7 +14,7 @@ namespace bs {
         export let ticker: bs.core.Ticker = null;
         export let preload: createjs.LoadQueue = new createjs.LoadQueue(true);
         export let constants: bs.core.Constants = null;
-        export let debugEnabled: boolean = true /*__debugEnabled__*/;
+        export let debugEnabled: boolean = (() => { return true /*__debugEnabled__*/; })();
     }
 
 }
