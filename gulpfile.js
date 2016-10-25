@@ -5,6 +5,7 @@
 /**********************************************************************************/
 
 var fs              = require('fs'),
+    ts              = require('gulp-typescript'),
     del             = require('del'),
     opn             = require('opn'),
     rev             = require('gulp-rev'),
@@ -30,6 +31,8 @@ var fs              = require('fs'),
 
     paths = {
 
+        ts: ['./ts/**/*.ts'],
+        js: ['./www/**/*.js'],
         sass: ['./scss/**/*.scss'],
         images: ['./www/img/*'],
         tests: {
@@ -46,19 +49,20 @@ var fs              = require('fs'),
 /*                                                                                */
 /**********************************************************************************/
 
-gulp.task('default',        ['deploy', 'serve', 'watch', 'browser']);
+gulp.task('default',        ['watch', 'browser']);
 
+gulp.task('ts',                                                             _ts);
 gulp.task('zip',                                                            _zip);
 gulp.task('hook',           ['deploy'],                                     _hook);
 gulp.task('sass',                                                           _sass);
 gulp.task('build',          ['minify'],                                     _build);
 gulp.task('bower',                                                          _bower);
-gulp.task('serve',                                                          _serve);
+gulp.task('serve',          ['deploy'],                                     _serve);
 gulp.task('watch',                                                          _watch);
 gulp.task('useref',                                                         _useref);
 gulp.task('minify',         ['hook'],                                       _minify);
-gulp.task('deploy',         ['sass', 'copyimgs', 'copyfonts'],              _useref);
-gulp.task('browser',                                                        _browser);
+gulp.task('deploy',         ['ts', 'sass', 'copyimgs', 'copyfonts'],        _useref);
+gulp.task('browser',        ['serve'],                                      _browser);
 gulp.task('scratch',                                                        _scratch);
 gulp.task('copyimgs',                                                       _copyimgs);
 gulp.task('copyfonts',                                                      _copyfonts);
@@ -73,6 +77,26 @@ gulp.task('test',           ['test-client', 'test-server', 'watch-test']);
 /*                                     HOOKS                                      */
 /*                                                                                */
 /**********************************************************************************/
+
+/**
+ * _ts
+ * @name _ts
+ * @function
+ */
+function _ts() {
+
+    var tsResult = gulp.src(paths.ts)
+        .pipe(ts({
+            declaration: true,
+            removeComments: false
+        }));
+
+    return merge(
+        tsResult.dts.pipe(gulp.dest('./www/js/definitions')),
+        tsResult.js.pipe(gulp.dest('./www/js/release'))
+    );
+
+}
 
 /**
  * _minify
@@ -293,7 +317,7 @@ function _useref() {
  */
 function _scratch(error, toDelete) {
 
-    toDelete = toDelete || ['www/css', 'www/dist', 'www/fonts'];
+    toDelete = toDelete || ['www/css', 'www/dist', 'www/fonts', 'www/js'];
 
     return del(toDelete);
 
@@ -335,6 +359,8 @@ function _watch() {
 
     livereload.listen();
 
+    gulp.watch(paths.ts, ['ts']);
+    gulp.watch(paths.js, ['useref']);
     gulp.watch(paths.sass, ['sass']);
     gulp.watch(paths.images, ['copyimgs']);
     gulp.watch(paths.useref, ['useref']);

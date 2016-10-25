@@ -1,18 +1,20 @@
 describeLogic('bs.map.core', function() {
 
     var map = new bs.core.Map(),
+        orientation = map.constants.get('orientation'),
         ship = {
+            UUID: '14',
             name: 'PETIT BATO',
             length: 1,
             location: { x: 1, y: 1 },
-            orientation: map.constants.orientation.horizontal
+            orientation: orientation.horizontal
         };
 
     describeLogicPoint('horizontal placement', function() {
 
         beforeEach(function () {
             ship.length = 1;
-            ship.orientation  = map.constants.orientation.horizontal;
+            ship.orientation  = orientation.horizontal;
             ship.location.y = 4;
         });
 
@@ -46,7 +48,7 @@ describeLogic('bs.map.core', function() {
 
         beforeEach(function () {
             ship.length = 1;
-            ship.orientation = map.constants.orientation.vertical;
+            ship.orientation = orientation.vertical;
             ship.location.x = 4;
         });
 
@@ -86,12 +88,13 @@ describeLogic('bs.map.core', function() {
 
         beforeEach(function() {
             ship.length = 1;
-            ship.orientation = map.constants.orientation.horizontal;
+            ship.orientation = orientation.horizontal;
             placedShipA = {
+                UUID: '100',
                 name: 'SHIP A',
                 length: 1,
                 location: { x: 4, y: 4 },
-                orientation: map.constants.orientation.horizontal
+                orientation: orientation.horizontal
             };
             map.reset();
         });
@@ -110,7 +113,7 @@ describeLogic('bs.map.core', function() {
 
         it("shouldn't be valid if 1x1 ship overlap a 4x1 ship", function () {
             placedShipA.length = 4;
-            placedShipA.orientation = map.constants.orientation.horizontal;
+            placedShipA.orientation = orientation.horizontal;
             map.addShip(placedShipA);
 
             _setShipPosition(placedShipA.x, placedShipA.y);
@@ -128,7 +131,7 @@ describeLogic('bs.map.core', function() {
 
         it("shouldn't be valid if 1x1 ship overlap a 1x4 ship", function () {
             placedShipA.length = 4;
-            placedShipA.orientation = map.constants.orientation.vertical;
+            placedShipA.orientation = orientation.vertical;
             map.addShip(placedShipA);
 
             _setShipPosition(placedShipA.x, placedShipA.y);
@@ -148,7 +151,7 @@ describeLogic('bs.map.core', function() {
             placedShipA.location.x = 2;
             placedShipA.location.y = 2;
             placedShipA.length = 3;
-            placedShipA.orientation = map.constants.orientation.horizontal;
+            placedShipA.orientation = orientation.horizontal;
             map.addShip(placedShipA);
 
             _setShipPosition(1, 2);
