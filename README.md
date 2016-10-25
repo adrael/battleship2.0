@@ -31,6 +31,9 @@ Clear the temporary files and set the project into a clean state.
 
 #### Development
 
+* `gulp ts`:
+Compile TypeScript sources to JavaScript.
+
 * `gulp serve && gulp browser`:
 Starts the livereload server and opens the browser.
 
