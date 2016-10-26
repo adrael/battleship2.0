@@ -11,23 +11,33 @@ module.exports = function(config) {
         frameworks: ['jasmine'],
 
         files: [
-            'www/js/bs/bs.core.js',
-            'www/js/bs/bs.events.js',
-            'www/js/bs/ships/bs.ships.torpedo.js',
-            'www/js/bs/ships/bs.ships.cruiser.js',
-            'www/js/bs/ships/bs.ships.destroyer.js',
-            'www/js/bs/ships/bs.ships.submarine.js',
-            'www/js/bs/ships/bs.ships.aircraft-carrier.js',
-            'www/js/bs/bs.constants.js',
-            'www/js/bs/bs.utils.js',
-            'www/js/bs/bs.exceptions.js',
-            'www/js/bs/bs.helpers.js',
-            'www/js/bs/bs.canvas.js',
-            'www/js/bs/bs.display.js',
-            'www/js/bs/bs.map.js',
+            'https://code.createjs.com/createjs-2015.11.26.min.js',
+            // 'bower_components/jquery/dist/jquery.min.js',
+
+            // 'www/js/release/**/*.js',
+            'www/js/release/namespaces.js',
+            // 'www/js/release/battleship.js',
+            'www/js/release/bs/exceptions/bs.factory.exception.js',
+            'www/js/release/bs/exceptions/bs.invalid-value.exception.js',
+            'www/js/release/bs/exceptions/bs.missing-property.exception.js',
+            'www/js/release/bs/exceptions/bs.invalid-coordinates.exception.js',
+            'www/js/release/bs/core/bs.utils.core.js',
+            'www/js/release/bs/core/bs.events.core.js',
+            'www/js/release/bs/core/bs.ticker.core.js',
+            'www/js/release/bs/core/bs.constants.core.js',
+            'www/js/release/bs/core/bs.core.js',
+            'www/js/release/bs/core/bs.map.core.js',
+            'www/js/release/bs/core/bs.game.core.js',
+            'www/js/release/bs/core/bs.board.core.js',
+            'www/js/release/bs/ships/bs.abstract.ship.js',
+            'www/js/release/bs/ships/bs.cruiser.ship.js',
+            'www/js/release/bs/ships/bs.carrier.ship.js',
+            'www/js/release/bs/ships/bs.destroyer.ship.js',
+            'www/js/release/bs/ships/bs.submarine.ship.js',
+            'www/js/release/bs/ships/bs.battleship.ship.js',
 
             'tests/common-helpers.js',
-            'tests/bs/*!(common-helpers).js'
+            'tests/bs/**/*.test.js'
         ],
 
 
