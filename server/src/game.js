@@ -10,6 +10,9 @@ function Game (id, name, maxPlayers, password) {
         ships: {
             'destroyer': 1
         },
+        max: {
+            actions: 1
+        },
         boards: {}
     };
     this.history = [];
@@ -99,6 +102,18 @@ Game.prototype = {
                 this.map.boards[player.nickname] = {};
             }
             this.map.boards[player.nickname].ships = ships;
+            var allReady = true;
+            for (var nickname in this.players) {
+                if (!this.players.hasOwnProperty(nickname)) {
+                    continue;
+                }
+                if (this.map.boards[nickname] === undefined) {
+                    allReady = false;
+                }
+            }
+            if (allReady) {
+                this.state = Game.STATE.PLAYING;
+            }
             return true;
         }
         return false;

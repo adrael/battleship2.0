@@ -32,6 +32,10 @@ module.exports = function (io) {
         };
     };
 
+    var getGame = function (player) {
+        return bf.games[player.game];
+    };
+
     io.sockets.on('connection', function (player) {
 
         player.nickname = generateNickname();
@@ -43,7 +47,7 @@ module.exports = function (io) {
 
         player.on('disconnect', function () {
             if (isPlaying(player)) {
-                bf.games[player.game].removePlayer(player);
+                getGame(player).removePlayer(player);
             }
             delete bf.sockets[player.nickname];
         });
@@ -68,32 +72,32 @@ module.exports = function (io) {
                     game.addPlayer(player);
                     game.emit(io, 'new player', playerData(player));
                     if (game.state === Game.STATE.READY) {
-                        game.emit(io, 'game start');
+                        game.emit(io, 'game state', {state: 'ready'});
                     }
                 } else {
                     player.emit('refused');
                 }
             } else {
-                player.emit('error', 'no game with this id (' + gameId + ')');
+                player.emit('error', {message: 'no game with id ' + gameId});
             }
         });
 
         player.on('leave game', function () {
             if (player.game !== null) {
-                var game = bf.games[player.game];
+                var game = getGame(player);
                 game.removePlayer(player);
                 game.emit(io, 'player left', {nickname: player.nickname});
                 player.emit('game left');
                 var playersCount = game.countPlayers();
                 if (playersCount <= 0 || (game.state === Game.STATE.READY && !game.isStillPlayable())) {
                     if (playersCount > 0) {
-                        game.emit('game stoped', 'sorry');
+                        game.emit(io, 'game state', {state: 'stopped'});
                         game.removeAllPlayers(bf.sockets);
                     }
                     delete bf.games[game.id];
                 }
             } else {
-                player.emit('error', 'To leave a game, you first need to join one…');
+                player.emit('error', {message: 'To leave a game, you first need to join one…'});
             }
         });
 
@@ -111,12 +115,15 @@ module.exports = function (io) {
 
         player.on('ready', function (ready) {
             if (isPlaying(player)) {
-                var game = bf.games[player.game];
+                var game = getGame(player);
                 if (game.state === Game.STATE.READY) {
                     game.setPlayerReady(player, ready);
                     game.emit(io, 'player ready', {nickname: player.nickname, isReady: ready});
                     if (game.state === Game.STATE.SETTING) {
-                        game.emit(io, 'set ships', game.map.ships);
+                        game.emit(io, 'game state', {
+                            state: 'place ship',
+                            ships: game.map.ships
+                        });
                     }
                 }
             }
@@ -124,22 +131,30 @@ module.exports = function (io) {
 
         player.on('place ships', function (ships) {
             if (isPlaying(player)) {
-                var game = bf.games[player.game];
-                if (game.placePlayerShips(player, ships)) {
-                    player.emit('ship placed', true);
+                var game = getGame(player);
+                if (game.state === Game.STATE.SETTING) {
+                    if (game.placePlayerShips(player, ships)) {
+                        player.emit('ship placement', true);
+                        if (game.state === Game.STATE.PLAYING) {
+                            game.emit(io, 'game state', {state: 'new turn'});
+                            game.emit(io, 'new round');
+                        }
+                    } else {
+                        player.emit('ship placement', {error: 'learn how to place your ships…'});
+                    }
                 } else {
-                    player.emit('ship placed', {error: 'learn how to place your ships…'});
+                    player.emit('error', {message: 'it is not the moment to place your ship'})
                 }
             }
         });
 
-        player.on('place bomb', function (bomb) {
+        player.on('play turn', function (bomb) {
             if (isPlaying(player)) {
-                var game = bf.games[player.game];
+                var game = getGame(player);
                 if (game.setNextActions(player, bomb)) {
-                    player.emit('bomb placed', true);
+                    player.emit('play turn', true);
                 } else {
-                    player.emit('bomb placed', {error: 'learn how to place a bomb…'});
+                    player.emit('play turn', {error: 'learn how to place a bomb…'});
                 }
             }
         });
@@ -154,7 +169,8 @@ module.exports = function (io) {
             };
 
             if (isPlaying(player)) {
-                bf.games[player.game].emit(io, 'message', messageData);
+                var game = getGame(player);
+                game.emit(io, 'message', messageData);
             } else {
                 io.sockets.in('lobby').emit('message', messageData);
             }
