@@ -8,8 +8,9 @@ namespace bs {
     export namespace utils {}
     export namespace events {}
     export namespace exceptions {}
+    export namespace components {}
 
-    export namespace _ {
+    export namespace _data {
         export let stage: createjs.Stage = null;
         export let ticker: bs.core.Ticker = null;
         export let preload: createjs.LoadQueue = new createjs.LoadQueue(true);

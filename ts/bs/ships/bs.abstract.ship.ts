@@ -47,7 +47,7 @@ namespace bs {
 
                 this.setMap(map);
                 this.setName(name);
-                this.setTemplate(new createjs.Bitmap(bs._.preload.getResult(name)));
+                this.setTemplate(new createjs.Bitmap(bs._data.preload.getResult(name)));
                 this.init();
             }
 
@@ -141,8 +141,9 @@ namespace bs {
 
             public clear = () : this => {
                 this._debugArea.graphics.clear();
-                this.clearLocationCheck();
-                this.ticker.requestUpdate();
+                this._invalidLocationIndicator.graphics.clear();
+                this.stage.removeChild(this.template);
+                this.stage.update();
                 return this;
             };
 
@@ -232,7 +233,7 @@ namespace bs {
                 var shipPosition = this.getPosition(),
                     aspectRatio = null;
 
-                if(bs._.debugEnabled) {
+                if(bs._data.debugEnabled) {
                     this.debug();
                 }
 

@@ -20,12 +20,39 @@
 </head>
 <body>
 
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12 col-md-6">
+<div class="container full-height">
+    <div class="row full-height">
+        <div class="col-xs-12 col-md-6 full-height">
             <h1 class="header-title">BattleShip 2.0</h1>
+
+            <div class="row m-1">
+                <div class="col-xs-12 col-sm-4 mt-1">
+                    <div class="counter" id="bombs-counter"></div>
+                    <p class="m-1 text-center bebas-neue">Bombs dropped</p>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 mt-1">
+                    <div class="counter" id="hits-counter"></div>
+                    <p class="m-1 text-center bebas-neue">Hits</p>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 mt-1">
+                    <div class="counter" id="ship-destroyed-counter"></div>
+                    <p class="m-1 text-center bebas-neue">Ship destroyed</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-md-4 offset-md-2">
+                    <button class="btn btn-block btn-primary" id="playerTurn">Player Turn</button>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <button class="btn btn-block btn-warning" id="opponentTurn">Opponent Turn</button>
+                </div>
+            </div>
         </div>
-        <div class="col-xs-12 col-md-6">
+
+        <div class="col-xs-12 col-md-6 full-height">
             <canvas id="battlefield" class="battlefield hidden" width="600" height="600"></canvas>
         </div>
     </div>
@@ -34,6 +61,13 @@
 <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
 
 <!-- build:js js/app.js -->
+
+<script id="counter-template" type="text/template">
+    <span class="current top <%= currentSize %>"><%= count %></span>
+    <span class="next top <%= nextSize %>"><%= nextCount %></span>
+    <span class="current bottom <%= currentSize %>"><%= count %></span>
+    <span class="next bottom <%= nextSize %>"><%= nextCount %></span>
+</script>
 
 <!-- bower:js -->
 <script src="../bower_components/jquery/dist/jquery.min.js"></script>
@@ -47,8 +81,11 @@
 <script src="js/release/bs/exceptions/bs.missing-property.exception.js"></script>
 <script src="js/release/bs/exceptions/bs.invalid-coordinates.exception.js"></script>
 
+<script src="js/release/bs/components/bs.counter.component.js"></script>
+
 <script src="js/release/bs/core/bs.utils.core.js"></script>
 <script src="js/release/bs/core/bs.events.core.js"></script>
+<script src="js/release/bs/core/bs.interface.core.js"></script>
 <script src="js/release/bs/core/bs.ticker.core.js"></script>
 <script src="js/release/bs/core/bs.constants.core.js"></script>
 <script src="js/release/bs/core/bs.core.js"></script>

@@ -4,9 +4,7 @@ namespace bs {
 
     export namespace core {
 
-        let _setup: boolean = false;
-
-        export class Core {
+        export class Interface {
 
             /**********************************************************************************/
             /*                                                                                */
@@ -14,10 +12,9 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-            public UUID: string = null;
-            public stage: createjs.Stage = null;
-            public ticker: bs.core.Ticker = null;
-            public constants: bs.core.Constants = null;
+            public hitCounter: bs.components.Counter = null;
+            public bombCounter: bs.components.Counter = null;
+            public shipDestroyedCounter: bs.components.Counter = null;
 
             /**********************************************************************************/
             /*                                                                                */
@@ -25,13 +22,7 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-            constructor() {
-                this.UUID = bs.utils.uuid();
-                this.ticker = bs._data.ticker = (bs._data.ticker || new bs.core.Ticker());
-                this.constants = bs._data.constants = (bs._data.constants || new bs.core.Constants());
-                this.stage = bs._data.stage = (bs._data.stage || new createjs.Stage(this.constants.get('canvas').node));
-                this.setup();
-            }
+            constructor() {}
 
             /**********************************************************************************/
             /*                                                                                */
@@ -40,34 +31,19 @@ namespace bs {
             /**********************************************************************************/
 
             public setup = () : this => {
-                if (!_setup) {
-                    _setup = true;
 
-                    // Enable touch interactions if supported on the current device:
-                    createjs.Touch.enable(this.stage);
+                $('#playerTurn').click(() => { bs.events.broadcast('BS::TURN::PLAYER'); });
+                $('#opponentTurn').click(() => { bs.events.broadcast('BS::TURN::OPPONENT'); });
 
-                    // Enable mouse over / out events
-                    this.stage.enableMouseOver(10);
+                this.hitCounter = new bs.components.Counter(0, '#hits-counter');
+                this.bombCounter = new bs.components.Counter(0, '#bombs-counter');
+                this.shipDestroyedCounter = new bs.components.Counter(0, '#ship-destroyed-counter');
 
-                    // Keep tracking the mouse even when it leaves the canvas
-                    this.stage.mouseMoveOutside = true;
-                }
+                bs.events.on('BS::BOMB::HIT', this.hitCounter.increment);
+                bs.events.on('BS::BOMB::DROPPED', this.bombCounter.increment);
+                bs.events.on('BS::SHIP::DESTROYED', this.shipDestroyedCounter.increment);
 
                 return this;
-            };
-
-            public absoluteToRelativeCoordinates = (absX: number, absY: number) : any => {
-                return {
-                    x: Math.floor(absX / this.constants.get('line').size.width),
-                    y: Math.floor(absY / this.constants.get('line').size.height)
-                };
-            };
-
-            public relativeToAbsoluteCoordinates = (relX: number, relY: number) : any => {
-                return {
-                    x: Math.floor(relX * this.constants.get('line').size.width),
-                    y: Math.floor(relY * this.constants.get('line').size.height)
-                };
             };
 
         }

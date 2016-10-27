@@ -8,18 +8,20 @@ $(document).ready(() => {
 
     let itemsLoaded = 0,
         manifest = [
+            { 'id': 'MAP',        'src': 'map.png' },
             { 'id': 'LOGO',       'src': 'logo.png' },
-            { 'id': 'DESTROYER',  'src': 'ships/destroyer.png' },
-            { 'id': 'SUBMARINE',  'src': 'ships/submarine.png' },
+            { 'id': 'PLAYER',     'src': 'player.png' },
             { 'id': 'CRUISER',    'src': 'ships/cruiser.png' },
-            { 'id': 'BATTLESHIP', 'src': 'ships/battleship.png' },
-            { 'id': 'CARRIER',    'src': 'ships/carrier.png' }
+            { 'id': 'CARRIER',    'src': 'ships/carrier.png' },
+            { 'id': 'SUBMARINE',  'src': 'ships/submarine.png' },
+            { 'id': 'DESTROYER',  'src': 'ships/destroyer.png' },
+            { 'id': 'BATTLESHIP', 'src': 'ships/battleship.png' }
         ];
 
     // http://www.createjs.com/demos/preloadjs/mediagrid
     // bs.data.preload.on('error', handleError);
 
-    bs._.preload.on('complete', () => {
+    bs._data.preload.on('complete', () => {
         // window.console.log('COMPLETED!');
         new bs.core.Game().start();
     });
@@ -29,7 +31,7 @@ $(document).ready(() => {
     //     window.console.log('PROGRESSION:', Math.floor((++itemsLoaded * 100) / manifest.length) + '%');
     // });
 
-    bs._.preload.loadManifest({
+    bs._data.preload.loadManifest({
         path: 'img/',
         manifest: manifest
     });

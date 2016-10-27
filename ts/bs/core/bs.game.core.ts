@@ -19,6 +19,7 @@ namespace bs {
             public map: bs.core.Map = new bs.core.Map();
             public board: bs.core.Board = new bs.core.Board();
             public ships: Array<bs.ships.AbstractShip> = null;
+            public interface: bs.core.Interface = new bs.core.Interface();
 
             /**********************************************************************************/
             /*                                                                                */
@@ -54,12 +55,18 @@ namespace bs {
                     _gameStarted = true;
                     this.board.drawGrid();
                     _setShips();
+                    _drawShips();
 
                     bs.events.on('BS::SHIP::MOVED', _controlShipsPositions);
+                    bs.events.on('BS::TURN::PLAYER', _drawShips);
+                    bs.events.on('BS::TURN::OPPONENT', _proceedToOpponentTurn);
+
                     $(window).on('resize', _resizeCanvas);
 
                     _battlefield.$.removeClass('hidden');
                     _resizeCanvas();
+
+                    this.interface.setup();
                 }
 
                 return this;
@@ -73,28 +80,49 @@ namespace bs {
         /*                                                                                */
         /**********************************************************************************/
 
+        function _proceedToOpponentTurn() {
+            _clearShips();
+            // Show layer
+            return _self;
+        }
+
         function _controlShipsPositions() {
-            bs.utils.forEach(_self.ships, function (ship) {
+            bs.utils.forEach(_self.ships, ship => {
                 ship.doLocationCheck();
                 _self.ticker.requestUpdate();
             });
+            return _self;
         }
 
         function _setShips() {
-            bs.utils.forEach(_self.ships, function (ship) {
+            bs.utils.forEach(_self.ships, ship => {
                 try {
                     var freeCoordinates = _self.map.getFreeCoordinates(ship.orientation, ship.length);
                     ship.location.x = freeCoordinates.x;
                     ship.location.y = freeCoordinates.y;
 
                     _self.map.addShip(ship);
-                    ship.draw();
                 }
                 catch (exception) {
                     console.error(exception);
                     //console.error('Cannot place ship:', ship);
                 }
             });
+            return _self;
+        }
+
+        function _drawShips() {
+            bs.utils.forEach(_self.ships, ship => {
+                ship.draw();
+            });
+            return _self;
+        }
+
+        function _clearShips() {
+            bs.utils.forEach(_self.ships, ship => {
+                ship.clear();
+            });
+            return _self;
         }
 
         function _resizeCanvas() {
@@ -117,10 +145,12 @@ namespace bs {
 
             _self.board.drawGrid();
 
-            bs.utils.forEach(_self.ships, function (ship) {
+            bs.utils.forEach(_self.ships, ship => {
                 ship.draw();
                 ship.doLocationCheck();
             });
+
+            return _self;
 
         }
 
