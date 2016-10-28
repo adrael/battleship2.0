@@ -5,7 +5,7 @@ namespace bs {
     export namespace core {
 
         let _update: boolean = false;
-        let _tickerUpdateEvent: string = 'BS::TICKER::UPDATE';
+        let _tickerUpdateEvent: string = 'BS::GRAPHIC::UPDATE'; // See Constants.events.graphic.update
 
         export class Ticker {
 

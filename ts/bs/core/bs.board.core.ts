@@ -4,16 +4,15 @@ namespace bs {
 
     export namespace core {
 
-        let _enum: any = {
-            MAP: 'MAP',
-            PLAYER: 'PLAYER',
-            OPPONENT: 'OPPONENT'
-        };
-
         let _self: any = null;
-        let _turn: string = _enum.PLAYER;
+        let _enum: any = null;
+        let _turn: string = null;
+        let _mark: createjs.Bitmap = null;
+        let _target: createjs.Bitmap = null;
         let _picture: createjs.Bitmap = null;
         let _children: Array<any> = [];
+        let _gameStarted: boolean = false;
+        let _mouseOverArea: createjs.Shape = new createjs.Shape();
 
         export class Board extends bs.core.Core{
 
@@ -34,8 +33,23 @@ namespace bs {
             constructor() {
                 super();
                 _self = this;
-                bs.events.on('BS::TURN::PLAYER', this.playerTurn);
-                bs.events.on('BS::TURN::OPPONENT', this.opponentTurn);
+                _enum = this.constants.get('enum');
+                _turn = _enum.names.player;
+                bs.events.on(_enum.events.bomb.hit, _shotFired);
+                bs.events.on(_enum.events.game.playerTurn, this.playerTurn);
+                bs.events.on(_enum.events.game.opponentTurn, this.opponentTurn);
+
+                this.stage.addEventListener('stagemousedown', _mouseDown);
+                this.stage.addEventListener('stagemousemove', _mouseMove);
+
+                bs.events.on(_enum.events.game.started, () => { _gameStarted = true; });
+
+                _mark = new createjs.Bitmap(bs._data.preload.getResult('MARK'));
+                _mark.filters = [ new createjs.ColorFilter(0,0,0,1, 54,57,59,0) ];
+                _templateCache(_mark);
+
+                _target = new createjs.Bitmap(bs._data.preload.getResult('TARGET'));
+                _templateCache(_target);
             }
 
             /**********************************************************************************/
@@ -45,19 +59,19 @@ namespace bs {
             /**********************************************************************************/
 
             public playerTurn = () : this => {
-                return _changeTurnTo(_enum.PLAYER);
+                return _changeTurnTo(_enum.names.player);
             };
 
             public opponentTurn = () : this => {
-                return _changeTurnTo(_enum.OPPONENT);
+                return _changeTurnTo(_enum.names.opponent);
             };
 
             public drawGrid = () : this => {
                 _drawGrid();
-                if (_turn === _enum.PLAYER) {
-                    return _drawPicture(_enum.PLAYER, 1.4);
+                if (_turn === _enum.names.player) {
+                    return _drawPicture(_enum.names.player, 1.4);
                 }
-                return _drawPicture(_enum.MAP, 1.4);
+                return _drawPicture(_enum.names.map, 1.4);
             };
 
             public clear = () : this => {
@@ -73,6 +87,89 @@ namespace bs {
         /*                               PRIVATE MEMBERS                                  */
         /*                                                                                */
         /**********************************************************************************/
+
+        function _shotFired() {
+            _self.stage.removeChild(_mark);
+            _self.stage.removeChild(_target);
+            _self.stage.removeChild(_mouseOverArea);
+            _self.stage.update();
+        }
+
+        function _mouseDown(event) {
+            if (!_gameStarted || _turn !== _enum.names.player) {
+                return _self;
+            }
+
+            let abs = _self.absoluteToRelativeCoordinates(_self.stage.mouseX, _self.stage.mouseY);
+
+            if (abs.x <= 0 || abs.y <= 0) {
+                return _self;
+            }
+
+            let rel = _self.relativeToAbsoluteCoordinates(abs.x, abs.y),
+                _line = _self.constants.get('line'),
+                aspectRatio = <any>bs.utils.getAspectRatioFit(_mark.image.width, _mark.image.height, _line.size.width, _line.size.height);
+
+            _mark.scaleX = _mark.scaleY = aspectRatio.ratio;
+
+            _mark.x = rel.x;
+            _mark.y = rel.y;
+
+            if (!_mark.parent) {
+                _self.stage.addChild(_mark);
+            }
+
+            _self.stage.update(event);
+
+            bs.events.broadcast(_enum.events.bomb.selected, abs);
+
+            return _self;
+        }
+
+        function _mouseMove(event) {
+            if (!_gameStarted || _turn !== _enum.names.player) {
+                return _self;
+            }
+
+            let abs = _self.absoluteToRelativeCoordinates(_self.stage.mouseX, _self.stage.mouseY);
+
+            if (abs.x <= 0 || abs.y <= 0) {
+                return _self;
+            }
+
+            let rel = _self.relativeToAbsoluteCoordinates(abs.x, abs.y),
+                _line = _self.constants.get('line'),
+                aspectRatio = <any>bs.utils.getAspectRatioFit(_target.image.width, _target.image.height, _line.size.width, _line.size.height);
+
+            _target.scaleX = _target.scaleY = aspectRatio.ratio;
+
+            _target.x = rel.x;
+            _target.y = rel.y;
+
+            _mouseOverArea.graphics.clear();
+
+            _mouseOverArea
+                .graphics
+                .setStrokeStyle(1)
+                .beginFill(_self.constants.get('colors').white)
+                .drawRect(rel.x, rel.y, _line.size.width, _line.size.height)
+                .endFill();
+
+            _mouseOverArea.alpha = .5;
+            _mouseOverArea.cursor = 'pointer';
+
+            if (!_mouseOverArea.parent) {
+                _self.stage.addChild(_mouseOverArea);
+            }
+
+            if (!_target.parent) {
+                _self.stage.addChild(_target);
+            }
+
+            _self.stage.update(event);
+
+            return _self;
+        }
 
         function _changeTurnTo(turn: string) {
             if (_turn !== turn) {
@@ -111,6 +208,19 @@ namespace bs {
                 _self.stage.removeChild(child);
             });
             return _self;
+        }
+
+        function _templateCache(template) {
+            if (!bs.utils.isElement(template.image)) {
+                return;
+            }
+
+            if (template.alreadyCached) {
+                template.updateCache();
+            } else {
+                template.alreadyCached = true;
+                template.cache(template.x, template.y, template.image.width, template.image.height);
+            }
         }
 
         function _drawGrid() {

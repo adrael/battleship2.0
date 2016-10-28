@@ -10,6 +10,8 @@ $(document).ready(() => {
         manifest = [
             { 'id': 'MAP',        'src': 'map.png' },
             { 'id': 'LOGO',       'src': 'logo.png' },
+            { 'id': 'MARK',       'src': 'mark.png' },
+            { 'id': 'TARGET',     'src': 'target.png' },
             { 'id': 'PLAYER',     'src': 'player.png' },
             { 'id': 'CRUISER',    'src': 'ships/cruiser.png' },
             { 'id': 'CARRIER',    'src': 'ships/carrier.png' },

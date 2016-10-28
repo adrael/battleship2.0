@@ -5,8 +5,10 @@ namespace bs {
     export namespace core {
 
         let _self: any = null;
-        let _gameStarted: boolean = false;
+        let _enum: any = null;
+        let _overlay: JQuery = $('.overlay');
         let _battlefield: any = <any>{};
+        let _gameStarted: boolean = false;
 
         export class Game extends bs.core.Core {
 
@@ -17,9 +19,9 @@ namespace bs {
             /**********************************************************************************/
 
             public map: bs.core.Map = new bs.core.Map();
+            public gui: bs.core.GUI = new bs.core.GUI();
             public board: bs.core.Board = new bs.core.Board();
             public ships: Array<bs.ships.AbstractShip> = null;
-            public interface: bs.core.Interface = new bs.core.Interface();
 
             /**********************************************************************************/
             /*                                                                                */
@@ -31,6 +33,7 @@ namespace bs {
                 super();
 
                 _self = this;
+                _enum = this.constants.get('enum');
 
                 this.ships = [
                     new bs.ships.Destroyer(this.map),
@@ -57,16 +60,23 @@ namespace bs {
                     _setShips();
                     _drawShips();
 
-                    bs.events.on('BS::SHIP::MOVED', _controlShipsPositions);
-                    bs.events.on('BS::TURN::PLAYER', _drawShips);
-                    bs.events.on('BS::TURN::OPPONENT', _proceedToOpponentTurn);
+                    bs.events.on(_enum.events.ship.moved, _controlShipsPositions);
+                    bs.events.on(_enum.events.game.playerTurn, _proceedToPlayerTurn);
+                    bs.events.on(_enum.events.game.opponentTurn, _proceedToOpponentTurn);
+                    bs.events.on(_enum.events.bomb.selected, coords => {
+                        console.log('hit coords:', coords);
+                    });
+                    bs.events.on(_enum.events.game.sendCoords, () => {
+                        console.log('Send coords to WS here');
+                        bs.events.broadcast(_enum.events.bomb.hit);
+                    });
 
                     $(window).on('resize', _resizeCanvas);
 
                     _battlefield.$.removeClass('hidden');
                     _resizeCanvas();
 
-                    this.interface.setup();
+                    this.gui.setup();
                 }
 
                 return this;
@@ -80,17 +90,23 @@ namespace bs {
         /*                                                                                */
         /**********************************************************************************/
 
-        function _proceedToOpponentTurn() {
+        function _proceedToPlayerTurn() {
             _clearShips();
-            // Show layer
+            _overlay.addClass('hidden');
+            return _self;
+        }
+
+        function _proceedToOpponentTurn() {
+            _drawShips();
+            _overlay.removeClass('hidden');
             return _self;
         }
 
         function _controlShipsPositions() {
             bs.utils.forEach(_self.ships, ship => {
                 ship.doLocationCheck();
-                _self.ticker.requestUpdate();
             });
+            _self.ticker.requestUpdate();
             return _self;
         }
 
@@ -135,13 +151,13 @@ namespace bs {
                 marginTop = (__height - size) / 2,
                 marginLeft = (__width - size) / 2;
 
-            _battlefield.$.css('margin-top', marginTop);
+            _battlefield.$.css('margin-top', (_width > 384) ? marginTop : 0);
             _battlefield.$.css('margin-left', marginLeft);
 
             _self.stage.canvas.width = size;
             _self.stage.canvas.height = size;
 
-            bs.events.broadcast('BS::WINDOW::RESIZED');
+            bs.events.broadcast(_enum.events.window.resized);
 
             _self.board.drawGrid();
 

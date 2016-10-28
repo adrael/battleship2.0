@@ -24,6 +24,7 @@ namespace bs {
 
             constructor() {
                 _constants.map = {};
+                _constants.enum = {};
                 _constants.line = {};
                 _constants.canvas = {};
                 _constants.colors = {};
@@ -32,7 +33,7 @@ namespace bs {
                 this.update();
 
                 if (bs.events) {
-                    bs.events.on('BS::WINDOW::RESIZED', this.update.bind(this));
+                    bs.events.on(_constants.enum.events.window.resized, this.update.bind(this));
                 }
             }
 
@@ -47,6 +48,46 @@ namespace bs {
             };
 
             public update = () : this => {
+
+                _constants.enum = {
+
+                    names: {
+                        map: 'MAP',
+                        player: 'PLAYER',
+                        opponent: 'OPPONENT'
+                    },
+
+                    events: {
+                        game: {
+                            started: 'BS::GAME::STARTED',
+                            sendCoords: 'BS::GAME::SEND_COORDS',
+                            playerTurn: 'BS::GAME::PLAYER_TURN',
+                            opponentTurn: 'BS::GAME::OPPONENT_TURN'
+                        },
+
+                        graphic: {
+                            update: 'BS::GRAPHIC::UPDATE'
+                        },
+
+                        ship: {
+                            moved: 'BS::SHIP::MOVED',
+                            freeze: 'BS::SHIP::FREEZE',
+                            destroyed: 'BS::SHIP::DESTROYED'
+                        },
+
+                        bomb: {
+                            hit: 'BS::BOMB::HIT',
+                            dropped: 'BS::BOMB::DROPPED',
+                            selected: 'BS::BOMB::SELECTED'
+                        },
+
+                        window: {
+                            resized: 'BS::WINDOW::RESIZED'
+                        }
+                    }
+
+                };
+
                 _constants.canvas.node = document.getElementById('battlefield');
                 _constants.canvas.size = {};
                 _constants.canvas.size.width = 600;

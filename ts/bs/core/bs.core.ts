@@ -50,23 +50,27 @@ namespace bs {
                     this.stage.enableMouseOver(10);
 
                     // Keep tracking the mouse even when it leaves the canvas
-                    this.stage.mouseMoveOutside = true;
+                    // this.stage.mouseMoveOutside = true;
                 }
 
                 return this;
             };
 
             public absoluteToRelativeCoordinates = (absX: number, absY: number) : any => {
+                let _line = this.constants.get('line');
+
                 return {
-                    x: Math.floor(absX / this.constants.get('line').size.width),
-                    y: Math.floor(absY / this.constants.get('line').size.height)
+                    x: Math.floor(absX / _line.size.width),
+                    y: Math.floor(absY / _line.size.height)
                 };
             };
 
             public relativeToAbsoluteCoordinates = (relX: number, relY: number) : any => {
+                let _line = this.constants.get('line');
+
                 return {
-                    x: Math.floor(relX * this.constants.get('line').size.width),
-                    y: Math.floor(relY * this.constants.get('line').size.height)
+                    x: Math.floor(relX * _line.size.width),
+                    y: Math.floor(relY * _line.size.height)
                 };
             };
 
