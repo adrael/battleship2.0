@@ -1,4 +1,4 @@
-/// <reference path="../../battleship.ts" />
+/// <reference path="../../bs.ts" />
 
 namespace bs {
 

@@ -1,4 +1,4 @@
-/// <reference path="../../namespaces.ts" />
+/// <reference path="../../bs.ts" />
 
 namespace bs {
 
@@ -20,8 +20,8 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-            constructor(map: bs.core.Map = new bs.core.Map()) {
-                super('SUBMARINE', 3, map);
+            constructor() {
+                super('SUBMARINE', 3);
             }
 
             /**********************************************************************************/

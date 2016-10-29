@@ -20,12 +20,42 @@
 </head>
 <body>
 
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12 col-md-6">
+<div class="container desktop-full-height">
+    <div class="row desktop-full-height">
+        <div class="col-xs-12 col-lg-6 desktop-full-height">
             <h1 class="header-title">BattleShip 2.0</h1>
+
+            <div class="row m-1 hidden-xs-down">
+                <div class="col-xs-12 col-sm-4 mt-1">
+                    <div class="counter" id="bombs-counter"></div>
+                    <p class="m-1 text-center bebas-neue">Bombs dropped</p>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 mt-1">
+                    <div class="counter" id="hits-counter"></div>
+                    <p class="m-1 text-center bebas-neue">Hits</p>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 mt-1">
+                    <div class="counter" id="ship-destroyed-counter"></div>
+                    <p class="m-1 text-center bebas-neue">Ships destroyed</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-md-4 offset-md-4">
+                    <button class="btn btn-block btn-success bebas-neue md-mb-1" id="startGame">Start game</button>
+                </div>
+                <div class="col-xs-12 col-md-4 offset-md-4 hidden">
+                    <button class="btn btn-block btn-primary bebas-neue md-mb-1" id="sendCommand" disabled>Send order</button>
+                </div>
+            </div>
         </div>
-        <div class="col-xs-12 col-md-6">
+
+        <div class="col-xs-12 col-lg-6 desktop-full-height">
+            <div class="overlay hidden">
+                <p class="bebas-neue">Waiting for opponent turn...</p>
+            </div>
             <canvas id="battlefield" class="battlefield hidden" width="600" height="600"></canvas>
         </div>
     </div>
@@ -35,26 +65,36 @@
 
 <!-- build:js js/app.js -->
 
+<script id="counter-template" type="text/template">
+    <span class="current top <%= currentSize %>"><%= count %></span>
+    <span class="next top <%= nextSize %>"><%= nextCount %></span>
+    <span class="current bottom <%= currentSize %>"><%= count %></span>
+    <span class="next bottom <%= nextSize %>"><%= nextCount %></span>
+</script>
+
 <!-- bower:js -->
 <script src="../bower_components/jquery/dist/jquery.min.js"></script>
 <!-- endbower -->
 
-<script src="js/release/namespaces.js"></script>
-<script src="js/release/battleship.js"></script>
+<script src="js/release/bs.js"></script>
 
 <script src="js/release/bs/exceptions/bs.factory.exception.js"></script>
 <script src="js/release/bs/exceptions/bs.invalid-value.exception.js"></script>
 <script src="js/release/bs/exceptions/bs.missing-property.exception.js"></script>
 <script src="js/release/bs/exceptions/bs.invalid-coordinates.exception.js"></script>
 
-<script src="js/release/bs/core/bs.utils.core.js"></script>
-<script src="js/release/bs/core/bs.events.core.js"></script>
-<script src="js/release/bs/core/bs.ticker.core.js"></script>
-<script src="js/release/bs/core/bs.constants.core.js"></script>
+<script src="js/release/bs/components/bs.counter.component.js"></script>
+
+<script src="js/release/bs/services/bs.utils.service.js"></script>
+<script src="js/release/bs/services/bs.events.service.js"></script>
+
 <script src="js/release/bs/core/bs.core.js"></script>
-<script src="js/release/bs/core/bs.map.core.js"></script>
-<script src="js/release/bs/core/bs.game.core.js"></script>
+<script src="js/release/bs/core/bs.loader.core.js"></script>
 <script src="js/release/bs/core/bs.board.core.js"></script>
+<script src="js/release/bs/core/bs.game.core.js"></script>
+<script src="js/release/bs/core/bs.constants.core.js"></script>
+<script src="js/release/bs/core/bs.gui.core.js"></script>
+<script src="js/release/bs/core/bs.map.core.js"></script>
 
 <script src="js/release/bs/ships/bs.abstract.ship.js"></script>
 <script src="js/release/bs/ships/bs.cruiser.ship.js"></script>

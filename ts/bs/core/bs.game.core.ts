@@ -1,12 +1,19 @@
-/// <reference path="../../namespaces.ts" />
+/// <reference path="../../bs.ts" />
 
 namespace bs {
 
     export namespace core {
 
-        let _self: any = null;
+        let _map: bs.core.Map = null;
+        let _gui: bs.core.GUI = null;
+        let _ships: Array<bs.ships.AbstractShip> = [];
+        let _board: bs.core.Board = null;
+        let _instance: any = null;
+        let _gameState: string = null;
+        let _gameSetup: boolean = null;
+        let _constants: bs.core.Constants = null;
         let _gameStarted: boolean = false;
-        let _battlefield: any = <any>{};
+        let _debugEnabled: boolean = true /*__debugEnabled__*/;
 
         export class Game extends bs.core.Core {
 
@@ -16,9 +23,7 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-            public map: bs.core.Map = new bs.core.Map();
-            public board: bs.core.Board = new bs.core.Board();
-            public ships: Array<bs.ships.AbstractShip> = null;
+
 
             /**********************************************************************************/
             /*                                                                                */
@@ -29,18 +34,16 @@ namespace bs {
             constructor() {
                 super();
 
-                _self = this;
+                if (bs.utils.isNull(_instance)) {
+                    _instance = this;
 
-                this.ships = [
-                    new bs.ships.Destroyer(this.map),
-                    new bs.ships.Submarine(this.map),
-                    new bs.ships.Cruiser(this.map),
-                    new bs.ships.Battleship(this.map),
-                    new bs.ships.Carrier(this.map)
-                ];
+                    _map = new bs.core.Map();
+                    _gui = new bs.core.GUI();
+                    _board = new bs.core.Board();
+                    _constants = new bs.core.Constants();
+                }
 
-                _battlefield.$ = $(this.constants.get('canvas').node);
-                _battlefield.parent = _battlefield.$.parent();
+                return _instance;
             }
 
             /**********************************************************************************/
@@ -49,20 +52,70 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
+            public getShips = () : Array<bs.ships.AbstractShip> => {
+                return _ships;
+            };
+
             public start = () : this => {
-                if (!_gameStarted) {
-                    _gameStarted = true;
-                    this.board.drawGrid();
-                    _setShips();
+                _gameStarted = true;
+                return _instance;
+            };
 
-                    bs.events.on('BS::SHIP::MOVED', _controlShipsPositions);
-                    $(window).on('resize', _resizeCanvas);
-
-                    _battlefield.$.removeClass('hidden');
-                    _resizeCanvas();
+            public setup = () : this => {
+                if (_gameSetup) {
+                    console.error('The game has already started!');
+                    return _instance;
                 }
 
-                return this;
+                _gameSetup = true;
+
+                console.info('TODO: Set state according to who starts first (from server)');
+                _instance.state(_constants.get('enum').names.player);
+
+                _board.setup();
+                _shipsSetup();
+
+                return _instance;
+            };
+
+            public state = (gameState?: string) : this | string => {
+                if (bs.utils.isUndefined(gameState)) {
+                    return _gameState;
+                }
+
+                _gameState = gameState;
+
+                let _enum = _constants.get('enum');
+                switch (_gameState) {
+                    case _enum.names.player:
+                        _clearShips();
+                        console.info('TODO: Draw player bombs here');
+                        _board.hideOverlay();
+                        break;
+                    case _enum.names.opponent:
+                        _drawShips(true);
+                        console.info('TODO: Draw opponent bombs here');
+                        _board.showOverlay();
+                        break;
+                }
+
+                _board.draw();
+
+                return _instance;
+            };
+
+            public hasStarted = () : boolean => {
+                return _gameStarted;
+            };
+
+            public hasDebugEnabled = () : boolean => {
+                return _debugEnabled;
+            };
+
+            public shipMoved = (ship?: bs.ships.AbstractShip) : this => {
+                bs.utils.forEach(_ships, _ship => _ship.doLocationCheck());
+                _board.requestUpdate();
+                return _instance;
             };
 
         }
@@ -73,21 +126,35 @@ namespace bs {
         /*                                                                                */
         /**********************************************************************************/
 
-        function _controlShipsPositions() {
-            bs.utils.forEach(_self.ships, function (ship) {
-                ship.doLocationCheck();
-                _self.ticker.requestUpdate();
+        function _drawShips(frozen: boolean = false) : bs.core.Game {
+            bs.utils.forEach(_ships, ship => {
+                if (frozen) {
+                    ship.freeze();
+                }
+                ship.draw();
             });
+            return _instance;
         }
 
-        function _setShips() {
-            bs.utils.forEach(_self.ships, function (ship) {
-                try {
-                    var freeCoordinates = _self.map.getFreeCoordinates(ship.orientation, ship.length);
-                    ship.location.x = freeCoordinates.x;
-                    ship.location.y = freeCoordinates.y;
+        function _clearShips() : bs.core.Game {
+            bs.utils.forEach(_ships, ship => ship.clear());
+            return _instance;
+        }
 
-                    _self.map.addShip(ship);
+        function _shipsSetup() : bs.core.Game {
+            console.info('TODO: Create ships depending on server game configuration');
+            _ships = [
+                new bs.ships.Destroyer(),
+                new bs.ships.Submarine(),
+                new bs.ships.Cruiser(),
+                new bs.ships.Battleship(),
+                new bs.ships.Carrier()
+            ];
+
+            bs.utils.forEach(_ships, ship => {
+                try {
+                    let freeCoordinates = <any>_map.getFreeCoordinates(ship.orientation, ship.length);
+                    ship.setLocation(freeCoordinates.x, freeCoordinates.y);
                     ship.draw();
                 }
                 catch (exception) {
@@ -95,33 +162,8 @@ namespace bs {
                     //console.error('Cannot place ship:', ship);
                 }
             });
-        }
 
-        function _resizeCanvas() {
-
-            var __width = _battlefield.parent.width(),
-                __height = _battlefield.parent.height(),
-                _width = __width * .9,
-                _height = __height * .9,
-                size = (_width <= _height ? _width : _height),
-                marginTop = (__height - size) / 2,
-                marginLeft = (__width - size) / 2;
-
-            _battlefield.$.css('margin-top', marginTop);
-            _battlefield.$.css('margin-left', marginLeft);
-
-            _self.stage.canvas.width = size;
-            _self.stage.canvas.height = size;
-
-            bs.events.broadcast('BS::WINDOW::RESIZED');
-
-            _self.board.drawGrid();
-
-            bs.utils.forEach(_self.ships, function (ship) {
-                ship.draw();
-                ship.doLocationCheck();
-            });
-
+            return _instance;
         }
 
     }
