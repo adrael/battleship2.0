@@ -1,4 +1,4 @@
-/// <reference path="../../namespaces.ts" />
+/// <reference path="../../bs.ts" />
 
 namespace bs {
 
@@ -93,6 +93,7 @@ namespace bs {
         /*                               PRIVATE MEMBERS                                  */
         /*                                                                                */
         /**********************************************************************************/
+
 
 
     }

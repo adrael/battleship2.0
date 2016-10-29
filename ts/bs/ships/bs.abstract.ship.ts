@@ -1,14 +1,15 @@
-/// <reference path="../../namespaces.ts" />
+/// <reference path="../../bs.ts" />
 
 namespace bs {
 
     export namespace ships {
 
-        let _enum: any = null;
+        let _map: bs.core.Map = null;
+        let _game: bs.core.Game = null;
+        let _board: bs.core.Board = null;
         let _frozen: boolean = false;
-        let _redFilter:   createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 238,64,0,0);
-        let _greenFilter: createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 0,139,69,0);
-        let _blackFilter: createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 54,57,59,0);
+        let _loader: bs.core.Loader = null;
+        let _constants: bs.core.Constants = null;
 
         export abstract class AbstractShip extends bs.core.Core {
 
@@ -24,13 +25,12 @@ namespace bs {
             private _invalidLocation: boolean = false;
             private _invalidLocationIndicator: createjs.Shape = new createjs.Shape();
 
-            public map: bs.core.Map = null;
             public name: string = 'ABSTRACT_SHIP';
             public scale: number = 0;
             public length: number = 0;
             public template: createjs.Bitmap = null;
             public location: any = { x: 1, y: 1 };
-            public orientation: string = this.constants.get('orientation').horizontal;
+            public orientation: string = null;
 
             /**********************************************************************************/
             /*                                                                                */
@@ -38,20 +38,25 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-            constructor(name: string = 'ABSTRACT_SHIP', length: number = 0, map: bs.core.Map = new bs.core.Map()) {
+            constructor(name: string = 'ABSTRACT_SHIP', length: number = 0) {
                 super();
 
-                _enum = this.constants.get('enum');
+                _map = new bs.core.Map();
+                _game = new bs.core.Game();
+                _board = new bs.core.Board();
+                _loader = new bs.core.Loader();
+                _constants = new bs.core.Constants();
 
                 this.length = length;
 
                 if ((Math.random() * 100) > 50) {
-                    this.orientation = this.constants.get('orientation').vertical;
+                    this.orientation = _constants.get('orientation').vertical;
+                } else {
+                    this.orientation = _constants.get('orientation').horizontal
                 }
 
-                this.setMap(map);
                 this.setName(name);
-                this.setTemplate(new createjs.Bitmap(bs._data.preload.getResult(name)));
+                this.setTemplate(new createjs.Bitmap(_loader.get(name)));
                 this.init();
             }
 
@@ -62,10 +67,14 @@ namespace bs {
             /**********************************************************************************/
 
             public setTemplate = (template: createjs.Bitmap = null) : this => {
+                if (_frozen) {
+                    return;
+                }
+
                 this.template = template;
                 this.template.name = this.name;
                 this.template.cursor = 'pointer';
-                this.template.filters = [ _blackFilter ];
+                _board.applyFilterOn('black', this.template, false);
 
                 let self = this;
                 this.template.on('click',     function (event) { _shipClicked.call(this, event, self); });
@@ -74,12 +83,16 @@ namespace bs {
                 this.template.on('rollover',  function (event) { _shipHovered.call(this, event, self); });
                 this.template.on('pressmove', function (event) { _shipMoved.call(this, event, self); });
                 this.template.on('mousedown', function (event) { _shipSelected.call(this, event, self); });
-                _templateCache(this.template);
+                _board.templateCache(this.template);
 
                 return this;
             };
 
             public setName = (name: string) : this => {
+                if (_frozen) {
+                    return;
+                }
+
                 if (bs.utils.isString(name) && name.length) {
                     this.name = name;
                     if (this.template) {
@@ -89,44 +102,40 @@ namespace bs {
                 return this;
             };
 
-            public setMap = (map: bs.core.Map) : this => {
-                if (!this.isValidMap(map)) {
-                    this.map = null
-                } else { this.map = map; }
-                return this;
+            public isBeingDragged = (beingDragged?: boolean) : boolean => {
+                if (bs.utils.isUndefined(beingDragged)) {
+                    return this._beingDragged;
+                }
+                return this._beingDragged = beingDragged;
             };
 
-            public hasValidMap = () : boolean => {
-                return this.isValidMap(this.map);
-            };
-
-            public isValidMap = (map: bs.core.Map) : boolean => {
-                return map instanceof bs.core.Map;
+            public hasValidLocation = () : boolean => {
+                return !this._invalidLocation;
             };
 
             public doLocationCheck = () : this => {
                 this.clearLocationCheck();
 
-                if (this.hasValidMap() && !this.map.isShipLocationValid(this)) {
+                if (!_map.isShipLocationValid(this)) {
 
                     let shipPosition = this.getPosition();
 
                     this._invalidLocationIndicator
                         .graphics
                         .setStrokeStyle(1)
-                        .beginFill(this.constants.get('colors').red)
+                        .beginFill(_constants.get('colors').red)
                         .drawRect(shipPosition.x, shipPosition.y, shipPosition.w, shipPosition.h)
                         .endFill();
 
                     this._invalidLocationIndicator.alpha = .3;
 
                     if (!this._invalidLocationIndicator.parent) {
-                        this.stage.addChild(this._invalidLocationIndicator);
+                        _board.stage.addChild(this._invalidLocationIndicator);
                     }
 
                     this.red();
                     this._invalidLocation = true;
-                    this.ticker.requestUpdate();
+                    _board.requestUpdate();
 
                 }
 
@@ -138,7 +147,7 @@ namespace bs {
                     this.black();
                     this._invalidLocation = false;
                     this._invalidLocationIndicator.graphics.clear();
-                    this.ticker.requestUpdate();
+                    _board.requestUpdate();
                 }
                 return this;
             };
@@ -146,18 +155,26 @@ namespace bs {
             public clear = () : this => {
                 this._debugArea.graphics.clear();
                 this._invalidLocationIndicator.graphics.clear();
-                this.stage.removeChild(this.template);
-                this.stage.update();
+                _board.stage.removeChild(this.template);
+                _board.stage.update();
                 return this;
             };
 
             public moveTo = (x: number, y: number) : this => {
+                if (_frozen) {
+                    return;
+                }
+
                 this.template.x = x;
                 this.template.y = y;
                 return this;
             };
 
             public setLocation = (x: number, y: number) : this => {
+                if (_frozen) {
+                    return;
+                }
+
                 this.location.x = x;
                 this.location.y = y;
                 return this;
@@ -171,17 +188,21 @@ namespace bs {
                 this._debugArea
                     .graphics
                     .setStrokeStyle(1)
-                    .beginStroke(this.constants.get('colors').black)
+                    .beginStroke(_constants.get('colors').black)
                     .drawRect(shipPosition.x, shipPosition.y, shipPosition.w, shipPosition.h)
                     .endStroke();
 
-                if (!this._debugArea.parent) {
-                    this.stage.addChild(this._debugArea);
+                if (bs.utils.isNull(this._debugArea.parent)) {
+                    _board.stage.addChild(this._debugArea);
                 }
                 return this;
             };
 
             public rotate = (angle: number = 0, center?: number) : this => {
+                if (_frozen) {
+                    return;
+                }
+
                 this.template.regX = this.template.image.width / (center || 0) | 0;
                 this.template.regY = this.template.image.height / (center || 0) | 0;
                 this.template.rotation = (angle || 0);
@@ -194,19 +215,16 @@ namespace bs {
                 }
 
                 let self = this;
-                this._updateListener = this.ticker.notifyOnUpdate(function (event) {
+                this._updateListener = _board.notifyOnUpdate(function (event) {
                     self.draw(event);
                 });
-
-
-                bs.events.on(_enum.events.ship.freeze, _freeze);
 
                 return this;
             };
 
             public getPosition = () : any => {
-                let _line = this.constants.get('line');
-                let _orientation = this.constants.get('orientation');
+                let _line = _constants.get('line');
+                let _orientation = _constants.get('orientation');
                 return {
                     x: this.location.x * _line.size.width,
                     y: this.location.y * _line.size.height,
@@ -216,23 +234,17 @@ namespace bs {
             };
 
             public red = () : this => {
-                this.template.filters = [ _redFilter ];
-                _templateCache(this.template);
-                this.ticker.requestUpdate();
+                _board.applyFilterOn('red', this.template);
                 return this;
             };
 
             public green = () : this => {
-                this.template.filters = [ _greenFilter ];
-                _templateCache(this.template);
-                this.ticker.requestUpdate();
+                _board.applyFilterOn('green', this.template);
                 return this;
             };
 
             public black = () : this => {
-                this.template.filters = [ _blackFilter ];
-                _templateCache(this.template);
-                this.ticker.requestUpdate();
+                _board.applyFilterOn('black', this.template);
                 return this;
             };
 
@@ -240,11 +252,11 @@ namespace bs {
                 let shipPosition = this.getPosition(),
                     aspectRatio = null;
 
-                if(bs._data.debugEnabled) {
+                if(_game.hasDebugEnabled()) {
                     this.debug();
                 }
 
-                if (this.orientation === this.constants.get('orientation').vertical) {
+                if (this.orientation === _constants.get('orientation').vertical) {
 
                     aspectRatio = bs.utils.getAspectRatioFit(this.template.image.height, this.template.image.width, shipPosition.w, shipPosition.h);
 
@@ -268,11 +280,11 @@ namespace bs {
 
                 this.setScale(aspectRatio.ratio);
 
-                if (!this.template.parent) {
-                    this.stage.addChild(this.template);
+                if (bs.utils.isNull(this.template.parent)) {
+                    _board.stage.addChild(this.template);
                 }
 
-                this.stage.update(event);
+                _board.stage.update(event);
                 return this;
             };
 
@@ -280,6 +292,11 @@ namespace bs {
                 this.scale = this.template.scaleX = this.template.scaleY = scale;
                 return this;
             };
+
+            public freeze = () : this => {
+                _frozen = true;
+                return this;
+            }
 
         }
 
@@ -289,11 +306,7 @@ namespace bs {
         /*                                                                                */
         /**********************************************************************************/
 
-        function _freeze() {
-            _frozen = true;
-        }
-
-        function _shipSelected(event, ship) {
+        function _shipSelected(event: any, ship?: bs.ships.AbstractShip) {
             // IMPORTANT NOTE: The this instance refers to this.template
             if (_frozen) {
                 return;
@@ -305,93 +318,80 @@ namespace bs {
             };
         }
 
-        function _shipClicked(event, ship) {
+        function _shipClicked(event: any, ship?: bs.ships.AbstractShip) {
             // IMPORTANT NOTE: The this instance refers to this.template
-            if (_frozen || ship.beingDragged) {
+            if (_frozen || ship.isBeingDragged()) {
                 return;
             }
 
-            if (ship.orientation === ship.constants.get('orientation').vertical) {
-                ship.orientation = ship.constants.get('orientation').horizontal;
+            if (ship.orientation === _constants.get('orientation').vertical) {
+                ship.orientation = _constants.get('orientation').horizontal;
             }
-            else { ship.orientation = ship.constants.get('orientation').vertical; }
+            else { ship.orientation = _constants.get('orientation').vertical; }
 
-            bs.events.broadcast(_enum.events.ship.moved);
+            _game.shipMoved(ship);
         }
 
-        function _shipMoved(event, ship) {
+        function _shipMoved(event: any, ship?: bs.ships.AbstractShip) {
             // IMPORTANT NOTE: The this instance refers to this.template
             if (_frozen) {
                 return;
             }
 
-            ship.beingDragged = true;
+            ship.isBeingDragged(true);
 
             let x = event.stageX + this.offset.x,
                 y = event.stageY + this.offset.y,
-                abs = ship.absoluteToRelativeCoordinates(x, y);
+                abs = _map.relativeToAbsoluteCoordinates(x, y);
 
             if (ship.location.x !== abs.x || ship.location.y !== abs.y) {
 
                 let _ship = {
-                    orientation: ship.orientation,
                     length: ship.length,
                     location: {
                         x: abs.x,
                         y: abs.y
-                    }
+                    },
+                    orientation: ship.orientation
                 };
 
-                if (ship.hasValidMap() && ship.map.locationIsWithinMap(_ship)) {
+                if (_map.locationIsWithinMap(<bs.ships.AbstractShip>_ship)) {
                     ship.moveTo(x, y);
                     ship.setLocation(abs.x, abs.y);
-                    bs.events.broadcast(_enum.events.ship.moved);
+                    _game.shipMoved(ship);
                 }
             }
         }
 
-        function _shipUnselected(event, ship) {
+        function _shipUnselected(event: any, ship?: bs.ships.AbstractShip) {
             // IMPORTANT NOTE: The this instance refers to this.template
             if (_frozen) {
                 return;
             }
 
-            ship.beingDragged = false;
-            bs.events.broadcast(_enum.events.ship.moved);
+            ship.isBeingDragged(false);
+            _game.shipMoved(ship);
         }
 
-        function _shipHovered(event, ship) {
+        function _shipHovered(event: any, ship?: bs.ships.AbstractShip) {
             // IMPORTANT NOTE: The this instance refers to this.template
             if (_frozen) {
                 return;
             }
 
-            if (!ship._invalidLocation) {
+            if (ship.hasValidLocation()) {
                 ship.green();
             }
         }
 
-        function _shipUnhovered(event, ship) {
+        function _shipUnhovered(event: any, ship?: bs.ships.AbstractShip) {
             // IMPORTANT NOTE: The this instance refers to this.template
             if (_frozen) {
                 return;
             }
 
-            if (!ship._invalidLocation) {
+            if (ship.hasValidLocation()) {
                 ship.black();
-            }
-        }
-
-        function _templateCache(template) {
-            if (!bs.utils.isElement(template.image)) {
-                return;
-            }
-
-            if (template.alreadyCached) {
-                template.updateCache();
-            } else {
-                template.alreadyCached = true;
-                template.cache(template.x, template.y, template.image.width, template.image.height);
             }
         }
 

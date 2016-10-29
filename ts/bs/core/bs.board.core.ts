@@ -1,20 +1,33 @@
-/// <reference path="../../namespaces.ts" />
+/// <reference path="../../bs.ts" />
 
 namespace bs {
 
     export namespace core {
 
-        let _self: any = null;
-        let _enum: any = null;
-        let _turn: string = null;
+        let _map: bs.core.Map = null;
+        let _game: bs.core.Game = null;
+        let _setup: boolean = false;
+        let _canvas: JQuery = null;
+        let _loader: bs.core.Loader = null;
+        let _picture: createjs.Bitmap = null;
+        let _overlay: JQuery = null;
+        let _instance: any = null;
+        let _constants: bs.core.Constants = null;
+        let _updateStage: boolean = false;
+        let _canvasParent: JQuery = null;
+        let _stageChildren: Array<any> = [];
+
+        let _redFilter:   createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 238,64,0,0);
+        let _greenFilter: createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 0,139,69,0);
+        let _blackFilter: createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 54,57,59,0);
+
+
         let _mark: createjs.Bitmap = null;
         let _target: createjs.Bitmap = null;
-        let _picture: createjs.Bitmap = null;
-        let _children: Array<any> = [];
-        let _gameStarted: boolean = false;
         let _mouseOverArea: createjs.Shape = new createjs.Shape();
 
-        export class Board extends bs.core.Core{
+
+        export class Board extends bs.core.Core {
 
             /**********************************************************************************/
             /*                                                                                */
@@ -22,7 +35,7 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-
+            public stage: createjs.Stage = null;
 
             /**********************************************************************************/
             /*                                                                                */
@@ -32,24 +45,31 @@ namespace bs {
 
             constructor() {
                 super();
-                _self = this;
-                _enum = this.constants.get('enum');
-                _turn = _enum.names.player;
-                bs.events.on(_enum.events.bomb.hit, _shotFired);
-                bs.events.on(_enum.events.game.playerTurn, this.playerTurn);
-                bs.events.on(_enum.events.game.opponentTurn, this.opponentTurn);
 
-                this.stage.addEventListener('stagemousedown', _mouseDown);
-                this.stage.addEventListener('stagemousemove', _mouseMove);
+                if (bs.utils.isNull(_instance)) {
+                    _instance = this;
 
-                bs.events.on(_enum.events.game.started, () => { _gameStarted = true; });
+                    _map = new bs.core.Map();
+                    _game = new bs.core.Game();
+                    _loader = new bs.core.Loader();
+                    _constants = new bs.core.Constants();
 
-                _mark = new createjs.Bitmap(bs._data.preload.getResult('MARK'));
-                _mark.filters = [ new createjs.ColorFilter(0,0,0,1, 54,57,59,0) ];
-                _templateCache(_mark);
+                    let canvasNode = _constants.get('canvas').node;
+                    _overlay = $('.overlay');
+                    _canvas = $(canvasNode);
+                    _canvasParent = _canvas.parent();
+                    _instance.stage = new createjs.Stage(canvasNode);
 
-                _target = new createjs.Bitmap(bs._data.preload.getResult('TARGET'));
-                _templateCache(_target);
+                    createjs.Touch.enable(_instance.stage);
+                    _instance.stage.enableMouseOver(10);
+                    // _instance.stage.mouseMoveOutside = true;
+                    _instance.stage.addEventListener('stagemousedown', _mouseDown);
+                    _instance.stage.addEventListener('stagemousemove', _mouseMove);
+
+                    createjs.Ticker.addEventListener('tick', _notifyClients);
+                }
+
+                return _instance;
             }
 
             /**********************************************************************************/
@@ -58,26 +78,123 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-            public playerTurn = () : this => {
-                return _changeTurnTo(_enum.names.player);
-            };
+            public applyFilterOn = (name: string, template: createjs.Bitmap, update: boolean = true) : this => {
 
-            public opponentTurn = () : this => {
-                return _changeTurnTo(_enum.names.opponent);
-            };
+                switch (name.toLowerCase()) {
 
-            public drawGrid = () : this => {
-                _drawGrid();
-                if (_turn === _enum.names.player) {
-                    return _drawPicture(_enum.names.player, 1.4);
+                    case 'red':
+                        template.filters = [ _redFilter ];
+                        break;
+
+                    case 'green':
+                        template.filters = [ _greenFilter ];
+                        break;
+
+                    case 'black':
+                        template.filters = [ _blackFilter ];
+                        break;
                 }
-                return _drawPicture(_enum.names.map, 1.4);
+
+                _instance.templateCache(template);
+
+                if (update) {
+                    _instance.requestUpdate();
+                }
+
+                return _instance;
+            };
+
+            public requestUpdate = () : this => {
+                _updateStage = true;
+                return _instance;
+            };
+
+            public notifyOnUpdate = (callback?: Function) : Function => {
+                return bs.events.on(_constants.get('enum').events.graphic.update, callback);
+            };
+
+            public templateCache = (template: createjs.Bitmap) : this => {
+                if (!bs.utils.isElement(template.image)) {
+                    return _instance;
+                }
+
+                if (bs.utils.isNull(template.cacheCanvas)) {
+                    template.cache(template.x, template.y, template.image.width, template.image.height);
+                } else {
+                    template.updateCache();
+                }
+
+                return _instance;
+            };
+
+            public setup = () : this => {
+                if (_setup) {
+                    console.error('The board has already been setup!');
+                    return _instance;
+                }
+
+                _setup = true;
+
+                _draw();
+                $(window).on('resize', _resize);
+                _instance.show();
+                _resize();
+
+                _mark = new createjs.Bitmap(_loader.get('MARK'));
+                _instance.templateCache(_mark);
+
+                _target = new createjs.Bitmap(_loader.get('TARGET'));
+                _instance.templateCache(_target);
+
+                return _instance;
+            };
+
+            public show = () : this => {
+                if (bs.utils.isElement(_canvas)) {
+                    _canvas.removeClass('hidden');
+                }
+                return _instance;
+            };
+
+            public hide = () : this => {
+                if (bs.utils.isElement(_canvas)) {
+                    _canvas.addClass('hidden');
+                }
+                return _instance;
+            };
+
+            public showOverlay = () : this => {
+                if (bs.utils.isElement(_overlay)) {
+                    _overlay.removeClass('hidden');
+                }
+                return _instance;
+            };
+
+            public hideOverlay = () : this => {
+                if (bs.utils.isElement(_overlay)) {
+                    _overlay.addClass('hidden');
+                }
+                return _instance;
+            };
+
+            public draw = () : this => {
+                let _enum = _constants.get('enum');
+
+                _draw();
+
+                if (_game.state() === _enum.names.player) {
+                    _drawPicture(_enum.names.player, 1.4);
+                } else {
+                    _drawPicture(_enum.names.map, 1.4);
+                }
+
+                return _instance;
             };
 
             public clear = () : this => {
-                _flushChildren();
-                this.stage.update();
-                return this;
+                _clear();
+                _instance.stage.update();
+                return _instance;
             };
 
         }
@@ -88,152 +205,100 @@ namespace bs {
         /*                                                                                */
         /**********************************************************************************/
 
-        function _shotFired() {
-            _self.stage.removeChild(_mark);
-            _self.stage.removeChild(_target);
-            _self.stage.removeChild(_mouseOverArea);
-            _self.stage.update();
+        function _drawTargetTemplate(name: string, bitmap: createjs.Bitmap) : boolean {
+            let rel = _map.relativeToAbsoluteCoordinates(_instance.stage.mouseX, _instance.stage.mouseY);
+
+            if (rel.x <= 0 || rel.y <= 0) {
+                return false;
+            }
+
+            let abs = _map.absoluteToRelativeCoordinates(rel.x, rel.y),
+                _line = _constants.get('line'),
+                aspectRatio = <any>bs.utils.getAspectRatioFit(bitmap.image.width, bitmap.image.height, _line.size.width, _line.size.height);
+
+            bitmap.scaleX = bitmap.scaleY = aspectRatio.ratio;
+
+            bitmap.x = abs.x;
+            bitmap.y = abs.y;
+
+            if (!bitmap.parent) {
+                _instance.stage.addChild(bitmap);
+            }
+
+            return true;
         }
 
-        function _mouseDown(event) {
-            if (!_gameStarted || _turn !== _enum.names.player) {
-                return _self;
+        function _mouseMove(event) : bs.core.Board {
+            if (!_game.hasStarted() || _game.state() !== _constants.get('enum').names.player) {
+                return _instance;
             }
 
-            let abs = _self.absoluteToRelativeCoordinates(_self.stage.mouseX, _self.stage.mouseY);
-
-            if (abs.x <= 0 || abs.y <= 0) {
-                return _self;
+            if (!_drawTargetTemplate('TARGET', _target)) {
+                return _instance;
             }
 
-            let rel = _self.relativeToAbsoluteCoordinates(abs.x, abs.y),
-                _line = _self.constants.get('line'),
-                aspectRatio = <any>bs.utils.getAspectRatioFit(_mark.image.width, _mark.image.height, _line.size.width, _line.size.height);
-
-            _mark.scaleX = _mark.scaleY = aspectRatio.ratio;
-
-            _mark.x = rel.x;
-            _mark.y = rel.y;
-
-            if (!_mark.parent) {
-                _self.stage.addChild(_mark);
-            }
-
-            _self.stage.update(event);
-
-            bs.events.broadcast(_enum.events.bomb.selected, abs);
-
-            return _self;
-        }
-
-        function _mouseMove(event) {
-            if (!_gameStarted || _turn !== _enum.names.player) {
-                return _self;
-            }
-
-            let abs = _self.absoluteToRelativeCoordinates(_self.stage.mouseX, _self.stage.mouseY);
-
-            if (abs.x <= 0 || abs.y <= 0) {
-                return _self;
-            }
-
-            let rel = _self.relativeToAbsoluteCoordinates(abs.x, abs.y),
-                _line = _self.constants.get('line'),
-                aspectRatio = <any>bs.utils.getAspectRatioFit(_target.image.width, _target.image.height, _line.size.width, _line.size.height);
-
-            _target.scaleX = _target.scaleY = aspectRatio.ratio;
-
-            _target.x = rel.x;
-            _target.y = rel.y;
+            let rel = _map.relativeToAbsoluteCoordinates(_instance.stage.mouseX, _instance.stage.mouseY),
+                abs = _map.absoluteToRelativeCoordinates(rel.x, rel.y),
+                _line = _constants.get('line');
 
             _mouseOverArea.graphics.clear();
 
             _mouseOverArea
                 .graphics
                 .setStrokeStyle(1)
-                .beginFill(_self.constants.get('colors').white)
-                .drawRect(rel.x, rel.y, _line.size.width, _line.size.height)
+                .beginFill(_constants.get('colors').white)
+                .drawRect(abs.x, abs.y, _line.size.width, _line.size.height)
                 .endFill();
 
             _mouseOverArea.alpha = .5;
             _mouseOverArea.cursor = 'pointer';
 
             if (!_mouseOverArea.parent) {
-                _self.stage.addChild(_mouseOverArea);
+                _instance.stage.addChild(_mouseOverArea);
             }
 
-            if (!_target.parent) {
-                _self.stage.addChild(_target);
+            _instance.stage.update(event);
+
+            return _instance;
+        }
+
+        function _mouseDown(event) : bs.core.Board {
+            if (!_game.hasStarted() || _game.state() !== _constants.get('enum').names.player) {
+                return _instance;
             }
 
-            _self.stage.update(event);
+            console.info('TODO: Check here that the coords have not already been hit (from map?)');
 
-            return _self;
+            _drawTargetTemplate('MARK', _mark);
+
+            _instance.stage.update(event);
+
+            // bs.events.broadcast(_enum.events.bomb.selected, abs);
+
+            return _instance;
         }
 
-        function _changeTurnTo(turn: string) {
-            if (_turn !== turn) {
-                _turn = turn;
-                _self.drawGrid();
+        function _notifyClients(event: Event) : bs.core.Board {
+            // This set makes it so the stage only re-renders when an event handler indicates a change has happened.
+            if (_updateStage) {
+                _updateStage = false;
+                bs.events.broadcast(_constants.get('enum').events.graphic.update, event)
             }
-            return _self;
+            return _instance;
         }
 
-        function _drawPicture(name: string, scale: number = 1) {
-            if (!bs.utils.isNull(_picture) && bs.utils.isDefined(_picture.parent)) {
-                _self.stage.removeChild(_picture);
-            }
-            _picture = _getBitmapPictureOf(name, scale);
-            _children.push(_picture);
-            _self.stage.addChild(_picture);
-            _self.stage.update();
-            return _self;
-        }
+        function _draw() : bs.core.Board {
+            _constants.update();
 
-        function _getBitmapPictureOf(name: string, scale: number = 1) : createjs.Bitmap {
-            let bitmap = new createjs.Bitmap(bs._data.preload.getResult(name)),
-                _line = _self.constants.get('line'),
-                lineWidth = _line.size.width,
-                lineHeight = _line.size.height,
-                logoScale = (lineWidth / bitmap.image.width) / scale;
-
-            bitmap.x = bitmap.y = (lineWidth - bitmap.image.width * logoScale) / 2;
-            bitmap.scaleX = bitmap.scaleY = logoScale;
-
-            return bitmap;
-        }
-
-        function _flushChildren() {
-            bs.utils.forEach(_children, function (child) {
-                _self.stage.removeChild(child);
-            });
-            return _self;
-        }
-
-        function _templateCache(template) {
-            if (!bs.utils.isElement(template.image)) {
-                return;
-            }
-
-            if (template.alreadyCached) {
-                template.updateCache();
-            } else {
-                template.alreadyCached = true;
-                template.cache(template.x, template.y, template.image.width, template.image.height);
-            }
-        }
-
-        function _drawGrid() {
-
-            if (_children.length > 0) {
-                _flushChildren();
+            if (_stageChildren.length > 0) {
+                _clear();
             }
 
             // Drawing board
-            let _line = _self.constants.get('line'),
-                _map = _self.constants.get('map'),
-                _canvas = _self.constants.get('canvas'),
-                _colors = _self.constants.get('colors'),
+            let _line = _constants.get('line'),
+                _map = _constants.get('map'),
+                _canvas = _constants.get('canvas'),
+                _colors = _constants.get('colors'),
                 lineWidth = _line.size.width,
                 lineHeight = _line.size.height;
 
@@ -275,10 +340,10 @@ namespace bs {
                     .drawRect(0, currentHorizontalPosition, lineWidth, lineHeight)
                     .endFill();
 
-                _children.push(lineShape);
-                _children.push(rectShape);
-                _self.stage.addChild(lineShape);
-                _self.stage.addChild(rectShape);
+                _stageChildren.push(lineShape);
+                _stageChildren.push(rectShape);
+                _instance.stage.addChild(lineShape);
+                _instance.stage.addChild(rectShape);
 
                 // Drawing indexes text
                 if (index > 0) {
@@ -297,18 +362,74 @@ namespace bs {
                     horizontalIndexText.y = (currentHorizontalPosition + lineHeight / 2);
                     horizontalIndexText.textBaseline = 'middle';
 
-                    _children.push(verticalIndexText);
-                    _children.push(horizontalIndexText);
-                    _self.stage.addChild(verticalIndexText);
-                    _self.stage.addChild(horizontalIndexText);
+                    _stageChildren.push(verticalIndexText);
+                    _stageChildren.push(horizontalIndexText);
+                    _instance.stage.addChild(verticalIndexText);
+                    _instance.stage.addChild(horizontalIndexText);
 
                 }
 
             }
 
-            _self.stage.update();
+            _instance.stage.update();
 
-            return _self;
+            return _instance;
+        }
+
+        function _clear() {
+            bs.utils.forEach(_stageChildren, child => _instance.stage.removeChild(child));
+            _stageChildren = [];
+            _instance.stage.update();
+            return _instance;
+        }
+
+        function _drawPicture(name: string, scale: number = 1) : bs.core.Board {
+            if (!bs.utils.isNull(_picture) && bs.utils.isDefined(_picture.parent)) {
+                _instance.stage.removeChild(_picture);
+                _stageChildren.splice(_stageChildren.indexOf(_picture));
+            }
+
+            _picture = _getBitmapPictureOf(name, scale);
+            _stageChildren.push(_picture);
+            _instance.stage.addChild(_picture);
+            _instance.stage.update();
+
+            return _instance;
+        }
+
+        function _getBitmapPictureOf(name: string, scale: number = 1) : createjs.Bitmap {
+            let bitmap = new createjs.Bitmap(_loader.get(name)),
+                _line = _constants.get('line'),
+                lineWidth = _line.size.width,
+                lineHeight = _line.size.height,
+                logoScale = (lineWidth / bitmap.image.width) / scale;
+
+            bitmap.x = bitmap.y = (lineWidth - bitmap.image.width * logoScale) / 2;
+            bitmap.scaleX = bitmap.scaleY = logoScale;
+
+            return bitmap;
+        }
+
+        function _resize() : bs.core.Board {
+
+            var __width = _canvasParent.width(),
+                __height = _canvasParent.height(),
+                _width = __width * .9,
+                _height = __height * .9,
+                size = Math.min(_width, _height),
+                marginTop = (__height - size) / 2,
+                marginLeft = (__width - size) / 2;
+
+            _canvas.css('margin-top', (_width > 384) ? marginTop : 0);
+            _canvas.css('margin-left', marginLeft);
+
+            _instance.stage.canvas.width = size;
+            _instance.stage.canvas.height = size;
+
+            _instance.draw();
+
+            return _instance;
+
         }
 
     }

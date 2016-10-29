@@ -47,7 +47,7 @@
                     <button class="btn btn-block btn-success bebas-neue md-mb-1" id="startGame">Start game</button>
                 </div>
                 <div class="col-xs-12 col-md-4 offset-md-4 hidden">
-                    <button class="btn btn-block btn-primary bebas-neue md-mb-1" id="sendCommand">Send order</button>
+                    <button class="btn btn-block btn-primary bebas-neue md-mb-1" id="sendCommand" disabled>Send order</button>
                 </div>
             </div>
         </div>
@@ -76,8 +76,7 @@
 <script src="../bower_components/jquery/dist/jquery.min.js"></script>
 <!-- endbower -->
 
-<script src="js/release/namespaces.js"></script>
-<script src="js/release/battleship.js"></script>
+<script src="js/release/bs.js"></script>
 
 <script src="js/release/bs/exceptions/bs.factory.exception.js"></script>
 <script src="js/release/bs/exceptions/bs.invalid-value.exception.js"></script>
@@ -86,15 +85,16 @@
 
 <script src="js/release/bs/components/bs.counter.component.js"></script>
 
-<script src="js/release/bs/core/bs.utils.core.js"></script>
-<script src="js/release/bs/core/bs.events.core.js"></script>
-<script src="js/release/bs/core/bs.ticker.core.js"></script>
-<script src="js/release/bs/core/bs.constants.core.js"></script>
+<script src="js/release/bs/services/bs.utils.service.js"></script>
+<script src="js/release/bs/services/bs.events.service.js"></script>
+
 <script src="js/release/bs/core/bs.core.js"></script>
+<script src="js/release/bs/core/bs.loader.core.js"></script>
+<script src="js/release/bs/core/bs.board.core.js"></script>
+<script src="js/release/bs/core/bs.game.core.js"></script>
+<script src="js/release/bs/core/bs.constants.core.js"></script>
 <script src="js/release/bs/core/bs.gui.core.js"></script>
 <script src="js/release/bs/core/bs.map.core.js"></script>
-<script src="js/release/bs/core/bs.game.core.js"></script>
-<script src="js/release/bs/core/bs.board.core.js"></script>
 
 <script src="js/release/bs/ships/bs.abstract.ship.js"></script>
 <script src="js/release/bs/ships/bs.cruiser.ship.js"></script>

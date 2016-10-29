@@ -1,4 +1,4 @@
-/// <reference path="../../battleship.ts" />
+/// <reference path="../../bs.ts" />
 
 namespace bs {
 
@@ -20,7 +20,9 @@ namespace bs {
 
         export function on(name: string, listener: Function) {
 
-            if (!bs.utils.isFunction(listener)) return;
+            if (!bs.utils.isFunction(listener)) {
+                return;
+            }
 
             var namedListeners = _listeners[name];
             if (!namedListeners) {

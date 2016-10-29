@@ -68,7 +68,7 @@ module.exports = function (io) {
                     game.addPlayer(player);
                     game.emit(io, 'new player', playerData(player));
                     if (game.state === Game.STATE.READY) {
-                        game.emit(io, 'game start');
+                        game.emit(io, 'game setup');
                     }
                 } else {
                     player.emit('refused');
