@@ -6,18 +6,7 @@ namespace bs {
 
         let _loader: createjs.LoadQueue = null;
         let _instance: bs.core.Loader = null;
-        let _manifest: Array<{id: string, src: string}> = [
-            { id: 'MAP',        src: 'map.png' },
-            { id: 'LOGO',       src: 'logo.png' },
-            { id: 'MARK',       src: 'mark.png' },
-            { id: 'TARGET',     src: 'target.png' },
-            { id: 'PLAYER',     src: 'player.png' },
-            { id: 'CRUISER',    src: 'ships/cruiser.png' },
-            { id: 'CARRIER',    src: 'ships/carrier.png' },
-            { id: 'SUBMARINE',  src: 'ships/submarine.png' },
-            { id: 'DESTROYER',  src: 'ships/destroyer.png' },
-            { id: 'BATTLESHIP', src: 'ships/battleship.png' }
-        ];
+        let _manifest: Array<{id: string, src: string}> = [];
 
         export class Loader extends bs.core.Core {
 
@@ -54,6 +43,11 @@ namespace bs {
 
             public get = (name: string) : any => {
                 return _loader.getResult(name);
+            };
+
+            public setManifest = (manifest: Array<{id: string, src: string}>) : bs.core.Loader => {
+                _manifest = manifest;
+                return _instance;
             };
 
             public loadAssets = (successHandler?: Function, errorHandler?: Function) : bs.core.Loader => {
