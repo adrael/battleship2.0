@@ -46,26 +46,42 @@ Mechanic = {
             if (!boards.hasOwnProperty(p) || p === player) {
                 continue;
             }
-            boards[p].ships.forEach(function (ship) {
-                var hit = Mechanic._colliding(bomb, ship);
+            for (var shipId in boards[p].ships) {
+                if (!boards[p].ships.hasOwnProperty(shipId)) {
+                    continue;
+                }
+                var hit = Mechanic._colliding(bomb, boards[p].ships[shipId]);
                 if (hit) {
                     results.scores[player] += 1;
                     results.hits.push({
                         x: bomb.x,
                         y: bomb.y,
-                        player: player,
+                        owner: player,
                         ship: {
                             owner: p,
-                            type: ship.type,
+                            id: shipId,
                             localHit: hit
                         }
                     });
                 }
-            });
+            }
         }
     },
 
     _colliding: function (bomb, ship) {
+        if (ship.destroyed) {
+            return false;
+        }
+        if (ship.hits && ship.hits.length) {
+            for (var hit in ship.hits) {
+                if (!ship.hits.hasOwnProperty(hit)) {
+                    continue;
+                }
+                if (ship.hits[hit].x === bomb.x && ship.hits[hit].y === bomb.y) {
+                    return false;
+                }
+            }
+        }
         for (var x = 0; x < ship.width; ++x) {
             for (var y = 0; y < ship.height; ++y) {
                 if (bomb.x === ship.x + x && bomb.y === ship.y + y) {

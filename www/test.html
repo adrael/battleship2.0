@@ -31,6 +31,25 @@
             color: darkred;
         }
 
+        #clear {
+            position: fixed;
+            top: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            padding: 0;
+        }
+
+        #clear > img {
+            opacity: 0.5;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #clear > img:hover {
+            opacity: 1;
+        }
+
         textarea {
             width: 100%;
             font-size: 12px;
@@ -41,6 +60,9 @@
 </head>
 <body>
 <h1>toto</h1>
+<div id="clear">
+    <img src="img/clear.png">
+</div>
 <div id="messages"></div>
 <div id="actions"></div>
 <script>
@@ -50,7 +72,6 @@
         socket.nickname = nickname;
         document.querySelector('h1').textContent = nickname;
         window.setTimeout(function () {
-            console.log(nickname);
             socket.emit('list games');
         }, Math.random() * 3000);
     });
@@ -132,7 +153,6 @@
         message.textContent = 'Place your ships!';
         document.getElementById('messages').appendChild(message);
 
-        var text = document.createElement('textarea');
         var disposition = [{
             x: 0,
             y: 0,
@@ -140,21 +160,23 @@
             height: 5,
             type: 'destroyer'
         }];
-        text.textContent = JSON.stringify(disposition);
-        var button = document.createElement('button');
-        button.textContent = 'send';
-        document.getElementById('actions').innerHTML = '';
-        document.getElementById('actions').appendChild(text);
-        document.getElementById('actions').appendChild(button);
-
-        button.addEventListener('click', function () {
-            try {
-                var json = JSON.parse(text.value);
-                socket.emit('place ships', json);
-            } catch (e) {
-                console.log(e);
-            }
-        });
+        socket.emit('place ships', disposition);
+//        var text = document.createElement('textarea');
+//        text.textContent = JSON.stringify(disposition);
+//        var button = document.createElement('button');
+//        button.textContent = 'send';
+//        document.getElementById('actions').innerHTML = '';
+//        document.getElementById('actions').appendChild(text);
+//        document.getElementById('actions').appendChild(button);
+//
+//        button.addEventListener('click', function () {
+//            try {
+//                var json = JSON.parse(text.value);
+//                socket.emit('place ships', json);
+//            } catch (e) {
+//                console.log(e);
+//            }
+//        });
     };
 
     var setTurn = function () {
@@ -209,6 +231,15 @@
         }
         document.getElementById('messages').appendChild(message);
     });
+
+    socket.on('turn result', function (result) {
+        console.log('result');
+    });
+
+    document.querySelector('#clear > img').addEventListener('click', function () {
+        document.getElementById('messages').textContent = '';
+    });
+
 
 </script>
 </body>

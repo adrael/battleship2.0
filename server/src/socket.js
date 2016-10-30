@@ -153,6 +153,12 @@ module.exports = function (io) {
                 var game = getGame(player);
                 if (game.setNextActions(player, bomb)) {
                     player.emit('play turn', true);
+                    if (game.hasEveryonePlayedTheTurn()) {
+                        var results = game.playTheTurn();
+                        game.emit(io, 'turn results', results);
+                        game.emit(io, 'players infos', game.getPlayersInfos());
+                        game.emit(io, 'game state', {state: 'new turn'});
+                    }
                 } else {
                     player.emit('play turn', {error: 'learn how to place a bomb…'});
                 }
