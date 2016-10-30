@@ -74,6 +74,13 @@ To run the server-side tests, use the `gulp test-server` command. These tests ar
 
 # What's next?
 
-- Tests
-- Gameplay
-- User Interface
+- Check for warning when leaving or refreshing page if a game is playing
+- Plug hits counter to server response
+- Plug ships destroyed counter to server response
+- Create ships depending on server game configuration
+- Set state according to who starts first (from server)
+- Draw player bombs
+- Check that the bomb coordinates have not already been hit
+- Send bomb coordinates to server
+- Save player bomb
+- Draw opponent bombs
