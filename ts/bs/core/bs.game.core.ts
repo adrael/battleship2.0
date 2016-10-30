@@ -78,6 +78,8 @@ namespace bs {
                 _board.addShip(new bs.ships.Carrier());
                 _board.drawShips();
 
+                _gui.showStarterHint();
+
                 return _instance;
             };
 

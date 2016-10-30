@@ -7,7 +7,7 @@ namespace bs {
         let _template: string = '<span class="current top <%= currentSize %>"><%= count %></span><span class="next top <%= nextSize %>"><%= nextCount %></span><span class="current bottom <%= currentSize %>"><%= count %></span><span class="next bottom <%= nextSize %>"><%= nextCount %></span>';
         let _animationEnd: string = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend';
 
-        export class Counter {
+        export class Counter extends bs.core.Core {
 
             /**********************************************************************************/
             /*                                                                                */
@@ -27,6 +27,8 @@ namespace bs {
             /**********************************************************************************/
 
             constructor(count: number = 0, element: string = '') {
+                super();
+
                 this.count = count;
                 this.$element = $(element);
                 this.setTemplate();

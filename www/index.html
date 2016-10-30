@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Battleship 2.0</title>
+    <title>Battleship 2.0 &mdash; New Universe</title>
     <link rel="icon" type="image/png" href="img/logo.png">
     <link rel="shortcut icon" href="img/logo.png">
 
@@ -43,6 +43,13 @@
             </div>
 
             <div class="row">
+                <div class="col-xs-12 hints hidden" id="hints">
+                    <h1 class="hints-title"></h1>
+                    <div class="hints-body"></div>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-xs-12 col-md-4 offset-md-4">
                     <button class="btn btn-block btn-success bebas-neue md-mb-1" id="startGame">Start game</button>
                 </div>
@@ -76,8 +83,6 @@
 <script src="js/release/bs/exceptions/bs.missing-property.exception.js"></script>
 <script src="js/release/bs/exceptions/bs.invalid-coordinates.exception.js"></script>
 
-<script src="js/release/bs/components/bs.counter.component.js"></script>
-
 <script src="js/release/bs/services/bs.utils.service.js"></script>
 <script src="js/release/bs/services/bs.events.service.js"></script>
 
@@ -88,6 +93,9 @@
 <script src="js/release/bs/core/bs.constants.core.js"></script>
 <script src="js/release/bs/core/bs.gui.core.js"></script>
 <script src="js/release/bs/core/bs.map.core.js"></script>
+
+<script src="js/release/bs/components/bs.hints.component.js"></script>
+<script src="js/release/bs/components/bs.counter.component.js"></script>
 
 <script src="js/release/bs/ships/bs.abstract.ship.js"></script>
 <script src="js/release/bs/ships/bs.cruiser.ship.js"></script>

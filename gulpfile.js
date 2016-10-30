@@ -14,7 +14,7 @@ var fs              = require('fs'),
     path            = require('path'),
     csso            = require('gulp-csso'),
     sass            = require('gulp-sass'),
-    merge           = require('merge-stream'),
+    merge           = require('merge2'),
     mocha           = require('gulp-mocha'),
     watch           = require('gulp-watch'),
     rename          = require('gulp-rename'),
@@ -49,28 +49,29 @@ var fs              = require('fs'),
 /*                                                                                */
 /**********************************************************************************/
 
-gulp.task('default',        ['watch', 'browser']);
+gulp.task('ts',          gulp.series(_ts));
+gulp.task('zip',         gulp.series(_zip));
+gulp.task('sass',        gulp.series(_sass));
+gulp.task('bower',       gulp.series(_bower));
+gulp.task('watch',       gulp.series(_watch));
+gulp.task('useref',      gulp.series(_useref));
+gulp.task('scratch',     gulp.series(_scratch));
+gulp.task('copyimgs',    gulp.series(_copyimgs));
+gulp.task('copyfonts',   gulp.series(_copyfonts));
 
-gulp.task('ts',                                                             _ts);
-gulp.task('zip',                                                            _zip);
-gulp.task('hook',           ['deploy'],                                     _hook);
-gulp.task('sass',                                                           _sass);
-gulp.task('build',          ['minify'],                                     _build);
-gulp.task('bower',                                                          _bower);
-gulp.task('serve',          ['deploy'],                                     _serve);
-gulp.task('watch',                                                          _watch);
-gulp.task('useref',                                                         _useref);
-gulp.task('minify',         ['hook'],                                       _minify);
-gulp.task('deploy',         ['ts', 'sass', 'copyimgs', 'copyfonts'],        _useref);
-gulp.task('browser',        ['serve'],                                      _browser);
-gulp.task('scratch',                                                        _scratch);
-gulp.task('copyimgs',                                                       _copyimgs);
-gulp.task('copyfonts',                                                      _copyfonts);
+gulp.task('deploy',      gulp.series('ts', 'sass', 'copyimgs', 'copyfonts', _useref));
+gulp.task('hook',        gulp.series('deploy', _hook));
+gulp.task('serve',       gulp.series('deploy', _serve));
+gulp.task('minify',      gulp.series('hook', _minify));
+gulp.task('build',       gulp.series('minify', _build));
+gulp.task('browser',     gulp.series('serve', _browser));
 
-gulp.task('watch-test',                                                     _watchTest);
-gulp.task('test-client',    ['watch-test'],                                 _testClient);
-gulp.task('test-server',    ['watch-test'],                                 _testServer);
-gulp.task('test',           ['test-client', 'test-server', 'watch-test']);
+gulp.task('watch-test',  gulp.series(_watchTest));
+gulp.task('test-client', gulp.series('watch-test', _testClient));
+gulp.task('test-server', gulp.series('watch-test', _testServer));
+gulp.task('test',        gulp.series('test-client', 'test-server', 'watch-test'));
+
+gulp.task('default',     gulp.series('browser', 'watch'));
 
 /**********************************************************************************/
 /*                                                                                */
@@ -130,9 +131,7 @@ function _minify() {
 function _hook(done) {
 
     function endsWith(string, value) {
-
         return string.substring(string.length - value.length, string.length) === value;
-
     }
 
     var environment = (process.argv[3] || 'dev').replace(/--/g, ''),
@@ -155,10 +154,8 @@ function _hook(done) {
                     filename = distFilenames[i];
 
                 if(endsWith(filename, '.js') &&  pattern.test(filename)) {
-
                     realFile = filename;
                     break;
-
                 }
 
             }
@@ -187,9 +184,7 @@ function _hook(done) {
                 );
 
             } else {
-
                 console.error('[ERROR] MISSING:', fullFileName);
-
             }
 
         }
@@ -252,19 +247,22 @@ function _copyfonts() {
         gulp.src(['./www/lib/material/*.{ttf,woff,woff2,eot}'])
             .pipe(gulp.dest('./www/fonts/Material'))
             .pipe(gulp.dest('./www/css/fonts/Material'))
-            .pipe(gulp.dest('./www/dist/fonts/Material'));
+            .pipe(gulp.dest('./www/dist/fonts/Material'))
+            .pipe(livereload());
 
     var fontsRoboto =
         gulp.src(['./bower_components/roboto-fontface/fonts/roboto/*+(Regular).{ttf,woff,woff2,eot,svg}'])
             .pipe(gulp.dest('./www/fonts/Roboto'))
             .pipe(gulp.dest('./www/css/fonts/Roboto'))
-            .pipe(gulp.dest('./www/dist/fonts/Roboto'));
+            .pipe(gulp.dest('./www/dist/fonts/Roboto'))
+            .pipe(livereload());
 
     var fontsBebasNeue =
         gulp.src(['./www/lib/bebas_neue/*+(Regular).{ttf,otf}'])
             .pipe(gulp.dest('./www/fonts/Bebas-Neue'))
             .pipe(gulp.dest('./www/css/fonts/Bebas-Neue'))
-            .pipe(gulp.dest('./www/dist/fonts/Bebas-Neue'));
+            .pipe(gulp.dest('./www/dist/fonts/Bebas-Neue'))
+            .pipe(livereload());
 
     return merge(fontsMaterial, fontsRoboto, fontsBebasNeue);
 
@@ -279,7 +277,8 @@ function _copyimgs() {
 
     return gulp.src(paths.images)
         .pipe(gulp.dest('./www/css/img'))
-        .pipe(gulp.dest('./www/dist/img'));
+        .pipe(gulp.dest('./www/dist/img'))
+        .pipe(livereload());
 
 }
 
@@ -307,6 +306,7 @@ function _useref() {
         .pipe(indexHtmlFilter.restore)
         .pipe(revReplace())         // Substitute in new filenames
         .pipe(gulp.dest('./www/dist'));
+        // .pipe(livereload());
 
 }
 
@@ -355,22 +355,23 @@ function _zip() {
  * @name _watch
  * @function
  */
-function _watch() {
+function _watch(done) {
+    livereload.listen({
+        port: 35730
+    });
 
-    livereload.listen();
-
-    gulp.watch(paths.ts, ['ts']);
-    gulp.watch(paths.js, ['useref']);
-    gulp.watch(paths.sass, ['sass']);
-    gulp.watch(paths.images, ['copyimgs']);
-    gulp.watch(paths.useref, ['useref']);
-
+    gulp.watch(paths.ts, gulp.series(_ts));
+    // gulp.watch(paths.js, gulp.series(_useref));
+    gulp.watch(paths.sass, gulp.series(_sass));
+    gulp.watch(paths.images, gulp.series(_copyimgs));
+    // gulp.watch(paths.useref, gulp.series(_useref));
+    done();
 }
 
-function _watchTest() {
-
-    gulp.watch(paths.tests.server, ['test-server']);
-    gulp.watch(paths.tests.client, ['test-client']);
+function _watchTest(done) {
+    gulp.watch(paths.tests.server, gulp.series(_testServer));
+    gulp.watch(paths.tests.client, gulp.series(_testClient));
+    done();
 }
 
 /**
@@ -391,9 +392,10 @@ function _bower() {
  * @name _serve
  * @function
  */
-function _serve() {
+function _serve(done) {
 
-    return connect.server({ livereload: true });
+    connect.server({ livereload: true });
+    done();
 
 }
 
@@ -402,9 +404,10 @@ function _serve() {
  * @name _browser
  * @function
  */
-function _browser() {
+function _browser(done) {
 
-    return opn('http://localhost:8080/www');
+    opn('http://localhost:8080/www');
+    done();
 
 }
 
