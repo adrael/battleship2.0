@@ -247,22 +247,19 @@ function _copyfonts() {
         gulp.src(['./www/lib/material/*.{ttf,woff,woff2,eot}'])
             .pipe(gulp.dest('./www/fonts/Material'))
             .pipe(gulp.dest('./www/css/fonts/Material'))
-            .pipe(gulp.dest('./www/dist/fonts/Material'))
-            .pipe(livereload());
+            .pipe(gulp.dest('./www/dist/fonts/Material'));
 
     var fontsRoboto =
-        gulp.src(['./bower_components/roboto-fontface/fonts/roboto/*+(Regular).{ttf,woff,woff2,eot,svg}'])
+        gulp.src(['./bower_components/roboto-fontface/fonts/roboto/*+(Regular|Medium).{ttf,woff,woff2,eot,svg}'])
             .pipe(gulp.dest('./www/fonts/Roboto'))
             .pipe(gulp.dest('./www/css/fonts/Roboto'))
-            .pipe(gulp.dest('./www/dist/fonts/Roboto'))
-            .pipe(livereload());
+            .pipe(gulp.dest('./www/dist/fonts/Roboto'));
 
     var fontsBebasNeue =
         gulp.src(['./www/lib/bebas_neue/*+(Regular).{ttf,otf}'])
             .pipe(gulp.dest('./www/fonts/Bebas-Neue'))
             .pipe(gulp.dest('./www/css/fonts/Bebas-Neue'))
-            .pipe(gulp.dest('./www/dist/fonts/Bebas-Neue'))
-            .pipe(livereload());
+            .pipe(gulp.dest('./www/dist/fonts/Bebas-Neue'));
 
     return merge(fontsMaterial, fontsRoboto, fontsBebasNeue);
 

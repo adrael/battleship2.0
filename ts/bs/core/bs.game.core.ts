@@ -53,20 +53,26 @@ namespace bs {
             /**********************************************************************************/
 
             public start = () : bs.core.Game => {
+                if (_gameStarted) {
+                    console.error('The game has already started!');
+                    return _instance;
+                }
+
                 _gameStarted = true;
+
+                console.info('TODO: Set state according to who starts first (from server)');
+                _instance.state(_constants.get('enum').names.player);
+
                 return _instance;
             };
 
             public setup = () : bs.core.Game => {
                 if (_gameSetup) {
-                    console.error('The game has already started!');
+                    console.error('The game has already been set up!');
                     return _instance;
                 }
 
                 _gameSetup = true;
-
-                console.info('TODO: Set state according to who starts first (from server)');
-                _instance.state(_constants.get('enum').names.player);
 
                 _board.setup();
 
@@ -129,12 +135,14 @@ namespace bs {
                     _board.clearShips();
                     console.info('TODO: Draw player bombs here');
                     _gui.hideOverlay();
+                    _gui.showDropBombHint();
                     break;
                 case _enum.names.opponent:
                     _board.freezeShips();
                     _board.drawShips();
                     console.info('TODO: Draw opponent bombs here');
                     _gui.showOverlay();
+                    _gui.showWaitingForOpponentHint();
                     break;
             }
 

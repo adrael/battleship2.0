@@ -91,7 +91,30 @@ namespace bs {
             public showStarterHint = () : bs.core.GUI => {
                 _hints.show(
                     'Prepare your ships for the battle!',
-                    '<ul><li>Click on ship to rotate it</li><li>Drag and drop it move it on the map</li>'
+                    '<ul>' +
+                    '<li>Click on ship to rotate it</li>' +
+                    '<li>Drag and drop it move it on the map</li>' +
+                    '<li>Click on the "Start game" button once you are ready!</li>'
+                );
+                return _instance;
+            };
+
+            public showDropBombHint = () : bs.core.GUI => {
+                _hints.show(
+                    'Choose your coordinates and fire at will!',
+                    '<ul>' +
+                    '<li>Click on the map to select a location for your bomb</li>' +
+                    '<li>Click on the "Send order" button once you are ready!</li>'
+                );
+                return _instance;
+            };
+
+            public showWaitingForOpponentHint = () : bs.core.GUI => {
+                _hints.show(
+                    'Strategy never wait.',
+                    '<ul>' +
+                    '<li>It is now time for your opponent to make his move.</li>' +
+                    '<li>In the meantime, try to think of your next hit!</li>'
                 );
                 return _instance;
             };
