@@ -99,13 +99,13 @@ namespace bs {
                 return _instance;
             };
 
-            public drawShips = (frozen: boolean = false) : bs.core.Board => {
-                bs.utils.forEach(_ships, ship => {
-                    if (frozen) {
-                        ship.freeze();
-                    }
-                    ship.draw();
-                });
+            public drawShips = () : bs.core.Board => {
+                bs.utils.forEach(_ships, ship => ship.draw());
+                return _instance;
+            };
+
+            public freezeShips = () : bs.core.Board => {
+                bs.utils.forEach(_ships, ship => ship.freeze());
                 return _instance;
             };
 

@@ -128,7 +128,8 @@ namespace bs {
                     _gui.hideOverlay();
                     break;
                 case _enum.names.opponent:
-                    _board.drawShips(true);
+                    _board.freezeShips();
+                    _board.drawShips();
                     console.info('TODO: Draw opponent bombs here');
                     _gui.showOverlay();
                     break;
