@@ -264,8 +264,8 @@ describe('basic game mechanics', function () {
         });
 
         it("should return the player's round score", function () {
-            map.boards.player2.ships = [makeShip(0, 0, 'carrier', true)];
-            map.boards.player1.ships = [makeShip(5, 5, 'destroyer', true)];
+            map.boards.player1.ships = {'p1-0': makeShip(5, 5, 'destroyer', true)};
+            map.boards.player2.ships = {'p2-0': makeShip(0, 0, 'carrier', true)};
             actions.player1 = [makeBomb(0, 0), makeBomb(5, 5)];
             actions.player2 = [];
 
@@ -288,8 +288,8 @@ describe('basic game mechanics', function () {
         });
 
         it("should return information for every hits", function () {
-            map.boards.player1.ships = [makeShip(3, 2, 'destroyer', false)];
-            map.boards.player2.ships = [makeShip(0, 0, 'carrier', true)];
+            map.boards.player1.ships = {'p1-0': makeShip(3, 2, 'destroyer', false)};
+            map.boards.player2.ships = {'p2-0': makeShip(0, 0, 'carrier', true)};
             actions.player1 = [makeBomb(0, 0), makeBomb(5, 5)];
             actions.player2 = [];
 
@@ -297,7 +297,7 @@ describe('basic game mechanics', function () {
             expect(result.hits).to.have.length(1);
 
             var hit = result.hits[0];
-            expect(hit).to.have.property('player', 'player1');
+            expect(hit).to.have.property('owner', 'player1');
             expect(hit).to.have.property('x', 0);
             expect(hit).to.have.property('y', 0);
 
@@ -305,20 +305,20 @@ describe('basic game mechanics', function () {
             result = processTurn(actions, map);
             expect(result.hits).to.have.length(2);
             hit = result.hits[1];
-            expect(hit).to.have.property('player', 'player2');
+            expect(hit).to.have.property('owner', 'player2');
             expect(hit).to.have.property('x', 3);
             expect(hit).to.have.property('y', 3);
         });
 
         it("should return information on ships that were hit", function() {
-            map.boards.player1.ships = [];
-            map.boards.player2.ships = [
-                makeShip(1, 2, 'destroyer', true),
-                makeShip(0, 5, 'carrier', true)
-            ];
-            map.boards.player3.ships = [
-                makeShip(0, 5, 'battleship', true)
-            ];
+            map.boards.player1.ships = {};
+            map.boards.player2.ships = {
+                'p2-0' : makeShip(1, 2, 'destroyer', true),
+                'p2-1' : makeShip(0, 5, 'carrier', true)
+            };
+            map.boards.player3.ships = {
+                'p3-0' : makeShip(0, 5, 'battleship', true)
+            };
             actions.player1 = [
                 makeBomb(1, 5),     // hits the carrier & the battleship
                 makeBomb(2, 2)      // hits the destroyer
@@ -328,15 +328,15 @@ describe('basic game mechanics', function () {
             var result = processTurn(actions, map);
             expect(result.hits).to.have.length(3);
 
-            expect(result.hits[0]).to.have.deep.property('ship.type', 'carrier');
+            expect(result.hits[0]).to.have.deep.property('ship.id', 'p2-1');
             expect(result.hits[0]).to.have.deep.property('ship.owner', 'player2');
             expect(result.hits[0]).to.have.deep.property('ship.localHit').to.deep.equal({x: 1, y: 0});
 
-            expect(result.hits[1]).to.have.deep.property('ship.type', 'battleship');
+            expect(result.hits[1]).to.have.deep.property('ship.id', 'p3-0');
             expect(result.hits[1]).to.have.deep.property('ship.owner', 'player3');
             expect(result.hits[1]).to.have.deep.property('ship.localHit').to.deep.equal({x: 1, y: 0});
 
-            expect(result.hits[2]).to.have.deep.property('ship.type', 'destroyer');
+            expect(result.hits[2]).to.have.deep.property('ship.id', 'p2-0');
             expect(result.hits[2]).to.have.deep.property('ship.owner', 'player2');
             expect(result.hits[2]).to.have.deep.property('ship.localHit').to.deep.equal({x: 1, y: 0});
         })
