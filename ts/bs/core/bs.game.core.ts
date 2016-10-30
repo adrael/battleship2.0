@@ -74,6 +74,8 @@ namespace bs {
 
                 _gameSetup = true;
 
+                _gameState =  _constants.get('enum').names.player;
+
                 _board.setup();
 
                 console.info('TODO: Create ships depending on server game configuration');
@@ -136,6 +138,7 @@ namespace bs {
                     console.info('TODO: Draw player bombs here');
                     _gui.hideOverlay();
                     _gui.showDropBombHint();
+                    _gui.showCommand();
                     break;
                 case _enum.names.opponent:
                     _board.freezeShips();

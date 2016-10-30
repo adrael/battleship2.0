@@ -39,6 +39,8 @@ namespace bs {
                 if (bs.utils.isNull(_instance)) {
                     _instance = this;
 
+                    console.info('TODO: Check for warning when leaving or refreshing page if a game is playing');
+
                     _overlay = $('.overlay');
 
                     _game = new bs.core.Game();
@@ -119,6 +121,12 @@ namespace bs {
                 return _instance;
             };
 
+            public showCommand = () : bs.core.GUI => {
+                _sendCommandButton.removeAttr('disabled');
+                _sendCommandButton.parent().removeClass('hidden');
+                return _instance;
+            };
+
         }
 
         /**********************************************************************************/
@@ -138,7 +146,7 @@ namespace bs {
 
         function _startGame()  : bs.core.GUI {
             _startGameButton.parent().addClass('hidden');
-            _sendCommandButton.parent().removeClass('hidden');
+            _instance.showCommand();
             _game.start();
             _game.state(_constants.get('enum').names.player);
             _board.draw();
