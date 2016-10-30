@@ -29,7 +29,7 @@ namespace bs {
             public scale: number = 0;
             public length: number = 0;
             public template: createjs.Bitmap = null;
-            public location: any = { x: 1, y: 1 };
+            public location: {x: number, y: number} = { x: 1, y: 1 };
             public orientation: string = null;
 
             /**********************************************************************************/
@@ -222,7 +222,7 @@ namespace bs {
                 return this;
             };
 
-            public getPosition = () : any => {
+            public getPosition = () : {x: number, y: number, w: number, h: number} => {
                 let _line = _constants.get('line');
                 let _orientation = _constants.get('orientation');
                 return {

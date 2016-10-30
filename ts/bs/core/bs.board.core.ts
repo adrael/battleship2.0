@@ -4,24 +4,21 @@ namespace bs {
 
     export namespace core {
 
+        let _gui: bs.core.GUI = null;
         let _map: bs.core.Map = null;
         let _game: bs.core.Game = null;
         let _setup: boolean = false;
         let _canvas: JQuery = null;
         let _loader: bs.core.Loader = null;
         let _picture: createjs.Bitmap = null;
-        let _overlay: JQuery = null;
-        let _instance: any = null;
+        let _instance: bs.core.Board = null;
         let _constants: bs.core.Constants = null;
         let _updateStage: boolean = false;
         let _canvasParent: JQuery = null;
-        let _stageChildren: Array<any> = [];
-
+        let _stageChildren: Array<createjs.DisplayObject> = [];
         let _redFilter:   createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 238,64,0,0);
         let _greenFilter: createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 0,139,69,0);
         let _blackFilter: createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 54,57,59,0);
-
-
         let _mark: createjs.Bitmap = null;
         let _target: createjs.Bitmap = null;
         let _mouseOverArea: createjs.Shape = new createjs.Shape();
@@ -49,13 +46,13 @@ namespace bs {
                 if (bs.utils.isNull(_instance)) {
                     _instance = this;
 
+                    _gui = new bs.core.GUI();
                     _map = new bs.core.Map();
                     _game = new bs.core.Game();
                     _loader = new bs.core.Loader();
                     _constants = new bs.core.Constants();
 
                     let canvasNode = _constants.get('canvas').node;
-                    _overlay = $('.overlay');
                     _canvas = $(canvasNode);
                     _canvasParent = _canvas.parent();
                     _instance.stage = new createjs.Stage(canvasNode);
@@ -63,6 +60,7 @@ namespace bs {
                     createjs.Touch.enable(_instance.stage);
                     _instance.stage.enableMouseOver(10);
                     // _instance.stage.mouseMoveOutside = true;
+                    _instance.stage.addEventListener('mouseleave', _mouseLeave);
                     _instance.stage.addEventListener('stagemousedown', _mouseDown);
                     _instance.stage.addEventListener('stagemousemove', _mouseMove);
 
@@ -78,18 +76,15 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-            public applyFilterOn = (name: string, template: createjs.Bitmap, update: boolean = true) : this => {
+            public applyFilterOn = (name: string, template: createjs.Bitmap, update: boolean = true) : bs.core.Board => {
 
                 switch (name.toLowerCase()) {
-
                     case 'red':
                         template.filters = [ _redFilter ];
                         break;
-
                     case 'green':
                         template.filters = [ _greenFilter ];
                         break;
-
                     case 'black':
                         template.filters = [ _blackFilter ];
                         break;
@@ -104,7 +99,7 @@ namespace bs {
                 return _instance;
             };
 
-            public requestUpdate = () : this => {
+            public requestUpdate = () : bs.core.Board => {
                 _updateStage = true;
                 return _instance;
             };
@@ -113,7 +108,7 @@ namespace bs {
                 return bs.events.on(_constants.get('enum').events.graphic.update, callback);
             };
 
-            public templateCache = (template: createjs.Bitmap) : this => {
+            public templateCache = (template: createjs.Bitmap) : bs.core.Board => {
                 if (!bs.utils.isElement(template.image)) {
                     return _instance;
                 }
@@ -127,7 +122,7 @@ namespace bs {
                 return _instance;
             };
 
-            public setup = () : this => {
+            public setup = () : bs.core.Board => {
                 if (_setup) {
                     console.error('The board has already been setup!');
                     return _instance;
@@ -149,35 +144,21 @@ namespace bs {
                 return _instance;
             };
 
-            public show = () : this => {
+            public show = () : bs.core.Board => {
                 if (bs.utils.isElement(_canvas)) {
                     _canvas.removeClass('hidden');
                 }
                 return _instance;
             };
 
-            public hide = () : this => {
+            public hide = () : bs.core.Board => {
                 if (bs.utils.isElement(_canvas)) {
                     _canvas.addClass('hidden');
                 }
                 return _instance;
             };
 
-            public showOverlay = () : this => {
-                if (bs.utils.isElement(_overlay)) {
-                    _overlay.removeClass('hidden');
-                }
-                return _instance;
-            };
-
-            public hideOverlay = () : this => {
-                if (bs.utils.isElement(_overlay)) {
-                    _overlay.addClass('hidden');
-                }
-                return _instance;
-            };
-
-            public draw = () : this => {
+            public draw = () : bs.core.Board => {
                 let _enum = _constants.get('enum');
 
                 _draw();
@@ -185,13 +166,14 @@ namespace bs {
                 if (_game.state() === _enum.names.player) {
                     _drawPicture(_enum.names.player, 1.4);
                 } else {
+                    _clearBombSelection();
                     _drawPicture(_enum.names.map, 1.4);
                 }
 
                 return _instance;
             };
 
-            public clear = () : this => {
+            public clear = () : bs.core.Board => {
                 _clear();
                 _instance.stage.update();
                 return _instance;
@@ -205,6 +187,14 @@ namespace bs {
         /*                                                                                */
         /**********************************************************************************/
 
+        function _clearBombSelection() : bs.core.Board {
+            _instance.stage.removeChild(_mark);
+            _instance.stage.removeChild(_target);
+            _instance.stage.removeChild(_mouseOverArea);
+            _instance.stage.update();
+            return _instance;
+        }
+
         function _drawTargetTemplate(name: string, bitmap: createjs.Bitmap) : boolean {
             let rel = _map.relativeToAbsoluteCoordinates(_instance.stage.mouseX, _instance.stage.mouseY);
 
@@ -214,7 +204,7 @@ namespace bs {
 
             let abs = _map.absoluteToRelativeCoordinates(rel.x, rel.y),
                 _line = _constants.get('line'),
-                aspectRatio = <any>bs.utils.getAspectRatioFit(bitmap.image.width, bitmap.image.height, _line.size.width, _line.size.height);
+                aspectRatio = bs.utils.getAspectRatioFit(bitmap.image.width, bitmap.image.height, _line.size.width, _line.size.height);
 
             bitmap.scaleX = bitmap.scaleY = aspectRatio.ratio;
 
@@ -226,6 +216,16 @@ namespace bs {
             }
 
             return true;
+        }
+
+        function _mouseLeave() : bs.core.Board {
+            if (!_mouseOverArea.parent && !_target.parent) {
+                return _instance;
+            }
+            _instance.stage.removeChild(_target);
+            _instance.stage.removeChild(_mouseOverArea);
+            _instance.stage.update();
+            return _instance;
         }
 
         function _mouseMove(event) : bs.core.Board {
@@ -272,6 +272,11 @@ namespace bs {
             _drawTargetTemplate('MARK', _mark);
 
             _instance.stage.update(event);
+
+            let rel = _map.relativeToAbsoluteCoordinates(_instance.stage.mouseX, _instance.stage.mouseY),
+                abs = _map.absoluteToRelativeCoordinates(rel.x, rel.y);
+
+            _gui.bombLocationSelected(abs.x, abs.y);
 
             // bs.events.broadcast(_enum.events.bomb.selected, abs);
 
@@ -423,8 +428,8 @@ namespace bs {
             _canvas.css('margin-top', (_width > 384) ? marginTop : 0);
             _canvas.css('margin-left', marginLeft);
 
-            _instance.stage.canvas.width = size;
-            _instance.stage.canvas.height = size;
+            (<HTMLCanvasElement>_instance.stage.canvas).width = size;
+            (<HTMLCanvasElement>_instance.stage.canvas).height = size;
 
             _instance.draw();
 

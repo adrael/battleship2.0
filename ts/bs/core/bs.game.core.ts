@@ -8,7 +8,7 @@ namespace bs {
         let _gui: bs.core.GUI = null;
         let _ships: Array<bs.ships.AbstractShip> = [];
         let _board: bs.core.Board = null;
-        let _instance: any = null;
+        let _instance: bs.core.Game = null;
         let _gameState: string = null;
         let _gameSetup: boolean = null;
         let _constants: bs.core.Constants = null;
@@ -56,12 +56,12 @@ namespace bs {
                 return _ships;
             };
 
-            public start = () : this => {
+            public start = () : bs.core.Game => {
                 _gameStarted = true;
                 return _instance;
             };
 
-            public setup = () : this => {
+            public setup = () : bs.core.Game => {
                 if (_gameSetup) {
                     console.error('The game has already started!');
                     return _instance;
@@ -78,27 +78,13 @@ namespace bs {
                 return _instance;
             };
 
-            public state = (gameState?: string) : this | string => {
+            public state = (gameState?: string) : bs.core.Game | string => {
                 if (bs.utils.isUndefined(gameState)) {
                     return _gameState;
                 }
 
                 _gameState = gameState;
-
-                let _enum = _constants.get('enum');
-                switch (_gameState) {
-                    case _enum.names.player:
-                        _clearShips();
-                        console.info('TODO: Draw player bombs here');
-                        _board.hideOverlay();
-                        break;
-                    case _enum.names.opponent:
-                        _drawShips(true);
-                        console.info('TODO: Draw opponent bombs here');
-                        _board.showOverlay();
-                        break;
-                }
-
+                _stateChanged();
                 _board.draw();
 
                 return _instance;
@@ -112,7 +98,18 @@ namespace bs {
                 return _debugEnabled;
             };
 
-            public shipMoved = (ship?: bs.ships.AbstractShip) : this => {
+            public sendBombCoordinates = (x: number, y: number) : bs.core.Game => {
+                let _enum = _constants.get('enum');
+                if (this.state() !== _enum.names.player) {
+                    return _instance;
+                }
+                console.info('TODO: Send bomb coordinates to server here');
+                _map.savePlayerBombLocation(x, y);
+                this.state(_enum.names.opponent);
+                return _instance;
+            };
+
+            public shipMoved = (ship?: bs.ships.AbstractShip) : bs.core.Game => {
                 bs.utils.forEach(_ships, _ship => _ship.doLocationCheck());
                 _board.requestUpdate();
                 return _instance;
@@ -125,6 +122,26 @@ namespace bs {
         /*                               PRIVATE MEMBERS                                  */
         /*                                                                                */
         /**********************************************************************************/
+
+        function _stateChanged() : bs.core.Game {
+
+            let _enum = _constants.get('enum');
+            switch (_gameState) {
+                case _enum.names.player:
+                    _clearShips();
+                    console.info('TODO: Draw player bombs here');
+                    _gui.hideOverlay();
+                    break;
+                case _enum.names.opponent:
+                    _drawShips(true);
+                    console.info('TODO: Draw opponent bombs here');
+                    _gui.showOverlay();
+                    break;
+            }
+
+            return _instance;
+
+        }
 
         function _drawShips(frozen: boolean = false) : bs.core.Game {
             bs.utils.forEach(_ships, ship => {
@@ -153,7 +170,7 @@ namespace bs {
 
             bs.utils.forEach(_ships, ship => {
                 try {
-                    let freeCoordinates = <any>_map.getFreeCoordinates(ship.orientation, ship.length);
+                    let freeCoordinates = _map.getFreeCoordinates(ship.orientation, ship.length);
                     ship.setLocation(freeCoordinates.x, freeCoordinates.y);
                     ship.draw();
                 }

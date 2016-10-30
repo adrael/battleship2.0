@@ -5,7 +5,7 @@ namespace bs {
     export namespace core {
 
         let _game: bs.core.Game = null;
-        let _instance: any = null;
+        let _instance: bs.core.Map = null;
         let _constants: bs.core.Constants = null;
 
         export class Map extends bs.core.Core {
@@ -63,11 +63,15 @@ namespace bs {
                 return _result;
             };
 
+            public savePlayerBombLocation = (x: number, y: number) : bs.core.Map => {
+                return _instance;
+            };
+
             public isShipLocationValid = (ship: bs.ships.AbstractShip) : boolean => {
                 return this.locationIsWithinMap(ship) && !this.overlappingOtherShips(ship);
             };
 
-            public getFreeCoordinates = (orientation: string, length: number) : Object => {
+            public getFreeCoordinates = (orientation: string, length: number) : {x: number, y: number} => {
                 let _line = _constants.get('line'),
                     _ship = {
                         length: length,
@@ -112,7 +116,7 @@ namespace bs {
                 return false;
             };
 
-            public relativeToAbsoluteCoordinates = (relX: number, relY: number) : any => {
+            public relativeToAbsoluteCoordinates = (relX: number, relY: number) : {x: number, y: number} => {
                 let _line = _constants.get('line');
 
                 return {
@@ -121,7 +125,7 @@ namespace bs {
                 };
             };
 
-            public absoluteToRelativeCoordinates = (absX: number, absY: number) : any => {
+            public absoluteToRelativeCoordinates = (absX: number, absY: number) : {x: number, y: number} => {
                 let _line = _constants.get('line');
 
                 return {

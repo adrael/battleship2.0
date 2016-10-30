@@ -5,7 +5,7 @@ namespace bs {
     export namespace core {
 
         let _game: bs.core.Game = null;
-        let _instance: any = null;
+        let _instance: bs.core.Constants = null;
         let _constants: any = {};
 
         export class Constants extends bs.core.Core {
@@ -48,7 +48,7 @@ namespace bs {
                 return bs.utils.isString(name) ? _constants[name] : _constants;
             };
 
-            public update = () : this => {
+            public update = () : bs.core.Constants => {
 
                 _constants.enum = {
 

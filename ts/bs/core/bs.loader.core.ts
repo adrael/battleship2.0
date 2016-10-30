@@ -5,18 +5,18 @@ namespace bs {
     export namespace core {
 
         let _loader: createjs.LoadQueue = null;
-        let _instance: any = null;
-        let _manifest: Array<Object> = [
-            { 'id': 'MAP',        'src': 'map.png' },
-            { 'id': 'LOGO',       'src': 'logo.png' },
-            { 'id': 'MARK',       'src': 'mark.png' },
-            { 'id': 'TARGET',     'src': 'target.png' },
-            { 'id': 'PLAYER',     'src': 'player.png' },
-            { 'id': 'CRUISER',    'src': 'ships/cruiser.png' },
-            { 'id': 'CARRIER',    'src': 'ships/carrier.png' },
-            { 'id': 'SUBMARINE',  'src': 'ships/submarine.png' },
-            { 'id': 'DESTROYER',  'src': 'ships/destroyer.png' },
-            { 'id': 'BATTLESHIP', 'src': 'ships/battleship.png' }
+        let _instance: bs.core.Loader = null;
+        let _manifest: Array<{id: string, src: string}> = [
+            { id: 'MAP',        src: 'map.png' },
+            { id: 'LOGO',       src: 'logo.png' },
+            { id: 'MARK',       src: 'mark.png' },
+            { id: 'TARGET',     src: 'target.png' },
+            { id: 'PLAYER',     src: 'player.png' },
+            { id: 'CRUISER',    src: 'ships/cruiser.png' },
+            { id: 'CARRIER',    src: 'ships/carrier.png' },
+            { id: 'SUBMARINE',  src: 'ships/submarine.png' },
+            { id: 'DESTROYER',  src: 'ships/destroyer.png' },
+            { id: 'BATTLESHIP', src: 'ships/battleship.png' }
         ];
 
         export class Loader extends bs.core.Core {
@@ -40,7 +40,6 @@ namespace bs {
 
                 if (bs.utils.isNull(_instance)) {
                     _instance = this;
-
                     _loader = new createjs.LoadQueue(true);
                 }
 
@@ -57,7 +56,7 @@ namespace bs {
                 return _loader.getResult(name);
             };
 
-            public loadAssets = (successHandler?: Function, errorHandler?: Function) : this => {
+            public loadAssets = (successHandler?: Function, errorHandler?: Function) : bs.core.Loader => {
                 let itemsLoaded = 0;
 
                 // http://www.createjs.com/demos/preloadjs/mediagrid

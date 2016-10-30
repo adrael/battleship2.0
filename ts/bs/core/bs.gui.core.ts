@@ -6,10 +6,12 @@ namespace bs {
 
         let _game: bs.core.Game = null;
         let _board: bs.core.Board = null;
-        let _instance: any = null;
+        let _overlay: JQuery = null;
+        let _instance: bs.core.GUI = null;
         let _constants: bs.core.Constants = null;
         let _startGameButton: JQuery = $('#startGame');
         let _sendCommandButton: JQuery = $('#sendCommand');
+        let _selectedBombLocation: {x: number, y: number} = null;
 
         export class GUI extends bs.core.Core {
 
@@ -35,6 +37,8 @@ namespace bs {
                 if (bs.utils.isNull(_instance)) {
                     _instance = this;
 
+                    _overlay = $('.overlay');
+
                     _game = new bs.core.Game();
                     _board = new bs.core.Board();
                     _constants = new bs.core.Constants();
@@ -46,10 +50,9 @@ namespace bs {
                     _instance.bombCounter = new bs.components.Counter(0, '#bombs-counter');
                     _instance.shipDestroyedCounter = new bs.components.Counter(0, '#ship-destroyed-counter');
 
-                    console.info('TODO: Plug hit counter to server response');
+                    console.info('TODO: Plug hits counter to server response here');
+                    console.info('TODO: Plug ships destroyed counter to server response here');
                     // bs.events.on(_enum.events.bomb.hit, _instance.hitCounter.increment);
-                    // bs.events.on(_enum.events.bomb.dropped, _shotFired);
-                    // bs.events.on(_enum.events.bomb.selected, _bombLocationSelected);
                     // bs.events.on(_enum.events.ship.destroyed, _instance.shipDestroyedCounter.increment);
                 }
 
@@ -62,7 +65,25 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
+            public bombLocationSelected = (x: number, y: number) : bs.core.GUI => {
+                _sendCommandButton.removeAttr('disabled');
+                _selectedBombLocation = {x: x, y: y};
+                return _instance;
+            };
 
+            public showOverlay = () : bs.core.GUI => {
+                if (bs.utils.isElement(_overlay)) {
+                    _overlay.removeClass('hidden');
+                }
+                return _instance;
+            };
+
+            public hideOverlay = () : bs.core.GUI => {
+                if (bs.utils.isElement(_overlay)) {
+                    _overlay.addClass('hidden');
+                }
+                return _instance;
+            };
 
         }
 
@@ -72,22 +93,12 @@ namespace bs {
         /*                                                                                */
         /**********************************************************************************/
 
-        function _shotFired() {
-            _instance.bombCounter.increment();
-            _sendCommandButton.attr('disabled', 'true');
-            return _instance;
-        }
-
-        function _bombLocationSelected() {
-            _sendCommandButton.removeAttr('disabled');
-            return _instance;
-        }
-
         function _sendCommand() {
-            // _turn = _enum.names.opponent;
             _sendCommandButton.parent().addClass('hidden');
-            // bs.events.broadcast(_enum.events.game.sendCoords);
-            // bs.events.broadcast(_enum.events.game.opponentTurn);
+            _sendCommandButton.attr('disabled', 'true');
+            _game.sendBombCoordinates(_selectedBombLocation.x, _selectedBombLocation.y);
+            _selectedBombLocation = null;
+            _instance.bombCounter.increment();
             return _instance;
         }
 

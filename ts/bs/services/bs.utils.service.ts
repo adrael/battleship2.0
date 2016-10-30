@@ -221,7 +221,7 @@ namespace bs {
          * @param {Number} maxHeight Fittable area maximum available height
          * @return {Object} { width, height }
          */
-        export function getAspectRatioFit(srcWidth: number, srcHeight: number, maxWidth: number, maxHeight: number) : Object {
+        export function getAspectRatioFit(srcWidth: number, srcHeight: number, maxWidth: number, maxHeight: number) : {ratio: number, width: number, height: number} {
             var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
             return { ratio: ratio, width: srcWidth * ratio, height: srcHeight * ratio };
         }
@@ -253,15 +253,15 @@ namespace bs {
          * @param {Object} stack The stack object to get data from.
          * @returns {Array} The extracted data.
          */
-        export function extractInfoFromStack(stack: Object) : Array<any> {
+        export function extractInfoFromStack(stack: Object) : Array<{name: string, location: string}> {
             var splitStack = (stack || '').toString().split(/\r\n|\n/),
                 result = [];
 
             forEach(splitStack, function (line) {
                 var info = line.trim().split(' ');
                 result.push({
-                    name: (info[1] || 'anonymous_function'),
-                    location: (info[2] || 'unknown').replace(/\(|\)/g, '')
+                    name: (info[1] || 'anonymous_function').toString(),
+                    location: (info[2] || 'unknown').replace(/\(|\)/g, '').toString()
                 });
             });
 
