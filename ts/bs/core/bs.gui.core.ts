@@ -96,7 +96,8 @@ namespace bs {
                     '<ul>' +
                     '<li>Click on a ship to rotate it</li>' +
                     '<li>Drag and drop a ship move it on the map</li>' +
-                    '<li>Click on the "Start game" button once you are ready</li>'
+                    '<li>Click on the "Start game" button once you are ready</li>' +
+                    '</ul>'
                 );
                 return _instance;
             };
@@ -106,7 +107,8 @@ namespace bs {
                     'Choose your coordinates and fire at will!',
                     '<ul>' +
                     '<li>Click on the map to select a location for your bomb</li>' +
-                    '<li>Click on the "Send order" button once you are ready</li>'
+                    '<li>Click on the "Send order" button once you are ready</li>' +
+                    '</ul>'
                 );
                 return _instance;
             };
@@ -116,13 +118,13 @@ namespace bs {
                     'Strategy never wait.',
                     '<ul>' +
                     '<li>It is now time for your opponent to make his move</li>' +
-                    '<li>In the meantime, try to think of your next hit</li>'
+                    '<li>In the meantime, try to think of your next hit</li>' +
+                    '</ul>'
                 );
                 return _instance;
             };
 
             public showCommand = () : bs.core.GUI => {
-                _sendCommandButton.removeAttr('disabled');
                 _sendCommandButton.parent().removeClass('hidden');
                 return _instance;
             };
