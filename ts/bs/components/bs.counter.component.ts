@@ -4,7 +4,7 @@ namespace bs {
 
     export namespace components {
 
-        let _$template: JQuery = $('#counter-template');
+        let _template: string = '<span class="current top <%= currentSize %>"><%= count %></span><span class="next top <%= nextSize %>"><%= nextCount %></span><span class="current bottom <%= currentSize %>"><%= count %></span><span class="next bottom <%= nextSize %>"><%= nextCount %></span>';
         let _animationEnd: string = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend';
 
         export class Counter {
@@ -78,9 +78,7 @@ namespace bs {
             };
 
             private _getTemplate = (): string => {
-                var _t = _$template.html();
-
-                return _t.replace(/<%= count %>/g, String(this.count))
+                return _template.replace(/<%= count %>/g, String(this.count))
                     .replace(/<%= nextSize %>/g, this.nextSize)
                     .replace(/<%= nextCount %>/g, String(this.count + 1))
                     .replace(/<%= currentSize %>/g, this.currentSize);

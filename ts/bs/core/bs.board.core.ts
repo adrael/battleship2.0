@@ -7,22 +7,23 @@ namespace bs {
         let _gui: bs.core.GUI = null;
         let _map: bs.core.Map = null;
         let _game: bs.core.Game = null;
+        let _mark: createjs.Bitmap = null;
         let _setup: boolean = false;
+        let _ships: Array<bs.ships.AbstractShip> = [];
         let _canvas: JQuery = null;
         let _loader: bs.core.Loader = null;
+        let _target: createjs.Bitmap = null;
         let _picture: createjs.Bitmap = null;
         let _instance: bs.core.Board = null;
         let _constants: bs.core.Constants = null;
         let _updateStage: boolean = false;
         let _canvasParent: JQuery = null;
         let _stageChildren: Array<createjs.DisplayObject> = [];
+        let _mouseOverArea: createjs.Shape = new createjs.Shape();
+
         let _redFilter:   createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 238,64,0,0);
         let _greenFilter: createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 0,139,69,0);
         let _blackFilter: createjs.ColorFilter = new createjs.ColorFilter(0,0,0,1, 54,57,59,0);
-        let _mark: createjs.Bitmap = null;
-        let _target: createjs.Bitmap = null;
-        let _mouseOverArea: createjs.Shape = new createjs.Shape();
-
 
         export class Board extends bs.core.Core {
 
@@ -75,6 +76,44 @@ namespace bs {
             /*                                PUBLIC MEMBERS                                  */
             /*                                                                                */
             /**********************************************************************************/
+
+            public addShip = (ship: bs.ships.AbstractShip) : bs.core.Board => {
+                try {
+                    let freeCoordinates = _map.getFreeCoordinates(ship.orientation, ship.length);
+                    ship.setLocation(freeCoordinates.x, freeCoordinates.y);
+                    _ships.push(ship);
+                }
+                catch (exception) {
+                    console.error(exception);
+                    //console.error('Cannot place ship:', ship);
+                }
+                return _instance;
+            };
+
+            public getShips = () : Array<bs.ships.AbstractShip> => {
+                return _ships;
+            };
+
+            public clearShips = () : bs.core.Board => {
+                bs.utils.forEach(_ships, ship => ship.clear());
+                return _instance;
+            };
+
+            public drawShips = (frozen: boolean = false) : bs.core.Board => {
+                bs.utils.forEach(_ships, ship => {
+                    if (frozen) {
+                        ship.freeze();
+                    }
+                    ship.draw();
+                });
+                return _instance;
+            };
+
+            public shipMoved = (ship?: bs.ships.AbstractShip) : bs.core.Board => {
+                bs.utils.forEach(_ships, _ship => _ship.doLocationCheck());
+                _instance.requestUpdate();
+                return _instance;
+            };
 
             public applyFilterOn = (name: string, template: createjs.Bitmap, update: boolean = true) : bs.core.Board => {
 
@@ -130,7 +169,6 @@ namespace bs {
 
                 _setup = true;
 
-                _draw();
                 $(window).on('resize', _resize);
                 _instance.show();
                 _resize();
@@ -159,6 +197,10 @@ namespace bs {
             };
 
             public draw = () : bs.core.Board => {
+                if (!_setup) {
+                    return _instance;
+                }
+
                 let _enum = _constants.get('enum');
 
                 _draw();
@@ -175,7 +217,14 @@ namespace bs {
 
             public clear = () : bs.core.Board => {
                 _clear();
-                _instance.stage.update();
+                _clearBombSelection();
+                return _instance;
+            };
+
+            public reset = () : bs.core.Board => {
+                _instance.clear();
+                _instance.clearShips();
+                _ships = [];
                 return _instance;
             };
 

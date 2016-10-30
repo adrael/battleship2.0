@@ -1,4 +1,4 @@
-describeLogic('bs.utils.core', function() {
+describeLogic('bs.utils.service', function() {
 
     var objA, objB, objC, arrA, arrB, itemsA, itemsB;
 
@@ -10,6 +10,14 @@ describeLogic('bs.utils.core', function() {
         arrB = [ objB ];
         itemsA = { a: 'A', b: 'B', c: 'C' };
         itemsB = [ 0, 'a', new Date().toJSON(), null ];
+    });
+
+    it('UUID', function () {
+        var uuid0 = bs.utils.uuid(),
+            uuid1 = bs.utils.uuid();
+
+        expect(uuid0.length).toEqual(uuid1.length);
+        expect(uuid0).not.toEqual(uuid1);
     });
 
     it('isDate', function () {

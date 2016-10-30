@@ -6,7 +6,6 @@ namespace bs {
 
         let _map: bs.core.Map = null;
         let _gui: bs.core.GUI = null;
-        let _ships: Array<bs.ships.AbstractShip> = [];
         let _board: bs.core.Board = null;
         let _instance: bs.core.Game = null;
         let _gameState: string = null;
@@ -52,10 +51,6 @@ namespace bs {
             /*                                                                                */
             /**********************************************************************************/
 
-            public getShips = () : Array<bs.ships.AbstractShip> => {
-                return _ships;
-            };
-
             public start = () : bs.core.Game => {
                 _gameStarted = true;
                 return _instance;
@@ -73,7 +68,14 @@ namespace bs {
                 _instance.state(_constants.get('enum').names.player);
 
                 _board.setup();
-                _shipsSetup();
+
+                console.info('TODO: Create ships depending on server game configuration');
+                _board.addShip(new bs.ships.Destroyer());
+                _board.addShip(new bs.ships.Submarine());
+                _board.addShip(new bs.ships.Cruiser());
+                _board.addShip(new bs.ships.Battleship());
+                _board.addShip(new bs.ships.Carrier());
+                _board.drawShips();
 
                 return _instance;
             };
@@ -109,12 +111,6 @@ namespace bs {
                 return _instance;
             };
 
-            public shipMoved = (ship?: bs.ships.AbstractShip) : bs.core.Game => {
-                bs.utils.forEach(_ships, _ship => _ship.doLocationCheck());
-                _board.requestUpdate();
-                return _instance;
-            };
-
         }
 
         /**********************************************************************************/
@@ -124,61 +120,19 @@ namespace bs {
         /**********************************************************************************/
 
         function _stateChanged() : bs.core.Game {
-
             let _enum = _constants.get('enum');
             switch (_gameState) {
                 case _enum.names.player:
-                    _clearShips();
+                    _board.clearShips();
                     console.info('TODO: Draw player bombs here');
                     _gui.hideOverlay();
                     break;
                 case _enum.names.opponent:
-                    _drawShips(true);
+                    _board.drawShips(true);
                     console.info('TODO: Draw opponent bombs here');
                     _gui.showOverlay();
                     break;
             }
-
-            return _instance;
-
-        }
-
-        function _drawShips(frozen: boolean = false) : bs.core.Game {
-            bs.utils.forEach(_ships, ship => {
-                if (frozen) {
-                    ship.freeze();
-                }
-                ship.draw();
-            });
-            return _instance;
-        }
-
-        function _clearShips() : bs.core.Game {
-            bs.utils.forEach(_ships, ship => ship.clear());
-            return _instance;
-        }
-
-        function _shipsSetup() : bs.core.Game {
-            console.info('TODO: Create ships depending on server game configuration');
-            _ships = [
-                new bs.ships.Destroyer(),
-                new bs.ships.Submarine(),
-                new bs.ships.Cruiser(),
-                new bs.ships.Battleship(),
-                new bs.ships.Carrier()
-            ];
-
-            bs.utils.forEach(_ships, ship => {
-                try {
-                    let freeCoordinates = _map.getFreeCoordinates(ship.orientation, ship.length);
-                    ship.setLocation(freeCoordinates.x, freeCoordinates.y);
-                    ship.draw();
-                }
-                catch (exception) {
-                    console.error(exception);
-                    //console.error('Cannot place ship:', ship);
-                }
-            });
 
             return _instance;
         }

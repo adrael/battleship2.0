@@ -1,4 +1,4 @@
-describeLogic('bs.events.core', function() {
+describeLogic('bs.events.service', function() {
 
     var testEventName, testEventListener, testObject;
 

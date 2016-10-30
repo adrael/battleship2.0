@@ -1,21 +1,47 @@
-describeLogic('bs.map.core', function() {
+describeLogic('bs.map.core', function () {
 
     var map = new bs.core.Map(),
-        orientation = map.constants.get('orientation'),
-        ship = {
-            UUID: '14',
-            name: 'PETIT BATO',
-            length: 1,
-            location: { x: 1, y: 1 },
-            orientation: orientation.horizontal
-        };
+        board = new bs.core.Board(),
+        constants = new bs.core.Constants(),
+        orientation = constants.get('orientation'),
+        ship = new bs.ships.AbstractShip('LITTLE_SHIP', 1);
 
-    describeLogicPoint('horizontal placement', function() {
+    describeLogicPoint('logic', function () {
+
+        var anotherShip = null;
+
+        beforeEach(function () {
+            anotherShip = new bs.ships.AbstractShip('HEY_HO', 4);
+            board.addShip(ship);
+            board.addShip(anotherShip);
+        });
+
+        afterEach(function () {
+            board.reset();
+        });
+
+        it('should find a ship given its coordinates', function () {
+            ship.length = 3;
+            ship.orientation = orientation.horizontal;
+            ship.setLocation(2, 2);
+
+            anotherShip.length = 5;
+            anotherShip.orientation = orientation.vertical;
+            anotherShip.setLocation(4, 1);
+
+            expect(map.getShipsAt(1, 1).length).toBe(0);
+            expect(map.getShipsAt(2, 2).length).toBe(1);
+            expect(map.getShipsAt(4, 2).length).toBe(2);
+        });
+
+    });
+
+    describeLogicPoint('horizontal placement', function () {
 
         beforeEach(function () {
             ship.length = 1;
-            ship.orientation  = orientation.horizontal;
             ship.location.y = 4;
+            ship.orientation = orientation.horizontal;
         });
 
         it('should have X superior or equal to zero', function () {
@@ -42,14 +68,15 @@ describeLogic('bs.map.core', function() {
             ship.location.x = 6;
             expect(map.isShipLocationValid(ship)).toBeTruthy();
         });
+
     });
 
-    describeLogicPoint('vertical placement', function() {
+    describeLogicPoint('vertical placement', function () {
 
         beforeEach(function () {
             ship.length = 1;
-            ship.orientation = orientation.vertical;
             ship.location.x = 4;
+            ship.orientation = orientation.vertical;
         });
 
         it('should have y-axis superior or equal to 1', function () {
@@ -76,27 +103,27 @@ describeLogic('bs.map.core', function() {
             ship.location.y = 6;
             expect(map.isShipLocationValid(ship)).toBeTruthy();
         });
+
     });
 
     describeLogicPoint('placement on map', function () {
 
-        var placedShipA = {};
-        var _setShipPosition = function (x, y) {
-            ship.location.x = x;
-            ship.location.y = y;
-        };
+        var anotherShip = null;
 
-        beforeEach(function() {
+        beforeEach(function () {
             ship.length = 1;
             ship.orientation = orientation.horizontal;
-            placedShipA = {
-                UUID: '100',
-                name: 'SHIP A',
-                length: 1,
-                location: { x: 4, y: 4 },
-                orientation: orientation.horizontal
-            };
-            map.reset();
+            anotherShip = new bs.ships.AbstractShip('A_SHIP', 1);
+            anotherShip.location.x = 4;
+            anotherShip.location.y = 4;
+            anotherShip.orientation = orientation.horizontal;
+
+            board.addShip(ship);
+            board.addShip(anotherShip);
+        });
+
+        afterEach(function () {
+            board.reset();
         });
 
         it("should be valid if there is no ship yet on the map", function () {
@@ -104,67 +131,65 @@ describeLogic('bs.map.core', function() {
         });
 
         it("shouldn't be valid if a 1x1 ship overlaps another 1x1 ship", function () {
-            placedShipA.length = 1;
-            map.addShip(placedShipA);
+            anotherShip.length = 1;
+            ship.setLocation(anotherShip.x, anotherShip.y);
 
-            _setShipPosition(placedShipA.x, placedShipA.y);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
         });
 
         it("shouldn't be valid if 1x1 ship overlap a 4x1 ship", function () {
-            placedShipA.length = 4;
-            placedShipA.orientation = orientation.horizontal;
-            map.addShip(placedShipA);
+            anotherShip.length = 4;
+            anotherShip.orientation = orientation.horizontal;
 
-            _setShipPosition(placedShipA.x, placedShipA.y);
+            ship.setLocation(anotherShip.x, anotherShip.y);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
 
-            _setShipPosition(placedShipA.x + 1, placedShipA.y);
+            ship.setLocation(anotherShip.x + 1, anotherShip.y);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
 
-            _setShipPosition(placedShipA.x + 2, placedShipA.y);
+            ship.setLocation(anotherShip.x + 2, anotherShip.y);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
 
-            _setShipPosition(placedShipA.x + 3, placedShipA.y);
+            ship.setLocation(anotherShip.x + 3, anotherShip.y);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
         });
 
         it("shouldn't be valid if 1x1 ship overlap a 1x4 ship", function () {
-            placedShipA.length = 4;
-            placedShipA.orientation = orientation.vertical;
-            map.addShip(placedShipA);
+            anotherShip.length = 4;
+            anotherShip.orientation = orientation.vertical;
 
-            _setShipPosition(placedShipA.x, placedShipA.y);
+            ship.setLocation(anotherShip.x, anotherShip.y);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
 
-            _setShipPosition(placedShipA.x, placedShipA.y + 1);
+            ship.setLocation(anotherShip.x, anotherShip.y + 1);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
 
-            _setShipPosition(placedShipA.x, placedShipA.y + 2);
+            ship.setLocation(anotherShip.x, anotherShip.y + 2);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
 
-            _setShipPosition(placedShipA.x, placedShipA.y + 3);
+            ship.setLocation(anotherShip.x, anotherShip.y + 3);
             expect(map.isShipLocationValid(ship)).toBeFalsy();
         });
 
         it("should be valid if 1x1 ship doesn't overlap any other ship", function () {
-            placedShipA.location.x = 2;
-            placedShipA.location.y = 2;
-            placedShipA.length = 3;
-            placedShipA.orientation = orientation.horizontal;
-            map.addShip(placedShipA);
+            anotherShip.length = 3;
+            anotherShip.location.x = 2;
+            anotherShip.location.y = 2;
+            anotherShip.orientation = orientation.horizontal;
 
-            _setShipPosition(1, 2);
+            ship.setLocation(1, 2);
             expect(map.isShipLocationValid(ship)).toBeTruthy();
 
-            _setShipPosition(8, 8);
+            ship.setLocation(8, 8);
             expect(map.isShipLocationValid(ship)).toBeTruthy();
 
-            _setShipPosition(2, 1);
+            ship.setLocation(2, 1);
             expect(map.isShipLocationValid(ship)).toBeTruthy();
 
-            _setShipPosition(5, 2);
+            ship.setLocation(5, 2);
             expect(map.isShipLocationValid(ship)).toBeTruthy();
         });
+
     });
+
 });

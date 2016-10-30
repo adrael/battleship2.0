@@ -4,7 +4,7 @@ namespace bs {
 
     export namespace core {
 
-        let _game: bs.core.Game = null;
+        let _board: bs.core.Board = null;
         let _instance: bs.core.Map = null;
         let _constants: bs.core.Constants = null;
 
@@ -30,7 +30,7 @@ namespace bs {
                 if (bs.utils.isNull(_instance)) {
                     _instance = this;
 
-                    _game = new bs.core.Game();
+                    _board = new bs.core.Board();
                     _constants = new bs.core.Constants();
                 }
 
@@ -47,7 +47,7 @@ namespace bs {
                 let _result = [];
                 let _orientation = _constants.get('orientation');
 
-                bs.utils.forEach(_game.getShips(), (_ship: bs.ships.AbstractShip) => {
+                bs.utils.forEach(_board.getShips(), (_ship: bs.ships.AbstractShip) => {
 
                     let startX = _ship.location.x,
                         endX = (_ship.orientation === _orientation.horizontal ? _ship.location.x + _ship.length - 1 : _ship.location.x),
@@ -64,6 +64,7 @@ namespace bs {
             };
 
             public savePlayerBombLocation = (x: number, y: number) : bs.core.Map => {
+                console.info('TODO: Save player bomb here');
                 return _instance;
             };
 

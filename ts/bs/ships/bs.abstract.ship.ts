@@ -68,7 +68,7 @@ namespace bs {
 
             public setTemplate = (template: createjs.Bitmap = null) : this => {
                 if (_frozen) {
-                    return;
+                    return this;
                 }
 
                 this.template = template;
@@ -90,7 +90,7 @@ namespace bs {
 
             public setName = (name: string) : this => {
                 if (_frozen) {
-                    return;
+                    return this;
                 }
 
                 if (bs.utils.isString(name) && name.length) {
@@ -162,7 +162,7 @@ namespace bs {
 
             public moveTo = (x: number, y: number) : this => {
                 if (_frozen) {
-                    return;
+                    return this;
                 }
 
                 this.template.x = x;
@@ -172,7 +172,7 @@ namespace bs {
 
             public setLocation = (x: number, y: number) : this => {
                 if (_frozen) {
-                    return;
+                    return this;
                 }
 
                 this.location.x = x;
@@ -200,7 +200,7 @@ namespace bs {
 
             public rotate = (angle: number = 0, center?: number) : this => {
                 if (_frozen) {
-                    return;
+                    return this;
                 }
 
                 this.template.regX = this.template.image.width / (center || 0) | 0;
@@ -324,12 +324,14 @@ namespace bs {
                 return;
             }
 
-            if (ship.orientation === _constants.get('orientation').vertical) {
-                ship.orientation = _constants.get('orientation').horizontal;
-            }
-            else { ship.orientation = _constants.get('orientation').vertical; }
+            let orientation = _constants.get('orientation');
 
-            _game.shipMoved(ship);
+            if (ship.orientation === orientation.vertical) {
+                ship.orientation = orientation.horizontal;
+            }
+            else { ship.orientation = orientation.vertical; }
+
+            _board.shipMoved(ship);
         }
 
         function _shipMoved(event: any, ship?: bs.ships.AbstractShip) {
@@ -358,7 +360,7 @@ namespace bs {
                 if (_map.locationIsWithinMap(<bs.ships.AbstractShip>_ship)) {
                     ship.moveTo(x, y);
                     ship.setLocation(abs.x, abs.y);
-                    _game.shipMoved(ship);
+                    _board.shipMoved(ship);
                 }
             }
         }
@@ -370,7 +372,7 @@ namespace bs {
             }
 
             ship.isBeingDragged(false);
-            _game.shipMoved(ship);
+            _board.shipMoved(ship);
         }
 
         function _shipHovered(event: any, ship?: bs.ships.AbstractShip) {
