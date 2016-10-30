@@ -4,7 +4,23 @@ function Game (id, name, maxPlayers, password) {
     this.password = password ? password : '';
     this.maxPlayers = maxPlayers >= 2 && maxPlayers <= 10 ? maxPlayers : 4;
     this.players = {};
+    this.map = {
+        width: 10,
+        height: 10,
+        ships: {
+            'destroyer': 1
+        },
+        max: {
+            action: 1
+        },
+        boards: {}
+    };
+    this.actions = {};
+    this.history = [];
+    this.shipCounter = 0;
+
     this.state = Game.STATE.WAITING_PLAYERS;
+    this.mechanic = require('./mechanics/basic');
 
     this.socket_room_name = '/game/' + this.id + '-' + this.name;
 }
@@ -22,7 +38,8 @@ Game.prototype = {
 
     addPlayer: function (player) {
         this.players[player.nickname] = {
-            isReady: false
+            isReady: false,
+            score: 0
         };
         player.join(this.socket_room_name);
         player.leave('lobby');
@@ -83,15 +100,93 @@ Game.prototype = {
     },
 
     placePlayerShips: function (player, ships) {
-
+        if (this.mechanic.isDispositionValid(this.map, ships)) {
+            if (this.map.boards[player.nickname] === undefined) {
+                this.map.boards[player.nickname] = {};
+            }
+            this.map.boards[player.nickname].ships = {};
+            for (var s = 0; s < ships.length; ++s) {
+                this.shipCounter++;
+                var ship = ships[s];
+                ship.id = player.nickname + '-' + this.shipCounter;
+                ship.hits = [];
+                this.map.boards[player.nickname].ships[ship.id] = ship;
+            }
+            var allReady = true;
+            for (var nickname in this.players) {
+                if (!this.players.hasOwnProperty(nickname)) {
+                    continue;
+                }
+                if (this.map.boards[nickname] === undefined) {
+                    allReady = false;
+                }
+            }
+            if (allReady) {
+                this.state = Game.STATE.PLAYING;
+            }
+            return true;
+        }
+        return false;
     },
 
-    placePlayerBomb: function (player, bomb) {
+    setNextActions: function (player, actions) {
+        if (this.mechanic.isActionsValid(this.map, actions)) {
+            this.actions[player.nickname] = actions;
+            return true;
+        }
+        return false;
+    },
 
+    hasEveryonePlayedTheTurn: function () {
+        for (var player in this.players) {
+            if (!this.players.hasOwnProperty(player)) {
+                continue;
+            }
+            if (this.actions[player] === undefined) {
+                return false;
+            }
+        }
+        return true;
+    },
+
+    playTheTurn: function () {
+        var result = this.mechanic.processTurn(this.actions, this.map);
+        this._updateBoards(result);
+        this._updatePlayerInfos(result);
+        this.history.push(JSON.parse(JSON.stringify(this.actions)));
+        this.actions = {};
+        return result;
     },
 
     getPlayersList: function () {
         return Object.keys(this.players);
+    },
+
+    getPlayersInfos: function () {
+        var infos = {};
+        for (var player in this.map.boards) {
+            if (!this.map.boards.hasOwnProperty(player)) {
+                continue;
+            }
+            infos[player] = {
+                score: this.players[player].score,
+                maxHealth: 0,
+                health: 0
+            };
+            for (var shipId in this.map.boards[player].ships) {
+                if (!this.map.boards[player].ships.hasOwnProperty(shipId)) {
+                    continue;
+                }
+                var ship = this.map.boards[player].ships[shipId];
+                var shipHealth = ship.width * ship.height;
+                infos[player].maxHealth += shipHealth;
+                if (ship.destroyed) {
+                    continue;
+                }
+                infos[player].health += (shipHealth - ship.hits.length);
+            }
+        }
+        return infos;
     },
 
     countPlayers: function () {
@@ -102,6 +197,38 @@ Game.prototype = {
         if (this._hasPlayer(player) && this.state === Game.STATE.READY) {
             this.players[player.nickname].isReady = isReady;
             this._updateState();
+        }
+    },
+
+    _updateBoards: function(result) {
+        var hits = result.hits;
+        for (var h = 0; h < hits.length; ++h) {
+            var hit = hits[h];
+            var info = hit.ship;
+            var ship = this.map.boards[info.owner].ships[info.id];
+
+            var previousHits = ship.hits;
+            var alreadyRegistered = false;
+            for (var i = 0; i < previousHits.length; ++i) {
+                if (previousHits[i].x === info.localHit.x && previousHits[i].y === info.localHit.y) {
+                    alreadyRegistered = true;
+                    break;
+                }
+            }
+            if (!alreadyRegistered) {
+                ship.hits.push(info.localHit);
+            }
+
+            if (previousHits.length > ship.width * ship.height) {
+                ship.destroyed = true;
+            }
+        }
+    },
+
+    _updatePlayerInfos: function (result) {
+        var hits = result.hits;
+        for (var h = 0; h < hits.length; ++h) {
+            this.players[hits[h].owner].score += 1;
         }
     },
 
