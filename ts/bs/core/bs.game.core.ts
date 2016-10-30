@@ -12,7 +12,7 @@ namespace bs {
         let _gameSetup: boolean = null;
         let _constants: bs.core.Constants = null;
         let _gameStarted: boolean = false;
-        let _debugEnabled: boolean = true /*__debugEnabled__*/;
+        let _debugEnabled: boolean = true;
 
         export class Game extends bs.core.Core {
 
@@ -40,6 +40,7 @@ namespace bs {
                     _gui = new bs.core.GUI();
                     _board = new bs.core.Board();
                     _constants = new bs.core.Constants();
+                    _debugEnabled = true /*__debugEnabled__*/;
                 }
 
                 return _instance;
