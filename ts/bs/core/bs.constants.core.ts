@@ -50,6 +50,7 @@ namespace bs {
 
             public update = () : bs.core.Constants => {
 
+                console.info('TODO: Check if Constants.enum.events is still useful');
                 _constants.enum = {
 
                     names: {

@@ -7,6 +7,7 @@ namespace bs {
         let _map: bs.core.Map = null;
         let _gui: bs.core.GUI = null;
         let _board: bs.core.Board = null;
+        let _socket: bs.core.Socket = null;
         let _instance: bs.core.Game = null;
         let _gameState: string = null;
         let _gameSetup: boolean = null;
@@ -39,6 +40,7 @@ namespace bs {
                     _map = new bs.core.Map();
                     _gui = new bs.core.GUI();
                     _board = new bs.core.Board();
+                    _socket = new bs.core.Socket();
                     _constants = new bs.core.Constants();
                     _debugEnabled = true /*__debugEnabled__*/;
                 }
